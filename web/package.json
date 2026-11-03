@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "description": "The web application and the API layer that sits between a browser and the engine service. Hosted on Vercel.",
-  "engines": { "node": ">=20" },
+  "engines": { "node": "22.x" },
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p jsconfig.json",
