@@ -571,14 +571,15 @@ function localPanel(canAdmin) {
   const pairs = (S.ai && S.ai.companions || []).filter((c) => !c.revoked);
   const notes = [h('p', { class: 'small muted' }, 'Tested on: macOS on Apple silicon only, with stand-ins for the runtimes; no real model has been run through it. Linux and Windows code paths are not run on real machines. The page reaches the companion at http://127.0.0.1:47890 from Chrome-family browsers; other browsers are untested.')];
   const check = h('button', { class: 'btn', type: 'button', disabled: !!S.checking, onclick: refreshCompanion }, S.checking ? 'Checking…' : H && H.present ? 'Refresh' : 'Look again');
-  const cmd = '.venv/bin/faqengine companion run';
+  const hosted = typeof location !== 'undefined' && !['127.0.0.1', 'localhost'].includes(location.hostname);
+  const cmd = hosted ? '.venv/bin/faqengine companion install --origin ' + location.origin : '.venv/bin/faqengine companion run';
   const safari = typeof navigator !== 'undefined' && typeof location !== 'undefined' && /^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent) && location.protocol === 'https:';
   if (!H || !H.present) return wrap(
     S.checking || H === null ? h('div', { class: 'banner info small', role: 'status' }, 'Looking for the companion on this computer…')
       : h('div', { class: 'banner warn', role: 'status' }, h('b', {}, 'Not found yet'), h('div', { class: 'small' }, 'Checked at ' + (S.checkedAt ? S.checkedAt.toLocaleTimeString() : 'just now') + '. The companion is a small program that must be running on this computer. Start it with one of these, then press “Look again” (this page also re-checks every few seconds):')),
     S.checking || H === null ? null : h('ul', { class: 'small how' },
-      h('li', {}, 'Double-click ', h('b', {}, 'Start Local AI Companion.command'), ' in the project folder, or'),
-      h('li', {}, 'run this in a terminal: ', h('code', {}, cmd), ' ', h('button', { class: 'btn link', type: 'button', onclick: async (e) => { try { await navigator.clipboard.writeText(cmd); e.target.textContent = 'Copied'; } catch { e.target.textContent = 'Select and copy it'; } } }, 'Copy')),
+      hosted ? null : h('li', {}, 'Double-click ', h('b', {}, 'Start Local AI Companion.command'), ' in the project folder, or'),
+      h('li', {}, hosted ? 'run this once in a terminal inside the project folder (it then starts by itself every time you log in, and this page finds it with no code): ' : 'run this in a terminal: ', h('code', {}, cmd), ' ', h('button', { class: 'btn link', type: 'button', onclick: async (e) => { try { await navigator.clipboard.writeText(cmd); e.target.textContent = 'Copied'; } catch { e.target.textContent = 'Select and copy it'; } } }, 'Copy')),
       h('li', {}, 'you also need Ollama running (https://ollama.com/download).')),
     safari ? h('div', { class: 'banner info small' }, 'Safari does not let a secure web page talk to a program on your own computer. Open this page in Chrome, Edge or Brave to connect to the companion.') : null,
     h('div', { class: 'row' }, check), ...notes, pairs.length ? h('p', { class: 'small muted' }, 'Paired for this business: ' + pairs.map((c) => c.label + ' (' + c.runtime + ' ' + c.model + ')').join('; ') + '.') : null);

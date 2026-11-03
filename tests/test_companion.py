@@ -744,3 +744,13 @@ def test_an_origin_the_person_listed_pairs_without_a_code(tmp_path):
     for _ in range(30):
         p.pair_trusted("https://app.example.com", "more")
     assert len(p.listing()) <= 20
+
+
+def test_the_login_service_runs_the_companion_with_only_the_given_origins():
+    import plistlib
+
+    from faqengine.companion.cli import launch_agent_plist
+
+    d = plistlib.loads(launch_agent_plist("/x/.venv/bin/faqengine", ["https://my-site.vercel.app"], 47890, "/tmp/k.log").encode())
+    assert d["Label"] == "ai.knovent.companion" and d["RunAtLoad"] and d["KeepAlive"]
+    assert d["ProgramArguments"] == ["/x/.venv/bin/faqengine", "companion", "run", "--port", "47890", "--origin", "https://my-site.vercel.app"]
