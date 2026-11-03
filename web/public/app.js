@@ -133,7 +133,16 @@ function render() {
   if (!S.session) kids.push(authPanel());
   else if (!S.current) kids.push(createBusinessPanel());
   else kids.push(businessView());
+  // what a person has typed survives a redraw (an error banner, a status refresh): fields are matched by their id or placeholder, and only an untouched (empty) field is filled back in
+  const typed = new Map();
+  for (const el of root.querySelectorAll('input:not([type=password]):not([type=file]):not([type=checkbox]), textarea')) if (el.value && (el.id || el.placeholder)) typed.set(el.id || el.placeholder, el.value);
+  const hadFocus = document.activeElement && root.contains(document.activeElement) ? (document.activeElement.id || document.activeElement.placeholder) : null;
   root.replaceChildren(...kids);
+  for (const el of root.querySelectorAll('input:not([type=password]):not([type=file]):not([type=checkbox]), textarea')) {
+    const k = el.id || el.placeholder;
+    if (k && typed.has(k) && !el.value) el.value = typed.get(k);
+    if (k && k === hadFocus && typeof el.focus === 'function') el.focus();
+  }
 }
 
 function authPanel() {
