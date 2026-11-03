@@ -4,20 +4,8 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "functions": {
-    "api/sources/ingest.js": {
+    "api/[...slug].js": {
       "maxDuration": 150
-    },
-    "api/respond.js": {
-      "maxDuration": 60
-    },
-    "api/llm/*.js": {
-      "maxDuration": 60
-    },
-    "api/local/*.js": {
-      "maxDuration": 60
-    },
-    "api/local/companions/*.js": {
-      "maxDuration": 30
     }
   },
   "headers": [

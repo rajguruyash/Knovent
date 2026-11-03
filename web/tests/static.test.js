@@ -40,7 +40,8 @@ test("vercel.json sets the security headers and long limits only where they are 
   assert.match(all["Content-Security-Policy"], /frame-ancestors 'none'/);
   assert.ok(!/unsafe-inline|unsafe-eval/.test(all["Content-Security-Policy"].replace(/style-src[^;]*;/, "")));
   assert.ok(v.headers.some((h) => h.source === "/api/(.*)" && h.headers.some((x) => x.key === "Cache-Control" && x.value === "no-store")));
-  assert.ok(v.functions["api/sources/ingest.js"].maxDuration <= 300); // inside Vercel's limit on every plan
+  assert.deepEqual(Object.keys(v.functions), ["api/[...slug].js"]); // ONE function: the free plan allows twelve per deployment and the API has twenty three endpoints
+  assert.ok(v.functions["api/[...slug].js"].maxDuration <= 300); // inside Vercel's limit on every plan
 });
 
 test("the API functions import nothing but their own helpers (no run-time dependencies)", () => {
@@ -77,4 +78,18 @@ test("the stylesheet and the pages load nothing from another site (fonts, images
     const other = [...html.matchAll(/(?:src|href)=["'](https?:)?\/\/[^"']+/gi)].map((m) => m[0]).filter((u) => !/fonts\.(googleapis|gstatic)\.com/.test(u)); // the one typeface (Geist) comes from Google Fonts, which the CSP names
     assert.deepEqual(other, [], `${f} refers to another site`);
   }
+});
+
+test("the one deployed function routes to every endpoint file, and an unknown path or wrong method is refused", async () => {
+  const { readdirSync, statSync } = await import("node:fs");
+  const files = [];
+  const walkDir = (d, p = "") => { for (const n of readdirSync(d)) { const full = join(d, n); statSync(full).isDirectory() ? walkDir(full, `${p}${n}/`) : files.push(`/api/${p}${n.replace(/\.js$/, "")}`); } };
+  walkDir(join(root, "api", "_routes"));
+  assert.equal(files.length, 23);
+  const router = readFileSync(join(root, "api", "[...slug].js"), "utf8");
+  for (const f of files) assert.ok(router.includes(`"${f}":`), `${f} is not routed`);
+  const mod = await import("../api/[...slug].js");
+  assert.equal((await mod.GET(new Request("https://x.test/api/nope"))).status, 404);
+  assert.equal((await mod.GET(new Request("https://x.test/api/respond"))).status, 405);
+  assert.equal((await mod.GET(new Request("https://x.test/api/health"))).status, 200);
 });

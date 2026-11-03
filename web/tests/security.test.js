@@ -5,11 +5,11 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test, beforeEach } from "node:test";
-import { POST as respond } from "../api/respond.js";
-import { POST as consentGrant } from "../api/ai/consent/grant.js";
-import { POST as settingsSave } from "../api/ai/settings/save.js";
-import { POST as localComplete } from "../api/local/complete.js";
-import { GET as health } from "../api/health.js";
+import { POST as respond } from "../api/_routes/respond.js";
+import { POST as consentGrant } from "../api/_routes/ai/consent/grant.js";
+import { POST as settingsSave } from "../api/_routes/ai/settings/save.js";
+import { POST as localComplete } from "../api/_routes/local/complete.js";
+import { GET as health } from "../api/_routes/health.js";
 import { resetRateLimits } from "../api/_lib/http.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));

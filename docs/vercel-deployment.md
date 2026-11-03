@@ -141,3 +141,8 @@ owners and admins agree and withdraw. The engine service decides whether a provi
 ## Not verified here
 
 Vercel build and deploy (no Vercel account or CLI); preview deployments; cold-start behaviour of the web functions; Supabase live project; the container image; the engine on Linux; behaviour under load. Each is listed again in `docs/production-readiness.md`.
+
+## One function for the whole API
+
+Vercel's free (Hobby) plan allows twelve serverless functions per deployment, and this API has twenty three endpoints. They therefore live in `web/api/_routes/` (a folder starting with an underscore is not deployed function by function) and `web/api/[...slug].js` is the single deployed function: it hands each request to the same handler it would have reached before. Addresses, methods and every check (method, configuration, sign in, role in the business, input whitelist, rate limit) are unchanged. `vercel.json` therefore has one `functions` entry; its `maxDuration` of 150 seconds applies to every endpoint (upload reading is the longest). To add an endpoint, add a file under `_routes/` and one line to the table in `[...slug].js`; the test `the one deployed function routes to every endpoint file` fails if one is left out.
+

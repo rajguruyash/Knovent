@@ -216,7 +216,7 @@ createServer(async (req, res) => {
     }
     if (url.pathname.startsWith("/engine/")) return await engine(req, res, url);
     if (routes[url.pathname]) {
-      const mod = await import(`../api/${routes[url.pathname]}.js`);
+      const mod = await import(`../api/_routes/${routes[url.pathname]}.js`);
       const handler = mod.POST ?? mod.GET;
       const raw = req.method === "POST" ? Buffer.concat(await (async () => { const c = []; for await (const x of req) c.push(x); return c; })()) : undefined;
       const out = await handler(new Request(url, { method: req.method, headers: req.headers, body: raw }));
