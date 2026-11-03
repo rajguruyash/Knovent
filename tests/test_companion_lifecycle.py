@@ -188,3 +188,29 @@ def test_a_download_can_be_cancelled_and_does_not_select_the_model(comp):
         time.sleep(0.05)
     assert c.job(job)["state"] == "cancelled" and "qwen3:1.7b" not in rt.have and not c.pairings.selected
     assert c.cancel_download(job) is False  # nothing left to cancel
+
+
+def test_orphaned_model_runners_are_found_by_name_and_parent_and_nothing_else_is_touched():
+    from faqengine.companion.lifecycle import orphaned_runners, reap_orphaned_runners
+
+    ps = """  100     1 /opt/homebrew/Cellar/ollama/0.40/libexec/lib/ollama/llama-server --model /Users/a/.ollama/models/blobs/sha256-x --port 5000
+  101   200 /opt/homebrew/Cellar/ollama/0.40/libexec/lib/ollama/llama-server --model /Users/a/.ollama/models/blobs/sha256-y --port 5001
+  102     1 /usr/bin/some-other-server --model /Users/a/.ollama/models/x
+  103     1 /Applications/Safari.app/Contents/MacOS/Safari
+  104     1 /usr/local/bin/ollama runner --model /Users/a/.ollama/models/blobs/sha256-z
+"""
+    assert orphaned_runners(ps) == [100, 104]  # a runner whose server is alive (parent 200), and any other program, are left alone
+    stopped = []
+    assert reap_orphaned_runners(terminate=stopped.append, ps_output=ps) == [100, 104] and stopped == [100, 104]
+
+
+def test_a_restart_frees_orphaned_runners_before_starting_a_new_server(monkeypatch):
+    from faqengine.companion import lifecycle
+
+    freed = []
+    monkeypatch.setattr(lifecycle, "reap_orphaned_runners", lambda *a, **k: freed.append(1) or [])
+    live = {"up": False}
+    sup, spawned = supervisor(live)
+    assert sup.ensure_running(wait=2) and freed == [1] and len(spawned) == 1
+    sup.ensure_running(wait=2)  # already answering: nothing is reaped and nothing is started
+    assert freed == [1] and len(spawned) == 1

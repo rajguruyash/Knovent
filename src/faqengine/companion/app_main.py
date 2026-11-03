@@ -18,25 +18,29 @@ def _version() -> str:
     return __version__
 
 
-def _site_origins() -> list[str]:
-    """The website addresses this build trusts, written in at build time (companion/build_config.json). A build with none cannot pair by itself."""
+def _build_config() -> dict:
+    """The website addresses this build trusts and which channel it is for, written in at build time (companion/build_config.json). A production build holds production addresses only."""
     import importlib.resources as res
 
     try:
-        return [o for o in json.loads((res.files(__package__) / "build_config.json").read_text()).get("origins", [])]
+        d = json.loads((res.files(__package__) / "build_config.json").read_text())
+        return {"channel": "development" if d.get("channel") == "development" else "production", "origins": [o for o in d.get("origins", []) if isinstance(o, str)]}
     except (OSError, ValueError, FileNotFoundError):
-        return []
+        return {"channel": "production", "origins": []}
 
 
-def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
-    if not argv or argv[0] in ("setup", "uninstall", "status") and "--gui" in argv:
-        return gui(argv)
+def _site_origins() -> list[str]:
+    return _build_config()["origins"]
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """The program's command line. The login services of every platform start it with exactly these arguments (companion/platforms.py), which a test checks."""
     ap = argparse.ArgumentParser(prog="knovent-companion")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
     r.add_argument("--port", type=int, default=47890)
     r.add_argument("--origin", action="append", default=[])
+    r.add_argument("--replace", action="store_true")
     s = sub.add_parser("setup")
     s.add_argument("--yes", action="store_true", help="approve every question (for scripted tests)")
     s.add_argument("--port", type=int, default=47890)
@@ -47,12 +51,20 @@ def main(argv: list[str] | None = None) -> int:
     u.add_argument("--label", default=installer.LABEL)
     u.add_argument("--app-dir", default=None)
     sub.add_parser("status")
+    return ap
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if not argv or argv[0] in ("setup", "uninstall", "status") and "--gui" in argv:
+        return gui(argv)
+    ap = build_parser()
     a = ap.parse_args(argv)
     if a.cmd == "run":
-        ns = argparse.Namespace(companion_cmd="run", port=a.port, origin=a.origin, allow_custom_models=False)
+        ns = argparse.Namespace(companion_cmd="run", port=a.port, origin=a.origin, allow_custom_models=False, replace=a.replace)  # only the installed service (started with --replace) takes over from another companion
         return cli.cmd_companion(ns)
     if a.cmd == "setup":
-        res = installer.install(a.origin or _site_origins(), port=a.port, ui=installer.ConsoleUI(yes=a.yes), label=a.label, app_dir=Path(a.app_dir) if a.app_dir else None, version=_version())
+        res = installer.install(a.origin or _site_origins(), channel=_build_config()["channel"], port=a.port, ui=installer.ConsoleUI(yes=a.yes), label=a.label, app_dir=Path(a.app_dir) if a.app_dir else None, version=_version())
         print(res.summary())
         return 0 if res.ok else 1
     if a.cmd == "uninstall":
@@ -85,7 +97,7 @@ def gui(argv: list[str]) -> int:
 
 def _setup_gui(ui) -> int:
     origins = _site_origins()
-    res = installer.install(origins, ui=ui, version=_version())
+    res = installer.install(origins, ui=ui, version=_version(), channel=_build_config()["channel"])
     if res.ok:
         ui.info("Knovent is ready", "Go back to the Knovent website in your browser. It will find this Mac by itself. If it does not, refresh the page.")
         if origins:

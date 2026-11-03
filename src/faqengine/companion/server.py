@@ -8,6 +8,7 @@ import json
 import logging
 import re
 import shutil
+import sys
 import threading
 import time
 import uuid
@@ -38,6 +39,7 @@ class Companion:
         self._active: dict[str, threading.Event] = {}
         self._jobs: dict[str, dict] = {}
         self._cancels: dict[str, threading.Event] = {}
+        self.instance_id = uuid.uuid4().hex[:16]  # changes every time the companion starts: lets an installer tell the new process from the old one
         self._lock = threading.Lock()
         self._hw: tuple[float, hardware.Hardware] | None = None
         self.stats = {"questions": 0, "failures": 0, "last_seconds": None, "last_failure": None, "last_at": None}  # counts and times only: never what was asked or answered
@@ -340,7 +342,7 @@ def make_handler(c: Companion, port: int, extra_origins: set[str] | None = None)
             if body is None:
                 return self._send(413, {"error": "the request is too large"})
             if method == "GET" and path == "/v1/hello":
-                return self._send(200, {"companion": True, "version": VERSION, "pairing_open": c.pairings._code is not None}, origin)
+                return self._send(200, {"companion": True, "version": VERSION, "build": VERSION, "instance": c.instance_id, "os": sys.platform, "pairing_open": c.pairings._code is not None}, origin)
             if method == "POST" and path == "/v1/pair":
                 try:
                     d = json.loads(body or b"{}")

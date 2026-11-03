@@ -128,7 +128,7 @@ class WindowsAdapter(PlatformAdapter):
     def service_path(self, label): return self.app_dir() / f"{label}.task.xml"
 
     def service_text(self, program_args, origins, port, label):
-        exe, rest = program_args[0], [*program_args[1:], "run", "--port", str(port), *[x for o in origins for x in ("--origin", o)]]
+        exe, rest = program_args[0], [*program_args[1:], "run", "--port", str(port), "--replace", *[x for o in origins for x in ("--origin", o)]]
         args = " ".join(f'"{a}"' if re.search(r"\s", a) else a for a in rest)
         user = self.env.get("USERDOMAIN", "") + "\\" + self.env.get("USERNAME", "") if self.env.get("USERNAME") else ""
         return f"""<?xml version="1.0" encoding="UTF-16"?>
@@ -203,7 +203,7 @@ class LinuxAdapter(PlatformAdapter):
     def service_path(self, label): return Path(self.env.get("XDG_CONFIG_HOME") or self.home / ".config") / "systemd" / "user" / f"{label}.service"
 
     def service_text(self, program_args, origins, port, label):
-        args = [*program_args, "run", "--port", str(port), *[x for o in origins for x in ("--origin", o)]]
+        args = [*program_args, "run", "--port", str(port), "--replace", *[x for o in origins for x in ("--origin", o)]]
         quoted = " ".join('"' + a.replace("\\", "\\\\").replace('"', '\\"') + '"' if re.search(r"[\s\"'\\]", a) else a for a in args)
         return f"""[Unit]
 Description=Knovent local AI companion (this computer only)
@@ -229,7 +229,7 @@ WantedBy=default.target
     def autostart_path(self, label): return Path(self.env.get("XDG_CONFIG_HOME") or self.home / ".config") / "autostart" / f"{label}.desktop"
 
     def autostart_text(self, program_args, origins, port, label):
-        args = [*program_args, "run", "--port", str(port), *[x for o in origins for x in ("--origin", o)]]
+        args = [*program_args, "run", "--port", str(port), "--replace", *[x for o in origins for x in ("--origin", o)]]
         return f"[Desktop Entry]\nType=Application\nName=Knovent companion\nExec={' '.join(args)}\nX-GNOME-Autostart-enabled=true\nNoDisplay=true\n"
 
     def runtime_download(self, arch):

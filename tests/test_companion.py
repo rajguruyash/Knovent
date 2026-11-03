@@ -426,7 +426,7 @@ def test_the_service_listens_on_this_computer_only(service):
 
 def test_a_bare_hello_reveals_nothing_but_that_a_companion_is_here(service):
     st, body, headers = service.call("GET", "/v1/hello")
-    assert st == 200 and set(body) == {"companion", "version", "pairing_open"} and headers["Access-Control-Allow-Origin"] == ORIGIN and "hardware" not in json.dumps(body)
+    assert st == 200 and set(body) == {"companion", "version", "build", "instance", "os", "pairing_open"} and headers["Access-Control-Allow-Origin"] == ORIGIN and "hardware" not in json.dumps(body)  # who and which build, coarsely: no hardware, no paths, no models
 
 
 def test_nothing_else_answers_without_a_signature_and_the_refusal_never_says_why(service):

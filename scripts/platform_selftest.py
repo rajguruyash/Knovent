@@ -162,7 +162,7 @@ def main() -> int:
     back, secs = wait(lambda: http(P, "GET", "/v1/hello")[0] == 200, a.recovery_wait, 3)
     record("14 companion is restarted after it is killed", "PASS" if back else "FAIL", f"{secs:.0f}s")
     before = count_procs("ollama.exe" if WIN else "ollama")
-    kill_by_name("ollama.exe" if WIN else "ollama serve")
+    kill_by_name("ollama.exe" if WIN else "ollama serve")  # the crash is the server's; its model runners are cleared by the companion before the next server starts (checked below)
     up, secs = wait(lambda: urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=2).status == 200 if _ok() else False, 180, 3)
     time.sleep(8)
     after = count_procs("ollama.exe" if WIN else "ollama")
@@ -170,6 +170,49 @@ def main() -> int:
     again = subprocess.run(setup, capture_output=True, text=True, timeout=3600)
     st, _ = http(P, "GET", "/v1/hello")
     record("16 upgrade: running setup again replaces, never doubles", "PASS" if again.returncode == 0 and st == 200 else "FAIL", f"exit {again.returncode}")
+    # ---- trusted origin, duplicates, replacement, businesses, revocation, reinstall
+    from faqengine.companion.origins import TrustedOrigins, default_path
+
+    saved = json.loads(default_path().read_text()) if default_path().exists() else {}
+    record("17 the site address is registered in the persisted file, not on the command line",
+           "PASS" if a.origin.rstrip("/").lower() in saved.get("production", []) and "--origin" not in adapter.service_path(a.label).read_text(errors="ignore").replace("\x00", "") else "FAIL", str(default_path()))
+    dev = "http://selftest-site.localhost:8999"
+    reg = TrustedOrigins()
+    st0, _ = http(P, "POST", "/v1/pair", {"label": "t", "business": B}, origin=dev)
+    keep = list(reg.development)
+    reg.set_development([*keep, dev])
+    time.sleep(3)
+    st1, _ = http(P, "POST", "/v1/pair", {"label": "t", "business": B}, origin=dev)
+    reg.set_development(keep)
+    time.sleep(3)
+    st2, _ = http(P, "POST", "/v1/pair", {"label": "t", "business": B}, origin=dev)
+    record("18 a new trusted address takes effect without restarting, and removing it takes effect too", "PASS" if (st0, st1, st2) == (401, 200, 401) else "FAIL", f"before {st0}, added {st1}, removed {st2}")
+    manual = subprocess.run([a.exe, "run", "--port", str(P)], capture_output=True, text=True, timeout=60)
+    record("19 a second companion does not start (no duplicate)", "PASS" if manual.returncode == 0 and "already running" in (manual.stdout + manual.stderr) else "FAIL", (manual.stdout + manual.stderr).strip()[:80])
+    st, pb = http(P, "POST", "/v1/pair", {"label": "selftest", "business": B}, origin=a.origin)
+    k2, s2 = pb.get("key_id"), pb.get("secret")
+    s_a, _ = http(P, "GET", "/v1/status", origin=a.origin, key=key, secret=secret, business=A)
+    s_b, _ = http(P, "GET", "/v1/status", origin=a.origin, key=k2, secret=s2, business=B)
+    record("20 several businesses are authorized at once", "PASS" if s_a == 200 and s_b == 200 else "FAIL", f"A {s_a}, B {s_b}")
+    http(P, "POST", "/v1/unpair", {}, origin=a.origin, key=key, secret=secret, business=A)
+    r_a, _ = http(P, "GET", "/v1/status", origin=a.origin, key=key, secret=secret, business=A)
+    r_b, _ = http(P, "GET", "/v1/status", origin=a.origin, key=k2, secret=s2, business=B)
+    record("21 a revoked credential stops working at once, and the other business is unaffected", "PASS" if r_a == 401 and r_b == 200 else "FAIL", f"revoked {r_a}, other {r_b}")
+    subprocess.run([a.exe, "uninstall", "--label", a.label, "--app-dir", str(appdir)], capture_output=True, text=True, timeout=300)
+    time.sleep(6 if not WIN else 12)
+    gone = http(P, "GET", "/v1/hello")[0] == 0
+    import shutil
+    manual_proc = subprocess.Popen([a.exe, "run", "--port", str(P)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # a companion started by hand, as a developer would
+    up, _ = wait(lambda: http(P, "GET", "/v1/hello")[0] == 200, 40, 1)
+    old_instance = http(P, "GET", "/v1/hello")[1].get("instance")
+    appdir.mkdir(parents=True, exist_ok=True)
+    again = subprocess.run(setup, capture_output=True, text=True, timeout=3600)
+    time.sleep(3)
+    new_instance = http(P, "GET", "/v1/hello")[1].get("instance")
+    record("22 installing over a manually started companion replaces it", "PASS" if gone and up and again.returncode == 0 and new_instance and new_instance != old_instance and manual_proc.poll() is not None else "FAIL",
+           f"exit {again.returncode}, replaced: {new_instance != old_instance}, manual process ended: {manual_proc.poll() is not None}")
+    manual_proc.kill() if manual_proc.poll() is None else None
+    shutil.rmtree(appdir, ignore_errors=True)
     return finish(a, appdir, plat, adapter=adapter, have=have)
 
 
@@ -187,10 +230,10 @@ def finish(a, appdir, plat, adapter=None, have=()):
     time.sleep(10 if WIN else 3)
     gone = http(a.port, "GET", "/v1/hello")[0] == 0
     adapter = adapter or adapter_for(plat)
-    record("17 uninstall removes the service and the program", "PASS" if done.returncode == 0 and gone and not adapter.service_path(a.label).exists() and not appdir.exists() else "FAIL", f"exit {done.returncode}")
+    record("23 uninstall removes the service and the program", "PASS" if done.returncode == 0 and gone and not adapter.service_path(a.label).exists() and not appdir.exists() else "FAIL", f"exit {done.returncode}")
     from faqengine.companion.lifecycle import find_ollama
 
-    record("18 Ollama is still installed after uninstall (and so are its models)", "PASS" if find_ollama() else "FAIL", find_ollama() or "")
+    record("24 Ollama is still installed after uninstall (and so are its models)", "PASS" if find_ollama() else "FAIL", find_ollama() or "")
     for m in ("a reboot starts the companion by itself", "logging out and in starts the companion by itself", "SmartScreen/Gatekeeper first-open experience on a fresh download"):
         record("MANUAL " + m, "MANUAL", "needs a person at the machine")
     Path(a.report).write_text(json.dumps({"platform": plat.key, "python": platform.python_version(), "os": platform.platform(), "time": time.strftime("%Y-%m-%d %H:%M:%S"), "exe_sha256": hashlib.sha256(Path(a.exe).read_bytes()).hexdigest() if Path(a.exe).is_file() else None, "results": REPORT}, indent=2))

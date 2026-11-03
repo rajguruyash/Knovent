@@ -8,12 +8,16 @@ Optional signing: set KNOVENT_SIGN_THUMBPRINT to the SHA1 thumbprint of a code s
 stored in this script or in the repository. Unset = an UNSIGNED build: Windows SmartScreen will warn "Windows protected your PC" until the setup program is signed with a trusted certificate.
 Output: dist\Knovent-Companion-Setup-<version>-windows-x64.exe and a .sha256 file.
 #>
-param([Parameter(Mandatory = $true)][string[]]$Origin, [string]$Version = "")
+param([Parameter(Mandatory = $true)][string[]]$Origin, [string]$Version = "", [switch]$Development)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 if (-not $Version) { $Version = (Select-String -Path "src\faqengine\__init__.py" -Pattern '__version__ = "([^"]+)"').Matches[0].Groups[1].Value }
 $cfg = "src\faqengine\companion\build_config.json"
-(@{ origins = @($Origin | ForEach-Object { $_.TrimEnd("/") }) } | ConvertTo-Json -Compress) | Set-Content -Encoding utf8 $cfg
+# a production build accepts exact https host names only (-Development allows http://localhost-style addresses for a developer's own build)
+$env:PYTHONPATH = "src"
+$checked = & python -c "import sys, json; from faqengine.companion.origins import validate_origin; dev = sys.argv[1] == '1'; print(json.dumps({'schema': 1, 'channel': 'development' if dev else 'production', 'origins': [validate_origin(o, development=dev) for o in sys.argv[2:]]}))" $(if ($Development) { "1" } else { "0" }) @Origin
+if ($LASTEXITCODE) { throw "Refused: the website address is not acceptable for this kind of build" }
+$checked | Set-Content -Encoding utf8 $cfg
 try {
   python -m venv build\companion-win
   & build\companion-win\Scripts\python.exe -m pip install -q pyinstaller

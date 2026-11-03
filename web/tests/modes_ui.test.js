@@ -165,18 +165,55 @@ test("on the website: one install button for a Mac, the steps, no Terminal, and 
   assert.ok(!/Download Knovent/.test(lin));
 });
 
-test("a companion that is here but not paired: only an admin can pair, with the code from the companion's own screen", async () => {
-  const calls = [];
-  const p = page(() => [200, {}], { Companion: { hello: async () => ({ present: true, version: "0.1.0" }), paired: async () => false, pair: async (...a) => { calls.push(a); return "k"; }, status: async () => ({}), recommend: async () => ({}) } });
+test("a companion that is here but not paired: connecting and authorizing are stages, a refusal is its own state, and nobody types a code or a command", async () => {
+  const p = page();
   p.set("chello", { present: true, version: "0.1.0" });
+  p.ctx.location.hostname = "knovent-web.vercel.app"; p.ctx.location.protocol = "https:";
+  p.ctx.navigator = { platform: "MacIntel", userAgent: "Mozilla/5.0 Chrome/130" };
+  p.set("deviceOk", true);
+  p.set("cfg", { companionDownloads: { "macos-arm64": "https://github.com/x/Knovent/releases/download/v1/Knovent-Companion-0.1.0-macOS-arm64.zip" } });
+  // pairing in progress: said as a stage, with the steps
+  p.set("pairing", true);
+  let t = p.run("localPanel(true)").textContent;
+  assert.match(t, /Connecting to the companion|Authorizing this business/);
+  assert.match(t, /Authorizing this business with the companion on this computer/);
+  // the companion answered but does not trust this site: its own state, with a download (never a code box, never a command)
+  p.set("pairing", false);
+  p.set("notTrusted", true); p.set("pairErr", Object.assign(new Error("not trusted"), { code: "origin_not_trusted" }));
   let el = p.run("localPanel(true)");
-  assert.match(el.textContent, /not paired with it for this business/);
-  const code = el.all((e) => e.tag === "input")[0];
-  code.value = "1234-5678";
-  await el.buttons("Pair")[0].fire("click");
-  assert.deepEqual(plain(calls[0].slice(0, 2)), [BIZ, "1234-5678"]);
-  el = p.run("localPanel(false)");
-  assert.ok(el.buttons("Pair").length === 0 && el.has("Only owners and admins can pair"));
+  assert.match(el.textContent, /set up for a different website.*Download the latest Knovent installer/s);
+  assert.equal(el.all((e) => e.tag === "a" && /btn/.test(e.className))[0].textContent, "Download Knovent for Mac");
+  assert.equal(el.all((e) => e.tag === "input").length, 0, "no pairing code is asked for");
+  assert.ok(!/terminal|faqengine|pkill|ollama serve|\.venv|pairing code/i.test(el.textContent));
+  // any other refusal: said plainly, with Try again
+  p.set("notTrusted", false); p.set("pairErr", Object.assign(new Error("The companion answered but refused to pair (500)."), { code: "refused" }));
+  el = p.run("localPanel(true)");
+  assert.match(el.textContent, /did not accept the connection.*refused to pair/s);
+  const again = el.buttons("Try again")[0];
+  assert.ok(again);
+});
+
+test("the setup is shown as stages that move on by themselves, up to Local AI ready", () => {
+  const p = page();
+  p.ctx.location.hostname = "knovent-web.vercel.app"; p.ctx.location.protocol = "https:";
+  p.set("deviceOk", true);
+  const stage = (H, C) => { p.set("chello", H); p.set("cstatus", C); return p.run("setupSteps({ H: S.chello, C: S.cstatus, hosted: true })").all((e) => e.tag === "li" && /now/.test(e.className)).map((e) => e.textContent.replace(/^\d+|^✓/, ""))[0]; };
+  p.set("checking", true);
+  assert.equal(stage(null, null), "Checking this computer");
+  p.set("checking", false);
+  assert.equal(stage({ present: false }, null), "Companion not installed");
+  p.set("installClicked", true);
+  assert.equal(stage({ present: false }, null), "Installing the companion");
+  p.set("pairing", true);
+  assert.equal(stage({ present: true }, null), "Authorizing this business");
+  p.set("pairing", false);
+  const C = { health: { state: "no_model_selected" }, hardware: {}, runtimes: {}, recommend: { models: [] } };
+  assert.equal(stage({ present: true }, C), "Checking local models");
+  p.set("pull", { tag: "granite3.3:2b", done: 1, total: 4 });
+  assert.equal(stage({ present: true }, C), "Installing the model");
+  p.set("pull", null);
+  p.set("ai", { companions: [{ revoked: false, model: "granite3.3:2b" }], settings: {}, steps: [] });
+  assert.equal(stage({ present: true }, { ...C, health: { state: "ready" } }), "Local AI ready");
 });
 
 test("a paired companion shows this computer, the runtimes, and honest fit verdicts, and only offers to use or download what fits", () => {

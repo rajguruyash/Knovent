@@ -1,5 +1,6 @@
 """Fixtures shared by the slow website tests."""
 import json
+import os
 import threading
 import time
 import urllib.request
@@ -118,3 +119,10 @@ def verified_providers(tmp_path, monkeypatch):
     f.write_text(json.dumps(verified_disclosure_entries()))
     monkeypatch.setenv("AI_DISCLOSURE_FILE", str(f))
     return f
+
+
+@pytest.fixture(autouse=True)
+def _companion_config_is_never_the_real_one(tmp_path_factory, monkeypatch):
+    """The companion's settings (paired browsers, trusted website addresses) live in the person's own config folder. A test must never read or rewrite them: an installer test once replaced the real trusted website address with a test one."""
+    if "COMPANION_CONFIG" not in os.environ:
+        monkeypatch.setenv("COMPANION_CONFIG", str(tmp_path_factory.mktemp("companion-config") / "companion.json"))

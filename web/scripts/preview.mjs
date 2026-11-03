@@ -220,8 +220,13 @@ createServer(async (req, res) => {
       const handler = mod.POST ?? mod.GET;
       const raw = req.method === "POST" ? Buffer.concat(await (async () => { const c = []; for await (const x of req) c.push(x); return c; })()) : undefined;
       const out = await handler(new Request(url, { method: req.method, headers: req.headers, body: raw }));
-      res.writeHead(out.status, Object.fromEntries(out.headers));
-      return res.end(Buffer.from(await out.arrayBuffer()));
+      let body = Buffer.from(await out.arrayBuffer());
+      if (url.pathname === "/api/config" && req.headers.host && !/^(127\.0\.0\.1|localhost)(:|$)/.test(req.headers.host)) {  // opened under another name (for example knovent.localhost, to see the hosted-site screens): the browser must reach the stand-in at THAT name
+        try { const c = JSON.parse(body.toString()); c.supabaseUrl = `http://${req.headers.host}/supa`; body = Buffer.from(JSON.stringify(c)); } catch {}
+      }
+      const outHeaders = Object.fromEntries(out.headers); delete outHeaders["content-length"];
+      res.writeHead(out.status, outHeaders);
+      return res.end(body);
     }
     let file = join(root, "public", url.pathname === "/" ? "index.html" : url.pathname);
     if (!existsSync(file) && existsSync(file + ".html")) file += ".html";

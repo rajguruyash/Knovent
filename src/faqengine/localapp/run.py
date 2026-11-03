@@ -47,6 +47,18 @@ def _stop_stale_site(port: int) -> None:
         pass
 
 
+def _existing_companion(port: int) -> str | None:
+    """The version of a Knovent companion that already answers on this computer, if one does (an installed login service, usually)."""
+    import json
+
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/v1/hello", timeout=1.5) as r:
+            d = json.loads(r.read())
+            return str(d.get("version", "?")) if d.get("companion") else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def cmd_app(args) -> int:
     from ..companion import cli as ccli
     from ..companion.auth import Pairings
@@ -88,13 +100,33 @@ def cmd_app(args) -> int:
     engine_httpd = engine_serve(engine, secret, args.engine_port)
     threading.Thread(target=engine_httpd.serve_forever, daemon=True).start()
     comp = None
-    try:
-        comp = Companion(Pairings(), allow_custom_models=False)
-        chttpd = companion_serve(47890, comp, {o.rstrip("/") for o in [*args.origin, *os.environ.get("FAQENGINE_APP_ORIGIN", "").split(",")] if o.strip()}, announce=lambda *_: None)
-        threading.Thread(target=chttpd.serve_forever, daemon=True).start()
-        ccli.start_runtime_in_background(comp)
-    except OSError:
-        print("(a companion is already running on this computer; using it)")
+    inst = None
+    existing = _existing_companion(47890)
+    if existing:
+        print(f"(a Knovent companion is already running on this computer, version {existing}; using it)")
+    else:
+        from ..companion.instance import Instance
+        from ..companion.origins import TrustedOrigins
+
+        try:
+            trusted = TrustedOrigins(session=[*args.origin, *[o for o in os.environ.get("FAQENGINE_APP_ORIGIN", "").split(",") if o.strip()]])
+        except ValueError as e:
+            print(f"Not started: {e}")
+            return 1
+        inst = Instance(port=47890)
+        got, why = inst.acquire(replace=False)
+        try:
+            if not got:
+                print(f"({why}; using it)")
+            else:
+                comp = Companion(Pairings(), allow_custom_models=False)
+                chttpd = companion_serve(47890, comp, trusted, announce=lambda *_: None)
+                threading.Thread(target=chttpd.serve_forever, daemon=True).start()
+                ccli.start_runtime_in_background(comp)
+        except OSError:
+            inst.release()
+            comp = None
+            print("(a companion is already running on this computer; using it)")
     env = {**os.environ, "KNOVENT_ENGINE": f"http://127.0.0.1:{args.engine_port}", "KNOVENT_SECRET": secret, "KNOVENT_DATA": str(data)}
     proc = subprocess.Popen([node, str(ROOT / "web" / "scripts" / "preview.mjs"), str(args.port)], cwd=ROOT / "web", env=env)
     for _ in range(40):
@@ -116,6 +148,8 @@ def cmd_app(args) -> int:
         engine_httpd.shutdown()
         if comp is not None and comp.supervisor:
             comp.supervisor.stop()
+        if inst is not None:
+            inst.release()
     return 0
 
 

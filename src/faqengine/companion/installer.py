@@ -89,17 +89,24 @@ def _run(cmd: list[str], **kw) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True, timeout=kw.pop("timeout", 60), **kw)
 
 
-def _health(port: int, wait: float = 20.0) -> str | None:
-    """The companion's version if it answers on this computer within `wait` seconds."""
+def _hello(port: int) -> dict | None:
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/v1/hello", timeout=2) as r:
+            d = json.loads(r.read())
+            return d if d.get("companion") else None
+    except Exception:  # noqa: BLE001 (not up)
+        return None
+
+
+def _health(port: int, wait: float = 20.0, not_instance: str | None = None) -> str | None:
+    """The companion's version once a companion answers on this computer within `wait` seconds. With `not_instance`, only an answer from a DIFFERENT process counts: after an upgrade, the old companion
+    still answering is not a successful install."""
     deadline = time.monotonic() + wait
     while time.monotonic() < deadline:
-        try:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/v1/hello", timeout=2) as r:
-                d = json.loads(r.read())
-                if d.get("companion"):
-                    return str(d.get("version", ""))
-        except Exception:  # noqa: BLE001 (not up yet)
-            time.sleep(0.4)
+        d = _hello(port)
+        if d and (not_instance is None or d.get("instance") != not_instance):
+            return str(d.get("version", ""))
+        time.sleep(0.4)
     return None
 
 
@@ -164,22 +171,31 @@ def status(port: int = 47890, label: str = LABEL) -> dict:
 
 
 def install(origins: list[str], port: int = 47890, ui: UI | None = None, program_args: list[str] | None = None, label: str = LABEL, app_dir: Path | None = None, run=_run,
-            ollama_installer=None, health_wait: float = 20.0, adapter: PlatformAdapter | None = None, version: str = "") -> Result:
+            ollama_installer=None, health_wait: float = 20.0, adapter: PlatformAdapter | None = None, version: str = "", channel: str = "production") -> Result:
     ui = ui or ConsoleUI()
     res = Result()
-    origins = [o.rstrip("/") for o in origins]
     adapter = adapter or _adapter()
     if adapter is None or adapter.name not in ("macos", "windows"):
         res.add("platform", False, "Local AI setup works on macOS and Windows. Linux is not supported yet.")
         return res
     where = "Mac" if adapter.name == "macos" else "computer"
-    from .auth import ORIGIN
+    from .origins import TrustedOrigins, validate_origin
 
-    if not origins or not all(ORIGIN.match(o) for o in origins):
+    try:  # the build's website addresses: validated here, before anything is changed (exact https hosts only; development addresses only in a development build)
+        clean = [validate_origin(o, development=(channel == "development")) for o in origins]
+    except ValueError as e:
+        clean = []
+        res.add("website address", False, f"{e}. Download the installer again from your Knovent site.")
+        return res
+    if not clean:
         res.add("website address", False, "The installer was not built for a website address, so it cannot be trusted to pair. Download it again from your Knovent site.")
         return res
-    if not ui.confirm(f"Set up local AI on this {where}?", f"Knovent will: install a small helper that starts when you log in, use the AI runtime Ollama (installing it only if you agree), and keep your questions and "
-                      "documents on this computer. Models are downloaded only after you approve them on the Knovent website.", "Set up", "Cancel"):
+    origins = clean
+    need_runtime = find_ollama() is None
+    size = "about 200 MB" if adapter.name == "macos" else "about 1 GB"
+    runtime_line = f" Ollama, the free program that runs the AI, is not installed yet: it will be downloaded from ollama.com ({size}), its signature checked, and installed for you." if need_runtime else " Ollama, which runs the AI, is already installed and will be reused."
+    if not ui.confirm(f"Set up local AI on this {where}?", "Knovent will install a small helper that starts when you log in, and keep your questions and documents on this computer." + runtime_line +
+                      " This is the only approval needed. AI models are downloaded later, only after you approve them on the Knovent website.", "Set up", "Cancel"):
         res.add("approval", False, "Setup was cancelled. Nothing was changed.")
         return res
     # 1. the program, in a stable place
@@ -193,13 +209,26 @@ def install(origins: list[str], port: int = 47890, ui: UI | None = None, program
     except OSError as e:
         res.add("install the companion", False, f"The companion could not be copied ({e.strerror or e}). Check that your disk is not full and try again.")
         return res
-    # 2. the login service (the adapter says what to write and which commands register it)
+    # 2. the trusted website addresses go into the persisted configuration BEFORE the service starts, and stay there across restarts and upgrades
+    try:
+        reg = TrustedOrigins()
+        if channel == "development":
+            written = reg.set_development(origins)
+        else:
+            written = reg.set_production(origins)
+            reg.set_development([])  # a production build trusts exactly its own website: addresses left by a developer build or by testing are not carried over
+        res.add("register the website address", True, ", ".join(written))
+    except (OSError, ValueError) as e:
+        res.add("register the website address", False, f"The trusted website address could not be saved ({e}).")
+        return res
+    before = _hello(port)  # a companion already answering (an upgrade, or one started by hand): the new one must replace it, and we check that it did
+    # 3. the login service (the adapter says what to write and which commands register it)
     svc = adapter.service_path(label)
     try:
         ui.progress("Starting it at every login")
         svc.parent.mkdir(parents=True, exist_ok=True)
         adapter.log_path().parent.mkdir(parents=True, exist_ok=True)
-        text = adapter.service_text(program_args, origins, port, label)
+        text = adapter.service_text(program_args, [], port, label)  # no addresses on the command line: the persisted file is the one source
         svc.write_bytes(text.encode(adapter.service_encoding))
         if adapter.name == "macos":
             plistlib.loads(svc.read_bytes())  # it must parse: launchd refuses a broken file without saying why
@@ -232,27 +261,22 @@ def install(origins: list[str], port: int = 47890, ui: UI | None = None, program
     except OSError as e:
         res.add("register the login service", False, f"The login service could not be written ({e.strerror or e}).")
         return res
-    # 3. does it answer
+    # 4. does the NEW companion answer
     ui.progress("Checking that it is running")
-    ver = _health(port, health_wait)
+    ver = _health(port, health_wait, not_instance=before.get("instance") if before else None)
     if ver is None:
         res.add("health check", False, f"The companion did not answer. Restart your {where} and open the Knovent website again; if it still does not connect, send the file {adapter.log_path()} to support.")
         return res
     res.add("health check", True, f"companion {ver} is answering on this computer only")
-    # 4. the AI runtime
+    # 5. the AI runtime: reused if present; if missing it is installed now (the person approved this in the one question above)
     ui.progress("Looking for the AI runtime")
-    if find_ollama():
+    if not need_runtime:
         res.add("AI runtime", True, "Ollama is already installed; the companion starts it when needed")
     else:
-        size = "about 200 MB" if adapter.name == "macos" else "about 1 GB"
-        place = "your own Applications folder" if adapter.name == "macos" else "your own user folder"
-        if ui.confirm("Install the AI runtime?", f"Knovent needs Ollama (free) to run a model on this {where}. It will be downloaded from ollama.com ({size}), its signature checked, and placed in {place}. "
-                      "No administrator password is needed.", "Download and install", "Not now"):
-            fn = ollama_installer or (install_ollama if adapter.name == "macos" else install_ollama_windows)
-            ok, detail = fn(ui)
-            res.add("AI runtime", ok, detail)
-        else:
-            res.add("AI runtime", True, "not installed yet: the Knovent website will ask again when you choose local AI")
+        ui.progress("Downloading and installing Ollama")
+        fn = ollama_installer or (install_ollama if adapter.name == "macos" else install_ollama_windows)
+        ok, detail = fn(ui)
+        res.add("AI runtime", ok, detail)
     return res
 
 

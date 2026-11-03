@@ -315,7 +315,7 @@ function onboardingPanel() {
     h('h2', {}, 'Run AI on your own computer'),
     h('ol', { class: 'setup-steps' },
       h('li', {}, h('b', {}, '1'), h('span', {}, 'The page looks for the companion on this computer and checks which models fit your hardware.')),
-      h('li', {}, h('b', {}, '2'), h('span', {}, 'Pair it with the code it shows. If a model is already installed it is selected for you.')),
+      h('li', {}, h('b', {}, '2'), h('span', {}, 'This business is authorized on this computer for you, with no code to type. If a model is already installed it is selected for you.')),
       h('li', {}, h('b', {}, '3'), h('span', {}, 'If none is found, one click downloads the recommended small, fast model.'))),
     localPanel(true),
     h('div', { class: 'row' }, h('button', { class: 'btn primary', type: 'button', disabled: !ready, onclick: usesMyComputer }, 'Use my computer for AI'), ready ? null : h('span', { class: 'small muted' }, 'Available once a model is set up on this computer.')),
@@ -543,8 +543,9 @@ async function refreshCompanion() {
   S.checking = false; S.checkedAt = new Date();
   S.cstatus = null;
   if (S.chello.present && !(await Companion.paired(S.current.id)) && S.current && !S._autoPairTried) {
-    S._autoPairTried = true;  // the companion pairs by itself with an origin it trusts; otherwise the code box stays as the fallback
-    try { await Companion.pair(S.current.id, '', S.session.user.email.split('@')[0] + '’s browser'); } catch (e) { S.notTrusted = e.code === 'origin_not_trusted'; S.pairMsg = { kind: 'warn', text: e.code === 'unreachable' ? 'The companion did not answer the pairing request. Press “Look again”.' : e.message }; }
+    S._autoPairTried = true; S.pairing = true; S.pairErr = null; render();  // the companion pairs by itself with a site address it trusts; discovery is not pairing: a refusal is its own state
+    try { await Companion.pair(S.current.id, '', S.session.user.email.split('@')[0] + '’s browser'); S.notTrusted = false; } catch (e) { S.pairErr = e; S.notTrusted = e.code === 'origin_not_trusted'; }
+    S.pairing = false;
   }
   if (S.chello.present && await Companion.paired(S.current.id)) {
     try {
@@ -574,6 +575,14 @@ function platformKey() {
   if (S.platformChoice) return S.platformChoice;
   const os = detectOS();
   return os === 'mac' ? 'macos-arm64' : os === 'windows' ? 'windows-x64' : os === 'linux' ? 'linux-x64' : '';
+}
+// The setup as a person sees it: one line per stage, done / now / still to do. Every stage moves on by itself; a stage that cannot is a message with a button, never a command.
+function setupSteps({ H, C, hosted }) {
+  const pairs = ((S.ai && S.ai.companions) || []).filter((c) => !c.revoked), ready = !!(C && C.health && C.health.state === 'ready' && pairs.length);
+  const at = (S.checking || H === null) ? 0 : (!H || !H.present) ? 1 : !C ? (S.pairing || !S.pairErr ? 3 : 2) : ready ? 6 : S.pull ? 5 : 4;
+  const names = [['Checking this computer', 'Checking this computer'], ['Companion installed', S.installClicked ? 'Installing the companion' : 'Companion not installed'], ['Connected to the companion', 'Connecting to the companion'],
+    ['This business is authorized', 'Authorizing this business'], ['Local models checked', 'Checking local models'], ['Model installed', 'Installing the model'], ['Local AI ready', 'Local AI ready']];
+  return h('ol', { class: 'stepper journey', 'aria-label': 'Local AI setup' }, names.map(([done, now], i) => h('li', { class: i < at ? 'done' : i === at ? 'now' : '', 'aria-current': i === at ? 'step' : null }, h('i', {}, i < at || (ready && i === 6) ? '✓' : String(i + 1)), i < at || (ready && i === 6) ? done : i === at ? now : names[i][1])));
 }
 function installCard({ checking, check, safari, hosted }) {
   if (checking) return h('div', { class: 'banner info small', role: 'status' }, 'Looking for Knovent on this computer…');
@@ -618,13 +627,15 @@ function localPanel(canAdmin) {
   const check = h('button', { class: 'btn', type: 'button', disabled: !!S.checking, onclick: refreshCompanion }, S.checking ? 'Checking…' : H && H.present ? 'Refresh' : 'Look again');
   const hosted = typeof location !== 'undefined' && typeof location.hostname === 'string' && !['127.0.0.1', 'localhost'].includes(location.hostname);
   const safari = typeof navigator !== 'undefined' && typeof location !== 'undefined' && /^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent) && location.protocol === 'https:';
-  if (!H || !H.present) return wrap(installCard({ checking: S.checking || H === null, check, safari, hosted }), pairs.length ? h('p', { class: 'small muted' }, 'Paired for this business: ' + pairs.map((c) => c.label + ' (' + c.runtime + ' ' + c.model + ')').join('; ') + '.') : null);
-  const code = h('input', { type: 'text', inputmode: 'numeric', autocomplete: 'off', placeholder: '1234-5678', maxlength: 9, 'aria-label': 'Pairing code', style: 'max-width:160px' });
-  if (!C) return wrap(h('div', { class: 'banner good small' }, 'A companion is running on this computer' + (H.version ? ' (version ' + H.version + ')' : '') + '. This browser is not paired with it for this business.'), S.notTrusted && hosted ? installCard({ checking: false, check, safari, hosted }) : null,
-    canAdmin ? h('div', {}, h('p', { class: 'small' }, 'In the companion’s window it shows a pairing code (valid five minutes, usable once). Type it here.'),
-      h('div', { class: 'row' }, code, h('button', { class: 'btn primary', type: 'button', onclick: async () => { try { await Companion.pair(b, code.value, S.session.user.email.split('@')[0] + '’s browser'); S.pairMsg = null; await refreshCompanion(); say('Paired. Choose the model to use below.', 'good'); } catch (e) { S.pairMsg = { kind: 'bad', text: e.message }; render(); } } }, 'Pair'), check))
-      : h('p', { class: 'small muted' }, 'Only owners and admins can pair a companion.'),
-    S.pairMsg ? h('div', { class: 'banner ' + S.pairMsg.kind + ' small', role: 'status' }, S.pairMsg.text) : null, ...notes);
+  if (!H || !H.present) return wrap(setupSteps({ H, C, hosted }), installCard({ checking: S.checking || H === null, check, safari, hosted }), pairs.length ? h('p', { class: 'small muted' }, 'Paired for this business: ' + pairs.map((c) => c.label + ' (' + c.runtime + ' ' + c.model + ')').join('; ') + '.') : null);
+  if (!C) {
+    const retry = h('button', { class: 'btn', type: 'button', onclick: () => { S._autoPairTried = false; S.pairErr = null; refreshCompanion(); } }, 'Try again');
+    if (S.pairing || (!S.pairErr && !S._autoPairTried)) return wrap(setupSteps({ H, C, hosted }), h('div', { class: 'banner info small', role: 'status' }, 'Authorizing this business with the companion on this computer…'));
+    if (!S.pairErr) return wrap(setupSteps({ H, C, hosted }), h('div', { class: 'banner info small', role: 'status' }, h('b', {}, 'This business is not authorized on this computer'), h('div', { class: 'small' }, 'It was unpaired, or the authorization was removed. Authorizing again takes one click; nothing needs to be typed.')), h('div', { class: 'row' }, h('button', { class: 'btn primary', type: 'button', onclick: () => { S._autoPairTried = false; refreshCompanion(); } }, 'Authorize this business again')));  // an unpair is respected: the page does not quietly pair again behind the person's back
+    if (S.notTrusted && hosted) return wrap(setupSteps({ H, C, hosted }), h('div', { class: 'banner warn', role: 'status' }, h('b', {}, 'This computer’s Knovent was set up for a different website'), h('div', { class: 'small' }, 'Download the latest Knovent installer from this page and open it. It updates the companion and keeps your settings.')),
+      installCard({ checking: false, check: retry, safari, hosted }));
+    return wrap(setupSteps({ H, C, hosted }), h('div', { class: 'banner warn', role: 'status' }, h('b', {}, 'The companion did not accept the connection'), h('div', { class: 'small' }, (S.pairErr && S.pairErr.message) || 'Something went wrong while connecting.')), h('div', { class: 'row' }, retry));
+  }
   const hw = C.hardware, rec = C.recommend || { models: [], limits: [] };
   const installed = Object.entries(C.runtimes).flatMap(([rt, d]) => (d.models || []).map((m) => ({ rt, m })));
   const fitOf = (tag) => ((rec.models || []).find((m) => m.ollama === tag) || {}).verdict || 'unknown';
@@ -686,7 +697,7 @@ function localPanel(canAdmin) {
   const reported = hw && String(hw.os || '').toLowerCase().slice(0, 3);
   const chosenOs = S.platformChoice && S.platformChoice.split('-')[0].slice(0, 3);
   const mismatch = chosenOs && reported && chosenOs !== reported ? h('div', { class: 'banner warn small', role: 'status' }, 'This computer reports ' + hw.os + ' ' + hw.arch + ', but you chose a different system. The installer you downloaded may not match this computer.') : null;
-  return wrap(mismatch, pairs.length && C.health && C.health.state === 'ready' ? h('div', { class: 'banner good ready', role: 'status' }, h('b', {}, '✓ Local AI ready'), h('div', { class: 'small' }, 'Your Mac is set up and answering with ' + pairs[pairs.length - 1].model + '. Nothing leaves this computer.')) : h('div', { class: 'banner good small' }, 'Paired with the companion on this computer.'),
+  return wrap(setupSteps({ H, C, hosted }), mismatch, pairs.length && C.health && C.health.state === 'ready' ? h('div', { class: 'banner good ready', role: 'status' }, h('b', {}, '✓ Local AI ready'), h('div', { class: 'small' }, 'Your Mac is set up and answering with ' + pairs[pairs.length - 1].model + '. Nothing leaves this computer.')) : h('div', { class: 'banner good small' }, 'Paired with the companion on this computer.'),
     h('div', { class: 'small' }, h('b', {}, 'This computer: '), hw.os + ' ' + hw.os_version + ' · ' + hw.arch + ' · ' + hw.cpu + ' · ' + hw.cores + ' cores · ' + (hw.ram_gb == null ? 'memory unknown' : hw.ram_gb + ' GB') + (hw.gpus.length ? ' · ' + hw.gpus.map((g) => g.name + (g.vram_gb ? ' ' + g.vram_gb + ' GB' : '') + (g.unified ? ' (shared)' : '') + (g.usable_for_models ? '' : ' (not used for models)')).join(', ') : ' · no GPU found')),
     Object.entries(C.runtimes).map(([rt, d]) => h('div', { class: 'small' }, h('b', {}, rt + ': '), d.running ? 'running · ' + ((d.models || []).join(', ') || 'no models yet') : d.installed ? 'installed, not running' : 'not found')),
     (rec.limits || []).map((x) => h('div', { class: 'banner warn small' }, x)),

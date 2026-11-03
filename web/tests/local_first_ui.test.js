@@ -113,7 +113,7 @@ test("choosing this computer explains the steps, and 'Use my computer for AI' wa
   p.state().form.choice = "local";
   p.set("ai", { companions: [], steps: [], settings: {}, switched_on_by_the_operator: ["local"] });
   let el = p.run("onboardingPanel()");
-  assert.match(el.textContent, /looks for the companion on this computer.*Pair it with the code.*one click downloads the recommended small, fast model/);
+  assert.match(el.textContent, /looks for the companion on this computer.*authorized on this computer.*one click downloads the recommended small, fast model/);
   assert.match(el.textContent, /Outside fallbacks \(free or paid hosted AI, your own provider account\) are off/);
   const use = () => p.run("onboardingPanel()").buttons("Use my computer for AI")[0];
   assert.equal(use().disabled, true);

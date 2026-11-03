@@ -9,6 +9,7 @@ Nothing here binds to any address but 127.0.0.1. Platforms: macOS arm64 is the o
 from __future__ import annotations
 
 import json
+import os
 import sys
 import threading
 from pathlib import Path
@@ -28,7 +29,7 @@ def launch_agent_plist(program_args: list[str], origins: list[str], port: int = 
     with it without a code; any other page still needs the code. It binds 127.0.0.1 only, like the companion always does."""
     from xml.sax.saxutils import escape
 
-    args = [*program_args, "run", "--port", str(port)] + [x for o in origins for x in ("--origin", o)]
+    args = [*program_args, "run", "--port", str(port), "--replace"] + [x for o in origins for x in ("--origin", o)]
     items = "".join(f"\n    <string>{escape(a)}</string>" for a in args)
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -67,7 +68,7 @@ def _uninstall_service() -> int:
 
 def start_runtime_in_background(comp: Companion) -> None:
     """Starts the model runtime if it is installed and not running, and keeps watching it (companion/lifecycle.py). Returns at once: the companion is usable while this happens."""
-    if comp.supervisor is None:
+    if comp.supervisor is None or os.environ.get("KNOVENT_NO_RUNTIME"):  # (a test run must not start a real runtime)
         return
 
     def go() -> None:
@@ -83,6 +84,7 @@ def build(sub) -> None:
     r = cs.add_parser("run", help="start the companion on 127.0.0.1")
     r.add_argument("--port", type=int, default=47890)
     r.add_argument("--origin", action="append", default=[], help="an origin allowed to ask for a pairing preflight (the hosted application's address); this origin pairs automatically, without a code (the application served on this computer always does); any other origin needs the code")
+    r.add_argument("--replace", action="store_true", help="used by the login service: replace a companion that is already running (a manually started copy, or the version being upgraded)")
     r.add_argument("--allow-custom-models", action="store_true", help="let a paired browser ask Ollama to download models that are not in the companion's list")
     i = cs.add_parser("install", help="start the companion automatically when you log in (macOS), trusting your website's address so it pairs without a code")
     i.add_argument("--origin", action="append", default=[], help="your website's address, e.g. https://your-site.vercel.app (repeat for more than one)")
@@ -128,11 +130,25 @@ def cmd_companion(args) -> int:
         return 0
     comp = Companion(Pairings(), allow_custom_models=args.allow_custom_models)
     import os
-    origins = set(args.origin) | {o.strip().rstrip("/") for o in os.environ.get("FAQENGINE_APP_ORIGIN", "").split(",") if o.strip()}
+
+    from .instance import Instance
+    from .origins import TrustedOrigins
+
+    try:  # the websites that may pair without a code: the persisted file (written by the installer), plus any a developer names for this run only
+        origins = TrustedOrigins(session=[*args.origin, *[o for o in os.environ.get("FAQENGINE_APP_ORIGIN", "").split(",") if o.strip()]])
+    except ValueError as e:
+        print(f"Not started: {e}")
+        return 1
+    inst = Instance(port=args.port)
+    got, why = inst.acquire(replace=bool(getattr(args, "replace", False)))
+    if not got:
+        print(f"Not started: {why}.")
+        return 0
     try:
         httpd = serve(args.port, comp, origins)
     except OSError:
-        print(f"Port {args.port} is already in use: a companion is probably already running on this computer (in another window).\nStop it first with:  pkill -f 'companion run'   then start this again.")
+        inst.release()
+        print(f"Port {args.port} is already in use by another program.")
         return 1
     start_runtime_in_background(comp)
     print(f"Pairing code: {comp.pairings.new_code()}   (valid 5 minutes, single use; enter it in the application's Settings; press Enter here for a new one)")
@@ -151,6 +167,7 @@ def cmd_companion(args) -> int:
         print("\nstopped")
     finally:
         httpd.server_close()
+        inst.release()
         if comp.supervisor:
             comp.supervisor.stop()
     return 0

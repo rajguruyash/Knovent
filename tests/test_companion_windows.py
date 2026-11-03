@@ -32,6 +32,7 @@ class Recorder:
         self.calls, self.results = [], results or {}
 
     def __call__(self, cmd, **kw):
+        _restart_if_registering(cmd)
         self.calls.append(cmd)
         rc = self.results.get(cmd[1] if len(cmd) > 1 else cmd[0], 0)
         return type("R", (), {"returncode": rc, "stdout": self.results.get("stdout", ""), "stderr": ""})()
@@ -45,9 +46,19 @@ def win(tmp_path, monkeypatch):
     return P.WindowsAdapter(env=env, home=tmp_path), tmp_path
 
 
+_UP: dict = {}
+
+
+def _restart_if_registering(cmd):
+    """A real login service that is registered starts a NEW process: it answers with a new instance id. The fake does the same, so the installer's check that the new one answers is exercised."""
+    if _UP.get("comp") is not None and any(w in cmd for w in ("bootstrap", "load", "/Run", "enable")):
+        _UP["comp"].instance_id = __import__("uuid").uuid4().hex[:16]
+
+
 @pytest.fixture()
 def companion_up(tmp_path):
     comp = Companion(auth.Pairings(tmp_path / "c.json"), runtimes={}, supervisor=None)
+    _UP["comp"] = comp
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(comp, 0))
     port = httpd.server_port
     httpd.RequestHandlerClass = make_handler(comp, port)
@@ -70,7 +81,7 @@ def test_a_windows_install_writes_the_logon_task_registers_it_and_verifies_it(wi
     assert root.find(".//t:LogonTrigger", ns) is not None and root.find(".//t:TimeTrigger/t:Repetition/t:Interval", ns).text == "PT5M"  # logon, plus a 5 minute safety net
     assert root.find(".//t:MultipleInstancesPolicy", ns).text == "IgnoreNew"  # the safety net never starts a second copy
     assert [c[1] for c in rec.calls[:3]] == ["/End", "/Create", "/Run"] and rec.calls[-1][1] == "/Query"
-    assert f"--origin {ORIGIN}" in root.find(".//t:Exec/t:Arguments", ns).text
+    assert root.find(".//t:Exec/t:Arguments", ns).text == f"run --port {companion_up} --replace"  # no address on the command line: the persisted file holds it
 
 
 def test_a_task_scheduler_that_refuses_gives_a_plain_message(win):
@@ -86,16 +97,14 @@ def test_nothing_is_installed_on_windows_when_the_person_declines(win):
     assert not res.ok and rec.calls == [] and not adapter.service_path("ai.knovent.companion").exists()
 
 
-def test_a_missing_runtime_is_installed_on_windows_only_after_approval(win, companion_up, monkeypatch):
+def test_a_missing_runtime_is_installed_on_windows_under_the_one_approval(win, companion_up, monkeypatch):
     adapter, home = win
     monkeypatch.setattr(installer, "find_ollama", lambda *a, **k: None)
-    calls = []
-    declined = installer.install([ORIGIN], port=companion_up, ui=Yes({"Install the AI runtime?": False}), program_args=["k.exe"], run=Recorder(), adapter=adapter, health_wait=3,
-                                 ollama_installer=lambda ui: calls.append(1) or (True, "x"))
-    assert declined.ok and calls == []
-    approved = installer.install([ORIGIN], port=companion_up, ui=Yes(), program_args=["k.exe"], run=Recorder(), adapter=adapter, health_wait=3, ollama_installer=lambda ui: calls.append(1) or (True, "x"))
-    assert approved.ok and calls == [1]
-
+    calls, ui = [], Yes()
+    approved = installer.install([ORIGIN], port=companion_up, ui=ui, program_args=["k.exe"], run=Recorder(), adapter=adapter, health_wait=3, ollama_installer=lambda u: calls.append(1) or (True, "x"))
+    assert approved.ok and calls == [1] and ui.asked == ["Set up local AI on this computer?"]
+    declined = installer.install([ORIGIN], port=companion_up, ui=Yes({"Set up local AI on this computer?": False}), program_args=["k.exe"], run=Recorder(), adapter=adapter, health_wait=3, ollama_installer=lambda u: calls.append(2) or (True, "x"))
+    assert not declined.ok and calls == [1]
 
 class Opener:
     def __init__(self, data=b"MZ"):

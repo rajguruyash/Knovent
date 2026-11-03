@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
@@ -47,6 +48,35 @@ def find_ollama(which=shutil.which, exists=os.path.isfile, extra: tuple[str, ...
     return None
 
 
+def orphaned_runners(ps_output: str | None = None) -> list[int]:
+    """Model runner processes Ollama left behind when its server died (their parent is gone: process 1 on macOS and Linux). Each holds the whole model in memory, and a restart loads another copy, so on a small
+    computer a few crashes would exhaust the memory. Only processes whose command line names Ollama's runner AND the Ollama models folder are listed. Not implemented for Windows, where the runners end with their server."""
+    if ps_output is None:
+        if sys.platform == "win32":
+            return []
+        try:
+            ps_output = subprocess.run(["ps", "-Ao", "pid=,ppid=,command="], capture_output=True, text=True, timeout=10).stdout
+        except (OSError, subprocess.SubprocessError):
+            return []
+    out = []
+    for line in ps_output.splitlines():
+        parts = line.split(None, 2)
+        if len(parts) == 3 and parts[1] == "1" and parts[0].isdigit() and "ollama" in parts[2].lower() and ("llama-server" in parts[2] or " runner" in parts[2]) and ".ollama" in parts[2]:
+            out.append(int(parts[0]))
+    return out
+
+
+def reap_orphaned_runners(terminate=lambda pid: os.kill(pid, 15), ps_output: str | None = None) -> list[int]:
+    gone = []
+    for pid in orphaned_runners(ps_output):
+        try:
+            terminate(pid)
+            gone.append(pid)
+        except OSError:
+            pass
+    return gone
+
+
 class OllamaSupervisor:
     def __init__(self, runtime: Ollama | None = None, spawn=subprocess.Popen, locate=find_ollama, interval: float = 10.0, max_restarts: int = 5, window: float = 600.0, clock=time.monotonic):
         self.rt = runtime or Ollama()
@@ -81,6 +111,7 @@ class OllamaSupervisor:
                 if binary is None:
                     self.last_error = "not_installed"
                     return False
+                reap_orphaned_runners()  # a server that crashed may have left its model in memory: free it before a new one loads another copy
                 now = self.clock()
                 self._starts = [t for t in self._starts if now - t < self.window]
                 if len(self._starts) >= self.max_restarts:

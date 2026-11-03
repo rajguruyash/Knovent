@@ -50,7 +50,7 @@ def test_windows_describes_a_per_user_logon_task_that_restarts_and_needs_no_admi
     assert root.find(".//t:LogonTrigger", ns) is not None and root.find(".//t:RunLevel", ns).text == "LeastPrivilege"
     assert root.find(".//t:RestartOnFailure/t:Count", ns).text == "999"
     args = root.find(".//t:Exec/t:Arguments", ns).text
-    assert args == f"run --port 47890 --origin {ORIGIN}"
+    assert args == f"run --port 47890 --replace --origin {ORIGIN}"  # (the installer passes no origins: they live in the persisted file; the adapter still renders what it is given)
     cmds = a.register_commands(LABEL)
     assert [c[1] for c in cmds] == ["/End", "/Create", "/Run"] and "/XML" in cmds[1]
     assert [c[1] for c in a.unregister_commands(LABEL)] == ["/End", "/Delete"]
@@ -74,3 +74,21 @@ def test_runtime_candidates_are_not_assumed_to_be_the_same_everywhere():
     sets = {a.name: set(a.ollama_candidates()) for a in (P.MacOSAdapter(), P.WindowsAdapter(env={}), P.LinuxAdapter(env={}))}
     assert sets["macos"] != sets["windows"] != sets["linux"]
     assert all(not Path(p).is_absolute() or "/" in p or "\\" in p for s in sets.values() for p in s)
+
+
+def test_every_login_service_starts_the_program_with_arguments_its_own_parser_accepts(tmp_path):
+    """The service definitions are text; the program that reads their arguments is code. They once disagreed (`--replace`) and the service exited at once. Feed what each adapter writes to the real parser."""
+    import plistlib
+    import shlex
+
+    from faqengine.companion.app_main import build_parser
+
+    prog = ["/x/Knovent Companion"]
+    mac = plistlib.loads(P.MacOSAdapter(home=tmp_path).service_text(prog, [], 47890, LABEL).encode())["ProgramArguments"]
+    win_xml = P.WindowsAdapter(env={}, home=tmp_path).service_text([r"C:\k\knovent-companion.exe"], [], 47890, LABEL)
+    win = ET.fromstring(win_xml.split("?>", 1)[1]).find(".//{*}Exec/{*}Arguments").text.split()
+    lin_line = [ln for ln in P.LinuxAdapter(env={}, home=tmp_path).service_text(["/x/knovent-companion"], [], 47890, LABEL).splitlines() if ln.startswith("ExecStart=")][0][len("ExecStart="):]
+    lin = shlex.split(lin_line)
+    for argv in (mac[1:], win, lin[1:]):
+        ns = build_parser().parse_args(argv)
+        assert ns.cmd == "run" and ns.port == 47890 and ns.replace is True

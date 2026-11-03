@@ -18,9 +18,16 @@ ARCH="$(uname -m)"; [ "$ARCH" = "x86_64" ] && TAG="x64" || TAG="arm64"
 BUILD=build/companion; APPNAME="Knovent Companion"; APP="$BUILD/dist/$APPNAME.app"
 ZIP="dist/Knovent-Companion-$VERSION-macOS-$TAG.zip"
 
-python3 - "$@" <<'PY'
-import json, sys, pathlib
-pathlib.Path("src/faqengine/companion/build_config.json").write_text(json.dumps({"origins": [o.rstrip("/") for o in sys.argv[1:]]}))
+# KNOVENT_CHANNEL=development allows http://localhost-style addresses for a developer's own build; the default (production) accepts exact https host names only, and says why when it refuses
+PYTHONPATH=src python3 - "$@" <<'PY'
+import json, os, sys, pathlib
+from faqengine.companion.origins import validate_origin
+dev = os.environ.get("KNOVENT_CHANNEL") == "development"
+try:
+    origins = [validate_origin(o, development=dev) for o in sys.argv[1:]]
+except ValueError as e:
+    sys.exit(f"Refused: {e}")
+pathlib.Path("src/faqengine/companion/build_config.json").write_text(json.dumps({"schema": 1, "channel": "development" if dev else "production", "origins": origins}))
 PY
 trap 'rm -f src/faqengine/companion/build_config.json' EXIT
 rm -rf "$BUILD"; mkdir -p "$BUILD" dist
