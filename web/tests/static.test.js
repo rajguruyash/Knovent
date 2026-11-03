@@ -85,7 +85,7 @@ test("the one deployed function routes to every endpoint file, and an unknown pa
   const files = [];
   const walkDir = (d, p = "") => { for (const n of readdirSync(d)) { const full = join(d, n); statSync(full).isDirectory() ? walkDir(full, `${p}${n}/`) : files.push(`/api/${p}${n.replace(/\.js$/, "")}`); } };
   walkDir(join(root, "api", "_routes"));
-  assert.equal(files.length, 23);
+  assert.equal(files.length, 26);
   const router = readFileSync(join(root, "api", "[...slug].js"), "utf8");
   for (const f of files) assert.ok(router.includes(`"${f}":`), `${f} is not routed`);
   const mod = await import("../api/[...slug].js");

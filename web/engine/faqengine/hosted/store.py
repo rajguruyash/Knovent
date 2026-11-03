@@ -290,6 +290,43 @@ class Store:
         row = self._one("select id, label, runtime, model, fit from public.local_companions where business_id = %s and revoked_at is null order by paired_at desc limit 1", (business_id,))
         return {"id": str(row[0]), "label": row[1], "runtime": row[2], "model": row[3], "fit": row[4]} if row else None
 
+    # ---- what people approved while testing: extra ways of asking an entry (searched as its own questions)
+    MAX_LEARNED_PER_FAQ = 60
+    MAX_LEARNED = 5000
+
+    def add_learned(self, business_id: str, user_id: str, faq_id: str, question: str) -> dict:
+        """Records "this question is answered by this entry" (a feedback row and a learned question). The database refuses a question that is already an FAQ question, or that belongs to an
+        evaluation set (a test must never become knowledge), and the same question twice for one entry; each is answered as a plain status, never an exception."""
+        try:
+            with self.conn() as c, c.transaction():
+                self._acting(c, user_id)
+                if not c.execute("select 1 from public.faqs where id = %s and business_id = %s and active", (faq_id, business_id)).fetchone():
+                    return {"status": "no_such_faq"}
+                if c.execute("select 1 from public.faqs f where f.business_id = %s and f.active and (public.norm_text(f.question) = public.norm_text(%s) "
+                             "or public.norm_text(%s) = any (select public.norm_text(a) from unnest(f.alt_questions) a)) limit 1", (business_id, question, question)).fetchone():
+                    return {"status": "is_faq"}  # it is knowledge already
+                per, total = c.execute("select count(*) filter (where faq_id = %s), count(*) from public.learned_questions where business_id = %s and active", (faq_id, business_id)).fetchone()
+                if per >= self.MAX_LEARNED_PER_FAQ or total >= self.MAX_LEARNED:
+                    return {"status": "full"}
+                fb = c.execute("insert into public.feedback (business_id, verdict, faq_id, status, created_by) values (%s, 'approve', %s, 'accepted', %s) returning id", (business_id, faq_id, user_id)).fetchone()[0]
+                lid = c.execute("insert into public.learned_questions (business_id, faq_id, question, feedback_id, created_by) values (%s, %s, %s, %s, %s) returning id",
+                                (business_id, faq_id, question, fb, user_id)).fetchone()[0]
+                return {"status": "added", "id": str(lid), "total": total + 1, "for_this_entry": per + 1}
+        except psycopg.errors.UniqueViolation:
+            return {"status": "already_learned"}
+        except psycopg.errors.CheckViolation as e:  # the guard triggers: already an FAQ question, or an evaluation question
+            return {"status": "refused", "reason": str(e).splitlines()[0][:300]}
+
+    def learned_list(self, business_id: str, limit: int = 200) -> list[dict]:
+        rows = self._all("select l.id, l.question, l.faq_id, f.question, l.created_at from public.learned_questions l join public.faqs f on f.id = l.faq_id and f.business_id = l.business_id "
+                         "where l.business_id = %s and l.active order by l.created_at desc limit %s", (business_id, limit))
+        return [{"id": str(r[0]), "question": r[1], "faq_id": str(r[2]), "faq_question": r[3], "created_at": r[4].isoformat()} for r in rows]
+
+    def remove_learned(self, business_id: str, user_id: str, learned_id: str) -> int:
+        with self.conn() as c, c.transaction():
+            self._acting(c, user_id)
+            return c.execute("delete from public.learned_questions where business_id = %s and id = %s", (business_id, learned_id)).rowcount
+
     # ---- retention
     def purge_expired(self, limit: int = 50_000) -> dict:
         """Deletes the exchanges older than each business's own `retention_days` (365 when it has none or the value is not a number; never less than 1 day or more than 10 years), the feedback that hung

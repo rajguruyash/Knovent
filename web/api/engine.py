@@ -31,45 +31,47 @@ def route_path(raw: str) -> str:
     return "/" + path.lstrip("/") if path.strip("/") else "/"
 
 
-def _failed(why: str) -> type:
-    class handler(BaseHTTPRequestHandler):  # the engine could not start: every request says why, in plain words and without any secret
-        def _say(self):
-            data = json.dumps({"error": "the knowledge engine is not set up yet", "detail": why}).encode()
-            self.send_response(503)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(data)))
-            self.send_header("Cache-Control", "no-store")
-            self.end_headers()
-            self.wfile.write(data)
+class handler(BaseHTTPRequestHandler):
+    """The function's entry point. It must be a plain class of this name at the top of the file (Vercel looks for it); the engine's own behaviour is attached to it below, once, when the file loads."""
 
-        do_GET = do_POST = _say
-
-        def log_message(self, *a):
-            pass
-
-    return handler
+    def log_message(self, *a):
+        pass
 
 
-def build():
+def _install() -> None:
     try:
         from faqengine.hosted.service import from_env, make_handler
         engine, secret = from_env()
+        real = make_handler(engine, secret)
     except SystemExit as e:  # from_env reports a missing setting by exiting; a function must answer instead
-        return _failed(str(e.code) if e.code else "a setting is missing")
+        why = str(e.code) if e.code else "a setting is missing"
     except Exception as e:  # noqa: BLE001 - the type only: a message may carry a connection string
-        return _failed(f"it could not start ({type(e).__name__})")
-    base = make_handler(engine, secret)
+        why = f"it could not start ({type(e).__name__})"
+    else:
+        for name in ("_send", "_authorised"):  # the engine's own methods, used by do_GET / do_POST below
+            setattr(handler, name, getattr(real, name))
 
-    class handler(base):  # type: ignore[valid-type, misc]
         def do_GET(self):
             self.path = route_path(self.path)
-            return super().do_GET()
+            return real.do_GET(self)
 
         def do_POST(self):
             self.path = route_path(self.path)
-            return super().do_POST()
+            return real.do_POST(self)
 
-    return handler
+        handler.do_GET, handler.do_POST = do_GET, do_POST
+        return
+
+    def say(self):  # the engine could not start: every request says why, in plain words and without any secret
+        data = json.dumps({"error": "the knowledge engine is not set up yet", "detail": why}).encode()
+        self.send_response(503)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(data)
+
+    handler.do_GET = handler.do_POST = say
 
 
-handler = build()
+_install()

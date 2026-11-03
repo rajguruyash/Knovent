@@ -9,6 +9,9 @@ import * as r3 from "./_routes/ai/disclosure.js";
 import * as r4 from "./_routes/ai/settings/get.js";
 import * as r5 from "./_routes/ai/settings/save.js";
 import * as r6 from "./_routes/config.js";
+import * as r23 from "./_routes/feedback/approve.js";
+import * as r24 from "./_routes/feedback/forget.js";
+import * as r25 from "./_routes/feedback/learned.js";
 import * as r7 from "./_routes/health.js";
 import * as r8 from "./_routes/history.js";
 import * as r9 from "./_routes/llm/get.js";
@@ -35,6 +38,9 @@ const ROUTES = {
   "/api/ai/settings/get": r4,
   "/api/ai/settings/save": r5,
   "/api/config": r6,
+  "/api/feedback/approve": r23,
+  "/api/feedback/forget": r24,
+  "/api/feedback/learned": r25,
   "/api/health": r7,
   "/api/history": r8,
   "/api/llm/get": r9,

@@ -888,12 +888,38 @@ function playgroundTab() {
   return h('div', {},
     h('section', { class: 'panel' }, h('h2', {}, 'Try it'), h('p', { class: 'muted' }, 'Ask what a customer might. You see the answer, why it was given, and what was not covered.'),
       h('div', { class: 'row' }, input, h('button', { class: 'btn primary', type: 'button', disabled: S.busy, onclick: () => ask(input.value) }, S.busy ? (S.local ? 'Waiting for your computer…' : 'Thinking…') : 'Ask'), S.busy && S.local ? h('button', { class: 'btn', type: 'button', onclick: () => Companion.cancel(S.current.id, S.local.requestId).catch(() => {}) }, 'Cancel') : null)),
-    S.result ? resultPanel(S.result) : null);
+    S.result ? resultPanel(S.result) : null,
+    learnedPanel());
+}
+// What people approved while testing: each is one more way of asking an FAQ entry, searched from the next question on (the model's weights do not change).
+async function loadLearned() {
+  try { S.learned = (await api('/api/feedback/learned', { business_id: S.current.id })).learned; S.learnedErr = null; } catch (e) { S.learned = []; S.learnedErr = e.message; }
+  render();
+}
+async function approveQuestion(faqId) {
+  try {
+    const r = await api('/api/feedback/approve', { business_id: S.current.id, faq_id: faqId, question: S.asked });
+    S.learned = undefined; say('Learned. “' + clip(r.learned.question, 80) + '” now finds this FAQ (' + r.for_this_entry + (r.for_this_entry === 1 ? ' question' : ' questions') + ' learned for it).', 'good');
+  } catch (e) { fail(e); }
+}
+async function forgetQuestion(id) {
+  try { S.learned = (await api('/api/feedback/forget', { business_id: S.current.id, learned_id: id })).learned; say('Removed. That wording no longer points to this FAQ.', 'good'); } catch (e) { fail(e); }
+}
+function learnedPanel() {
+  const canWrite = ['owner', 'admin', 'editor'].includes(S.current.role);
+  if (S.learned === undefined) { S.learned = null; loadLearned(); }
+  const L = S.learned || [];
+  return h('section', { class: 'panel' }, h('h2', {}, 'Learned from your tests' + (S.learned ? ' (' + L.length + ')' : '')),
+    h('p', { class: 'muted small' }, 'When an answer is right, choose “This answers it” under its source. That wording is then stored as one more way of asking the same FAQ, and retrieval finds it from the next question on. The model itself is not changed. A question that is already an FAQ question, or that belongs to a test set, is never added.'),
+    S.learnedErr ? h('div', { class: 'banner warn small', role: 'status' }, S.learnedErr) : null,
+    L.length ? h('div', { class: 'scroll' }, h('table', {}, h('thead', {}, h('tr', {}, ['Question people asked', 'Finds this FAQ', ''].map((x) => h('th', {}, x)))),
+      h('tbody', {}, L.map((x) => h('tr', {}, h('td', {}, clip(x.question, 80)), h('td', { class: 'small' }, clip(x.faq_question, 80)),
+        h('td', {}, canWrite ? h('button', { class: 'btn link', type: 'button', onclick: () => forgetQuestion(x.id) }, 'Remove') : null)))))) : h('p', { class: 'small muted' }, S.learned ? 'Nothing learned yet.' : 'Loading…'));
 }
 async function ask(text) {
   text = (text || '').trim();
   if (!text) return;
-  S.busy = true; S.local = null; render();
+  S.busy = true; S.local = null; S.asked = text; render();
   try { S.result = (S.ai && S.ai.settings && S.ai.settings.mode === 'local' && S.ai.route && S.ai.route.usable) ? await askLocal(text) : (await api('/api/respond', { business_id: S.current.id, query: text })).result; S.msg = null; } catch (e) { S.msg = { text: e.message, kind: 'bad' }; }
   S.busy = false; S.local = null; render();
 }
@@ -921,7 +947,8 @@ function resultPanel(R) {
     R.answer ? h('p', { style: 'margin:.8em 0;white-space:pre-wrap' }, R.answer) : null,
     R.partial_answer ? h('p', { style: 'margin:.8em 0;white-space:pre-wrap' }, R.partial_answer) : null,
     R.message ? h('p', { style: 'margin:.8em 0' }, R.message) : null,
-    (R.sources || []).length ? h('div', {}, h('b', { class: 'small' }, 'Sources'), (R.sources || []).map((s) => line('[' + s.ref + '] ' + (s.kind === 'faq' ? 'FAQ' : 'Document'), s.location + (s.kind === 'faq' ? '' : ' · ' + clip(s.text || '', 120))))) : null,
+    (R.sources || []).length ? h('div', {}, h('b', { class: 'small' }, 'Sources'), (R.sources || []).map((s) => h('div', {}, line('[' + s.ref + '] ' + (s.kind === 'faq' ? 'FAQ' : 'Document'), s.location + (s.kind === 'faq' ? '' : ' · ' + clip(s.text || '', 120))),
+      s.kind === 'faq' && s.db_id && S.asked && ['owner', 'admin', 'editor'].includes(S.current.role) ? h('button', { class: 'btn link small', type: 'button', onclick: () => approveQuestion(s.db_id) }, 'This answers it: remember how it was asked') : null))) : null,
     (R.unanswered_parts || []).length ? line('Not supported by anything available', R.unanswered_parts.join('; ')) : null,
     (R.outdated || []).length ? h('div', { class: 'banner warn small' }, 'Only out-of-date material covers this, and it was not used: ' + R.outdated.map((o) => o.source + ' (' + o.reason + ')').join('; ')) : null,
     R.clarification && R.clarification.options.length ? line('It might mean', R.clarification.options.join(' · ')) : null,

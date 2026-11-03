@@ -65,3 +65,16 @@ export function companionIdField(b) {
   if (!isUuid(b.companion_id)) throw new HttpError(400, "That is not a companion id.");
   return { companion_id: b.companion_id };
 }
+
+/** @param {Record<string, any>} b */
+export function approveFields(b) {
+  if (!isUuid(b.faq_id)) throw new HttpError(400, "Choose the FAQ this question belongs to.");
+  if (typeof b.question !== "string" || !b.question.trim() || b.question.length > 300) throw new HttpError(400, "A question must be 1 to 300 characters.");
+  return { faq_id: b.faq_id, question: b.question };
+}
+
+/** @param {Record<string, any>} b */
+export function learnedIdField(b) {
+  if (!isUuid(b.learned_id)) throw new HttpError(400, "A field is not valid.");
+  return { learned_id: b.learned_id };
+}

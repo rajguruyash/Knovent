@@ -708,6 +708,42 @@ class HostedEngine:
             self.store.save_ai_settings(business_id, user_id, "deterministic", None, None, s["fallback"])  # no companion left: back to the deterministic answer, said, not left half-configured
         return {"companions": self.store.companions(business_id)}
 
+    # ---- what a person approves while testing goes back into retrieval
+    def feedback_approve(self, business_id: str, user_id: str, faq_id: str, question: str) -> dict:
+        """"This question is answered by this entry": the question is stored as one more way of asking it, and the business's index (rebuilt when its learned questions change) searches it from the
+        next question on. An owner, admin or editor only. Nothing is trained and no model weight changes: retrieval improves because the question now has its own vector next to the entry's."""
+        self._require(user_id, business_id, WRITE)
+        if not is_uuid(faq_id):
+            raise ServiceError(400, "faq_id must be an id")
+        text = " ".join(str(question or "").split())
+        if not 1 <= len(text) <= 300:
+            raise ServiceError(400, "the question must be 1 to 300 characters")
+        out = self.store.add_learned(business_id, user_id, faq_id, text)
+        status = out["status"]
+        if status == "no_such_faq":
+            raise ServiceError(404, "that FAQ is not part of this business's current knowledge (only an FAQ entry can learn a question; a document passage cannot)")
+        if status == "full":
+            raise ServiceError(409, "this entry (or the business) has learned as many questions as it keeps: remove some, or add them to the FAQ itself")
+        if status == "already_learned":
+            raise ServiceError(409, "this question is already learned for that entry")
+        if status == "is_faq":
+            raise ServiceError(409, "that question is already an FAQ question, so it is found as it is")
+        if status == "refused":
+            raise ServiceError(409, "that question is already an FAQ question, or belongs to a test set, so it is not added: " + out["reason"])
+        return {"learned": {"id": out["id"], "question": text, "faq_id": faq_id}, "total": out["total"], "for_this_entry": out["for_this_entry"]}
+
+    def learned_list(self, business_id: str, user_id: str) -> dict:
+        self._require(user_id, business_id, READ)
+        return {"learned": self.store.learned_list(business_id)}
+
+    def learned_remove(self, business_id: str, user_id: str, learned_id: str) -> dict:
+        self._require(user_id, business_id, WRITE)
+        if not is_uuid(learned_id):
+            raise ServiceError(400, "learned_id must be an id")
+        if not self.store.remove_learned(business_id, user_id, learned_id):
+            raise ServiceError(404, "that learned question does not exist")
+        return {"learned": self.store.learned_list(business_id)}
+
     # ---- local mode: the model call is made by the person's own browser, on the person's own machine
     LOCAL_FAILURES = frozenset({"network", "timeout", "not_found", "server", "cancelled", "not_connected", "auth", "bad_request"})
 
@@ -1048,6 +1084,9 @@ def make_handler(engine: HostedEngine, shared_secret: str):
               "/v1/local/companions/get": lambda b: engine.companions_get(b.get("business_id"), b.get("user_id")),
               "/v1/local/companions/register": lambda b: engine.companion_register(b.get("business_id"), b.get("user_id"), b),
               "/v1/local/companions/revoke": lambda b: engine.companion_revoke(b.get("business_id"), b.get("user_id"), b.get("companion_id")),
+              "/v1/feedback/approve": lambda b: engine.feedback_approve(b.get("business_id"), b.get("user_id"), b.get("faq_id"), b.get("question")),
+              "/v1/feedback/learned": lambda b: engine.learned_list(b.get("business_id"), b.get("user_id")),
+              "/v1/feedback/forget": lambda b: engine.learned_remove(b.get("business_id"), b.get("user_id"), b.get("learned_id")),
               "/v1/maintenance/purge": lambda b: engine.purge_expired()}
 
     class Handler(BaseHTTPRequestHandler):
