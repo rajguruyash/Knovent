@@ -1,0 +1,11 @@
+id,question,answer,category,alt_questions
+hours,What are your opening hours?,"We are open Monday to Saturday, 9am to 6pm, and closed on Sundays.",shop,When are you open?
+returns,How do I return an item?,You can return unused items within 30 days with the receipt. Bring it to the shop or post it to us.,orders,
+repair-time,How long does a repair take?,Most repairs are finished in 2 to 3 working days. We will message you when your bike is ready.,repairs,
+repair-cost,How much does a basic service cost?,"A basic service is 45 pounds, a full service is 90 pounds, and parts are extra.",repairs,
+delivery,Do you deliver?,"We deliver within 10 miles for 8 pounds, and it is free over 200 pounds. Delivery takes 1 to 2 working days.",orders,
+warranty,What warranty do bikes come with?,New bikes have a 2 year frame warranty and a 1 year warranty on components.,orders,
+payment,What payment methods do you accept?,"We accept cards, cash and bank transfer. We do not accept cheques.",orders,
+test-ride,Can I test ride a bike before buying?,"Yes, test rides are free. Bring photo ID and book a 30 minute slot.",shop,
+sizing,How do I choose the right bike size?,"Size depends on your height and inside leg. Visit us for a free fitting, or send your height and we will recommend a size.",advice,
+finance,Can I pay for a bike in instalments?,"Yes, we offer 0 percent finance over 12 months on bikes over 500 pounds, subject to status.",orders,

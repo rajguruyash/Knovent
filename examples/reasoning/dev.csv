@@ -1,0 +1,60 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+c3,control,faq,Can I upgrade my plan later?,answered,upgrade,,faq.csv,,faq.csv
+k1,comparison,csv,Which plan is the cheapest?,answered,Free;0 USD,,plans.csv,,plans.csv
+k2,comparison,csv,Which plan is the most expensive?,answered,Scale;199 USD;Enterprise,,plans.csv,,plans.csv
+k3,comparison,csv,Which plan has the highest storage limit?,answered,Enterprise;Unlimited,,plans.csv,,plans.csv
+k6,comparison,csv,Which plan has the lowest API rate limit?,answered,Free;30,,limits.csv,,limits.csv
+k7,comparison,csv,Which plans support more than 20 agents?,answered,Scale;Enterprise,Growth,plans.csv,,plans.csv
+k8,comparison,csv,Which plans have at least 50 GB of storage?,answered,Team;Growth;Scale;Enterprise,Free,plans.csv,,plans.csv
+k9,comparison,csv,How many plans are there?,answered,5,,plans.csv,,plans.csv
+k11,comparison,csv,What is the average monthly price of the plans?,answered,76.75;Enterprise,,plans.csv,,plans.csv
+k12,comparison,csv,How much cheaper is the Team plan than the Growth plan?,answered,50 USD,,plans.csv,,plans.csv
+k13,feature_compare,csv,What is the difference between the Team and Growth plans?,answered,29 USD;79 USD;5;20,,plans.csv,,plans.csv
+k14,feature_compare,csv,Compare the Scale and Enterprise plans.,answered,Scale;Enterprise;199 USD,,plans.csv,,plans.csv
+k15,feature_compare,csv,Which plan has the lowest number of automations?,answered,Free;0,,limits.csv,,limits.csv
+p2,price_calc,csv,How much would 12 extra agents cost on the Growth plan?,answered,72 USD,,plans.csv,,plans.csv
+p3,price_calc,csv,What would 10 Growth plans cost?,answered,790 USD,,plans.csv,,plans.csv
+p4,price_calc,csv,How much do 6 months of the Team plan cost?,answered,174 USD,,plans.csv,,plans.csv
+p5,missing_value,csv,How much would 5 Enterprise plans cost?,insufficient,Contact us,= ,plans.csv,,plans.csv
+f2,semantic_header,xlsx,Which plans have SSO?,answered,Scale;Enterprise,Team;Growth,features.xlsx,,features.xlsx
+f5,semantic_header,xlsx,Is SSO available on the Growth plan?,answered,No;Scale and Enterprise,,features.xlsx,,features.xlsx
+f6,semantic_header,xlsx,Which plans have API access?,answered,All plans,,features.xlsx,,features.xlsx
+f7,semantic_header,xlsx,Which plans have an audit log?,answered,Enterprise,Team,features.xlsx,,features.xlsx
+f8,semantic_header,xlsx,Which plans have custom reports?,answered,Growth;Scale;Enterprise,Team,features.xlsx,,features.xlsx
+f9,semantic_header,xlsx,Which plans have the mobile app?,insufficient,does not name plans,,,,features.xlsx
+h1,semantic_header,csv,Which plans include Slack?,insufficient,does not name plans,,,,integrations.csv
+h2,semantic_header,csv,Which integration is the fastest to set up?,answered,Slack;5 minutes,,integrations.csv,,integrations.csv
+h3,semantic_header,csv,How long does the Zapier integration take to set up?,answered,10 minutes,,integrations.csv,,integrations.csv
+l2,limit_check,csv,Can the Growth plan have 15 agents?,answered,Yes;20,,plans.csv,,plans.csv
+l3,limit_check,csv,Does the Scale plan support 1000 agents?,answered,Yes;Unlimited,,plans.csv,,plans.csv
+l4,limit_check,csv,Can I upload a 50 MB file on the Team plan?,answered,No;25,,limits.csv,,limits.csv
+l5,limit_check,csv,Which plans allow uploads of at least 100 MB?,answered,Growth;Scale;Enterprise,Team,limits.csv,,limits.csv
+l6,limit_check,csv,How many agents does the Enterprise plan support?,answered,Unlimited,,plans.csv,,plans.csv
+l7,limit_check,csv,How many automations does the Team plan have?,answered,5,,limits.csv,,limits.csv
+m1,missing_value,csv,How much does the Enterprise plan cost per month?,answered,Contact us,,plans.csv,,plans.csv
+m2,missing_value,csv,What is the extra agent price on the Free plan?,insufficient,nothing in it,,,,plans.csv
+t1,trap,faq,Is there an annual discount?,insufficient,,available on request,,,
+t2,trap,faq,Do you offer a free trial?,insufficient,,forever;costs nothing,,,
+t4,trap,csv,Is there a setup fee?,insufficient,,minutes,,,
+t5,trap,md,Do you guarantee 100% uptime?,insufficient,,99.9,,,
+t6,trap,csv,Does the Growth plan include a dedicated account manager?,insufficient,,,,,
+t7,trap,csv,Is there a limit on the number of customers?,insufficient,,,,,
+s1,multi_sentence,md,What is the refund policy?,answered,30 days;not refunded;Scale;5 business days,,policies.md,,policies.md
+s2,multi_sentence,md,Are there any exceptions to refunds?,answered,Scale;10 agents,,policies.md,,policies.md
+s3,multi_sentence,md,What happens to my data after I cancel?,answered,60 days;export,,policies.md,,policies.md
+s4,multi_sentence,md,When is VAT added?,answered,EU,,policies.md,,policies.md
+x1,conflict,faq;md,How long do I have to ask for my money back?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+x2,conflict,faq;md,Do the prices already include VAT?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+x4,context,md,What uptime commitment do Scale customers get?,answered,99.9,99.5,sla_2026.md,sla_2025.md,sla_2026.md
+d1,date,md,When is support open?,answered,Monday to Friday;9:00,Saturday,support.md,,support.md
+d2,date,md,When is support open from 1 July 2026?,answered,Saturday;8:00,,support.md,,support.md
+d3,date,md,What are the holiday support hours?,insufficient,out of date,closed on 25,,,holiday_2025.md
+d4,date,md,What will the Growth plan cost from 1 July 2026?,conflict,,,plans.csv;price_update.md,,plans.csv;price_update.md
+pa2,partial,csv,How many agents does the Team plan have and what is the setup fee?,partial,5,,plans.csv,,plans.csv
+pa3,partial,csv,Which plans include SSO and do they come with a dedicated manager?,partial,Scale;Enterprise,,features.xlsx,,features.xlsx
+v1,vocabulary,md,Who leads the company?,answered,Dana Whitfield,,company.md,,company.md
+v2,vocabulary,md,How many staff work at Beacon Desk?,answered,120,,company.md,,company.md
+v3,vocabulary,md,Where is the head office?,answered,Leeds,,company.md,,company.md
+v4,vocabulary,csv,What does it cost to use the Free plan?,answered,0 USD,,plans.csv,,plans.csv
+v5,vocabulary,md,Can I stop my subscription whenever I want?,answered,cancel;at any time,,policies.md,,policies.md
+v6,vocabulary,csv,How big is the file I can upload on the Growth plan?,answered,100,,limits.csv,,limits.csv

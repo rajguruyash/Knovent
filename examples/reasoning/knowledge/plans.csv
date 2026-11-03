@@ -1,0 +1,6 @@
+Plan,Monthly price (USD),Agents,Storage (GB),Channels,Extra agent (USD per agent)
+Free,0,1,5,Email,
+Team,29,5,50,"Email, Chat",8
+Growth,79,20,200,"Email, Chat and WhatsApp",6
+Scale,199,Unlimited,1000,"Email, Chat, WhatsApp and Voice",5
+Enterprise,Contact us,Unlimited,Unlimited,All channels,Contact us

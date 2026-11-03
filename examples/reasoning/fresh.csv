@@ -1,0 +1,21 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+fb1,multi_condition,csv;xlsx,Which plans have more than 5 agents and include WhatsApp?,answered,Growth;Scale;Enterprise,Team,plans.csv,,plans.csv;features.xlsx
+fb2,structured,csv,What would 15 extra agents cost on the Scale plan?,answered,75 USD,,plans.csv,,plans.csv
+fb3,structured,csv,Which plan has the least storage that is still above 100 GB?,answered,Growth;200,,plans.csv,,plans.csv
+fb4,structured,csv,What is the cheapest plan that includes Chat?,answered,Team;29 USD,,plans.csv,,plans.csv
+fb5,structured,csv,How many plans have unlimited agents?,answered,2;Scale;Enterprise,,plans.csv,,plans.csv
+fb6,scope,md,Do Team customers get an uptime commitment?,answered,Scale,,sla_2026.md,sla_2025.md,sla_2026.md
+fb7,scope,xlsx,Is SSO available on Team?,answered,Scale and Enterprise,,features.xlsx,,features.xlsx
+fb8,conflict,md,How soon will support answer a ticket on the Team plan?,conflict,,,marketing.md;support.md,,marketing.md;support.md
+fb9,conflict,faq;md,Are the prices quoted with VAT included?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+fb10,missing,faq,Does Beacon Desk offer on-premises hosting?,insufficient,,,,,
+fb11,missing,md,Who is the chief financial officer of Beacon Desk?,insufficient,,Dana,,,
+fb12,multi_source,md,Who is the CEO and how many employees are there?,answered,Dana Whitfield;120,,company.md,,company.md
+fb13,conflict,faq;md,"How many days do I have to ask for a refund, and how long until I am paid?",conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+fb14,similar_terms,md,How long does onboarding take for Growth customers?,answered,60 minutes,8 hours,support.md,,support.md
+fb15,similar_terms,md,For how many days is my data kept after I cancel?,answered,60 days,30 days,policies.md,,policies.md
+fb16,similar_terms,csv,What is the largest file I can upload on the Growth plan?,answered,100,200,limits.csv,,limits.csv
+fb17,multi_condition,md,"Can I cancel at any time, and is my data deleted straight away?",answered,any time;60 days,,policies.md,,policies.md
+fb18,date,md,Is support open on Saturdays at the moment?,answered,Monday to Friday,Saturday,support.md,,support.md
+fb19,missing,csv,What is the annual price of the Team plan?,insufficient,,348,,,plans.csv
+fb20,structured,csv,What is the difference in storage between the Team and Scale plans?,answered,950,,plans.csv,,plans.csv

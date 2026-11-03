@@ -1,0 +1,25 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+ha1,multi_condition,csv,Which plans cost less than 50 USD a month and include at least 5 seats?,answered,Pro;Business,Enterprise,pricing_plans.csv,,pricing_plans.csv
+ha2,structured,csv,What is the combined monthly price of the Pro and Business plans?,answered,65,,pricing_plans.csv,,pricing_plans.csv
+ha3,structured,csv,How many more seats does the Business plan have than the Pro plan?,answered,20,,pricing_plans.csv,,pricing_plans.csv
+ha4,structured,xlsx,How much storage in GB does the Pro plan include?,answered,100,,integrations.xlsx,,integrations.xlsx
+ha5,structured,xlsx,How much more storage does the Enterprise plan include than the Business plan?,answered,4500,,integrations.xlsx,,integrations.xlsx
+ha6,scope,xlsx,Is the Slack integration included in the Starter plan?,answered,Pro,,integrations.xlsx,,integrations.xlsx
+ha7,scope,csv,Does the Pro plan include audit logs?,answered,Enterprise,,pricing_plans.csv,,pricing_plans.csv
+ha8,scope,xlsx,Which integrations can be used on every plan?,answered,Zapier,,integrations.xlsx,,integrations.xlsx
+ha9,outdated,md,Can I still get a refund 20 days after my first payment?,answered,14,30 days,billing_terms.md,refund_policy_2025.md,billing_terms.md
+ha10,outdated,md,What response time does an Enterprise customer get on a support request?,answered,1 hour,24 hours,support_sla.md,sla_2024.md,support_sla.md
+ha11,conflict,md,Do all plans get 99.99% uptime?,conflict,,,support_sla.md;marketing_overview.md,,support_sla.md;marketing_overview.md
+ha12,conflict,faq;md,By when do I have to settle an invoice?,conflict,,,faq.csv;billing_terms.md,,faq.csv;billing_terms.md
+ha13,missing,md,Is Acme Cloud certified for PCI DSS card security?,insufficient,,,,,security_privacy.md
+ha14,missing,md,Who founded Acme Cloud?,insufficient,,,,,company_profile.md
+ha15,missing,csv,What does the Enterprise plan cost for a full year?,insufficient,,1188,,,pricing_plans.csv
+ha16,multi_source,json,"Which office has more staff, and what is its address?",answered,Pune;12 Baner Road,,offices.json,,offices.json
+ha17,multi_source,md,Who is the chief technology officer and in which year was the company founded?,answered,Daniel Okafor;2014,,company_profile.md,,company_profile.md
+ha18,multi_source,md;csv,Which plan includes single sign-on and which protocol does it use?,answered,Enterprise;SAML,,security_privacy.md,,security_privacy.md
+ha19,similar_terms,faq,How long does a password reset link stay valid?,answered,1 hour,,faq.csv,,faq.csv
+ha20,similar_terms,md,Within how many hours are customers told about a confirmed data breach?,answered,72,,security_privacy.md,,security_privacy.md
+ha21,similar_terms,md,How many business days does it take to process an approved refund?,answered,7 business days,,billing_terms.md,,billing_terms.md
+ha22,date,json,When was version 4.2 of the product released?,answered,2026,,product_profile.json,,product_profile.json
+ha23,scope,html,Are there any outages at the moment?,answered,operational,,acme.example/status,,acme.example/status
+ha24,partial,csv,"How much does the Pro plan cost per year, and how many seats does it have?",partial,5,240,pricing_plans.csv,,pricing_plans.csv

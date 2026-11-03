@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "about": "Models the platform could offer, and what is known about each. Facts here were read from the providers' own model pages on 'verified_on' and MUST be read again before any is offered (docs/provider-verification.md): prices and availability change. A field that is null is not known, not zero. 'structured' is 'json_schema' only where the provider's page says that model supports it; otherwise 'unverified', and the adapter then asks for JSON in the prompt and validates the answer itself. Nothing here is offered to a customer until platform_offered is true, which needs the benchmark (docs/llm-evaluation.md), the provider's terms (docs/provider-verification.md) and a decision.",
+  "models": [
+    {"provider": "cloudflare", "id": "@cf/google/gemma-4-26b-a4b-it", "label": "Gemma 4 26B-A4B (Cloudflare Workers AI)", "structured": "unverified", "context": 262144, "price_in_per_m": 0.10, "price_out_per_m": 0.30, "licence": null,
+     "verified_on": "2026-11-01", "source": "https://developers.cloudflare.com/workers-ai/models/", "tier": null, "platform_offered": false, "extra_body": {}, "notes": "benchmark candidate; the benchmark has not been run"},
+    {"provider": "cloudflare", "id": "@cf/mistralai/mistral-small-3.1-24b-instruct", "label": "Mistral Small 3.1 24B (Cloudflare Workers AI)", "structured": "unverified", "context": null, "price_in_per_m": 0.351, "price_out_per_m": 0.555, "licence": null,
+     "verified_on": "2026-11-01", "source": "https://developers.cloudflare.com/workers-ai/models/", "tier": null, "platform_offered": false, "extra_body": {}, "notes": "benchmark candidate; the page documents guided_json, which is not confirmed to be what this adapter sends"},
+    {"provider": "cloudflare", "id": "@cf/qwen/qwen3-30b-a3b-fp8", "label": "Qwen3 30B-A3B (Cloudflare Workers AI)", "structured": "unverified", "context": 32768, "price_in_per_m": 0.0509, "price_out_per_m": 0.335, "licence": null,
+     "verified_on": "2026-11-01", "source": "https://developers.cloudflare.com/workers-ai/models/", "tier": null, "platform_offered": false, "extra_body": {}, "notes": "benchmark candidate; no structured output documented"},
+    {"provider": "openrouter", "id": "mistralai/ministral-3b-2512", "label": "Ministral 3 3B (OpenRouter)", "structured": "json_schema", "context": null, "price_in_per_m": 0.10, "price_out_per_m": 0.10, "licence": null,
+     "verified_on": "2026-11-01", "source": "https://openrouter.ai/api/v1/models", "tier": null, "platform_offered": false, "extra_body": {}, "notes": "benchmark candidate; the listing shows structured_outputs among supported parameters; routing to an endpoint that supports it must be required"},
+    {"provider": "openrouter", "id": "qwen/qwen3.5-9b", "label": "Qwen3.5 9B (OpenRouter)", "structured": "json_schema", "context": null, "price_in_per_m": 0.17, "price_out_per_m": 0.25, "licence": null,
+     "verified_on": "2026-11-01", "source": "https://openrouter.ai/api/v1/models", "tier": null, "platform_offered": false, "extra_body": {"reasoning": {"enabled": false}}, "notes": "benchmark candidate; reasoning switched off so that an answer, not a monologue, is produced"},
+    {"provider": "openrouter", "id": "google/gemma-4-26b-a4b-it", "label": "Gemma 4 26B-A4B (OpenRouter)", "structured": "json_schema", "context": null, "price_in_per_m": 0.0675, "price_out_per_m": 0.225, "licence": null,
+     "verified_on": "2026-11-01", "source": "https://openrouter.ai/api/v1/models", "tier": null, "platform_offered": false, "extra_body": {}, "notes": "benchmark candidate"}
+  ]
+}

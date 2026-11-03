@@ -1,0 +1,31 @@
+query,entry_id,type,split
+cant log in i forgot my passcode,reset,paraphrase,dev
+how can i get my coworkers into the workspace,invite,paraphrase,test
+what do the paid tiers charge,pricing,paraphrase,dev
+stop my plan,cancel,paraphrase,test
+download everything i have stored,export,paraphrase,dev
+does it work with slack,integrations,paraphrase,test
+can we log in with okta,sso,paraphrase,dev
+do you expose an endpoint for developers,api,paraphrase,test
+can i use it on my phone,mobile,paraphrase,dev
+how safe is my information,security,paraphrase,test
+how do i change my profile picture,,out-of-scope-near,dev
+how many moons does jupiter have,,out-of-scope-far,dev
+reset link expiry thirty minutes,reset,answer-terms,dev
+team plan price per user,pricing,paraphrase,dev
+how many people can use the free plan,pricing,paraphrase,test
+annual refund window,refund,paraphrase,dev
+monthly refunds,refund,short,dev
+ios android app,mobile,short,test
+soc2,security,short,dev
+nightly backups,security,answer-terms,test
+how fast does business support reply,support,paraphrase,test
+export csv json,export,answer-terms,dev
+zapier github,integrations,short,test
+invite email join link,invite,answer-terms,test
+do i keep access after cancelling,cancel,paraphrase,dev
+rest api token,api,answer-terms,dev
+how do i add a gantt chart,,out-of-scope-near,test
+can taskly track my working hours,,out-of-scope-near,test
+what is the best laptop for gaming,,out-of-scope-far,test
+translate hello into german,,out-of-scope-far,test

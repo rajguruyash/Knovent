@@ -1,0 +1,31 @@
+query,entry_id,type,split
+what time does dinner start,hours,paraphrase,dev
+can i get a table for friday,reserve,paraphrase,test
+anything for vegans,vegetarian,paraphrase,dev
+i have coeliac disease,glutenfree,paraphrase,test
+will you bring food to my house,delivery,paraphrase,dev
+should i wear a suit,dress,paraphrase,test
+menu for little ones,kids,paraphrase,dev
+is there anywhere to leave my car,parking,paraphrase,test
+can we hire the place for a party,private,paraphrase,dev
+voucher as a present,giftcards,paraphrase,test
+do you have a wine list,,out-of-scope-near,dev
+who is the prime minister of japan,,out-of-scope-far,dev
+are you open on monday,hours,paraphrase,dev
+closed days,hours,short,dev
+party of ten booking notice,reserve,answer-terms,dev
+table for two tonight,reserve,paraphrase,test
+vegan pasta,vegetarian,short,test
+gluten free supplement price,glutenfree,answer-terms,test
+free delivery minimum order,delivery,paraphrase,dev
+smart casual,dress,short,dev
+kids under 12 menu price,kids,answer-terms,dev
+elm street car park,parking,answer-terms,test
+upstairs room capacity,private,paraphrase,test
+gift card minimum amount,giftcards,paraphrase,dev
+service charge for large groups,service,paraphrase,test
+can i bring my dog,dogs,paraphrase,dev
+do you do catering for weddings,,out-of-scope-near,test
+how much is the tiramisu,,out-of-scope-near,test
+how do i fix a leaking tap,,out-of-scope-far,test
+what is 15 times 12,,out-of-scope-far,test

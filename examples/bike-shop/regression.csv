@@ -1,0 +1,47 @@
+query,entry_id,type,split
+what time do you shut on a saturday,hours,paraphrase,dev
+can i send back something i bought,returns,paraphrase,dev
+how many days until my bike is fixed,repair-time,paraphrase,dev
+what do you charge for a standard tune up,repair-cost,paraphrase,dev
+will you bring a bike to my house,delivery,paraphrase,dev
+how long is the guarantee on new bikes,warranty,paraphrase,dev
+can i settle up with a credit card,payment,paraphrase,dev
+may i take one for a spin first,test-ride,paraphrase,dev
+which frame size suits my height,sizing,paraphrase,dev
+is monthly payment available,finance,paraphrase,dev
+what is the capital of france,,out-of-scope-far,dev
+do you sell second hand bikes,,out-of-scope-near,dev
+are you open on sundays,hours,paraphrase,test
+opening times,hours,short,test
+i want my money back for a helmet,returns,paraphrase,test
+retrun policy,returns,typo,test
+how long will my bike be in the workshop,repair-time,paraphrase,test
+price of a full service,repair-cost,paraphrase,test
+do you ship bikes to my address,delivery,paraphrase,test
+delivary cost,delivery,typo,test
+frame guarantee length,warranty,short,test
+do you take cheques,payment,answer-terms,test
+can i try before i buy,test-ride,paraphrase,test
+free fitting,sizing,answer-terms,test
+0 percent finance,finance,answer-terms,test
+do you rent out bikes,,out-of-scope-near,test
+tell me a joke,,out-of-scope-far,test
+what is the weather today,,out-of-scope-far,test
+is the shop shut on a sunday,hours,paraphrase,test
+saturday hours,hours,short,test
+can i bring back a jacket i bought last week,returns,paraphrase,test
+send it back by post,returns,answer-terms,test
+how soon will my bike be ready after a repair,repair-time,paraphrase,test
+repair turnaround,repair-time,short,test
+pounds for a full service,repair-cost,answer-terms,test
+do you drop bikes off at home within ten miles,delivery,answer-terms,test
+is delivery free over 200 pounds,delivery,paraphrase,test
+does the warranty cover components,warranty,paraphrase,test
+components warranty one year,warranty,answer-terms,test
+do you accept cash,payment,short,test
+wat payment methdos do u take,payment,typo,test
+book a thirty minute test ride,test-ride,answer-terms,test
+free test rid,test-ride,typo,test
+how do i know which size to buy,sizing,paraphrase,test
+buy now pay later on a bike,finance,paraphrase,test
+12 month 0 percent finance requirements,finance,answer-terms,test

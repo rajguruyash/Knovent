@@ -1,0 +1,31 @@
+query,entry_id,type,split
+a que hora puedo ocupar la habitacion,checkin,paraphrase,dev
+incluye el desayuno la tarifa,breakfast,paraphrase,test
+hay internet en las habitaciones,wifi,paraphrase,dev
+donde dejo el coche,parking,paraphrase,test
+puedo viajar con mi perro,pets,paraphrase,dev
+si no puedo ir me devuelven el dinero,cancel,paraphrase,test
+como se va del aeropuerto al hotel,airport,paraphrase,dev
+se puede nadar en verano,pool,paraphrase,test
+puedo entrenar de madrugada,gym,paraphrase,dev
+quiero quedarme hasta mas tarde el ultimo dia,latecheckout,paraphrase,test
+cuanto cuesta una habitacion doble,,out-of-scope-near,dev
+cual es la capital de italia,,out-of-scope-far,dev
+hora de entrada,checkin,short,dev
+hora de salida,checkin,short,test
+desayuno buffet de 7 a 10:30,breakfast,answer-terms,dev
+la conexion a internet es gratuita,wifi,paraphrase,dev
+parking privado 12 euros,parking,answer-terms,test
+perros pequeños 15 euros,pets,answer-terms,dev
+hasta cuando puedo cancelar sin pagar,cancel,paraphrase,test
+traslado privado 35 euros,airport,answer-terms,test
+horario de la piscina,pool,paraphrase,dev
+gimnasio 24 horas,gym,short,dev
+salida tardia hasta las 14:00,latecheckout,answer-terms,dev
+mi hijo tiene cinco años tiene que pagar,kids,paraphrase,test
+puedo dejar la maleta antes de entrar,luggage,paraphrase,dev
+consigna de equipaje,luggage,short,test
+tienen servicio de lavanderia,,out-of-scope-near,test
+se puede reservar una mesa en el restaurante,,out-of-scope-near,test
+quien gano el partido de futbol,,out-of-scope-far,test
+como se hace una tortilla,,out-of-scope-far,test

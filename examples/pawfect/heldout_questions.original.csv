@@ -1,0 +1,186 @@
+question,expected_source_or_answer,category,expected_behavior
+What can I get done for my dog there?,FAQ: services offered,services,answer_from_retrieved_source
+Do you offer nail clipping as part of grooming?,FAQ: services offered,services,answer_from_retrieved_source
+Can you brush my dog's coat at the studio?,FAQ: services offered,services,answer_from_retrieved_source
+Is a breed-style haircut available?,FAQ: services offered,services,answer_from_retrieved_source
+Do you clean dogs' ears?,FAQ: services offered,services,answer_from_retrieved_source
+Which grooming treatments can I book?,FAQ: services offered,services,answer_from_retrieved_source
+I need a bath and trim for my dog; what kind of work do you do?,FAQ: services offered,services,answer_from_retrieved_source
+Does the salon provide coat brushing?,FAQ: services offered,services,answer_from_retrieved_source
+Can I book a nail trim without asking for other services?,FAQ: services offered,services,answer_from_retrieved_source
+What grooming options are available for dogs?,FAQ: services offered,services,answer_from_retrieved_source
+Which part of Pune is the salon in?,FAQ: studio location,location,answer_from_retrieved_source
+Is the grooming place in Viman Nagar?,FAQ: studio location,location,answer_from_retrieved_source
+Where should I bring my dog for the appointment?,FAQ: studio location,location,answer_from_retrieved_source
+What neighbourhood is Pawfect based in?,FAQ: studio location,location,answer_from_retrieved_source
+Is your studio located in Pune?,FAQ: studio location,location,answer_from_retrieved_source
+Can you share the area where the shop is situated?,FAQ: studio location,location,answer_from_retrieved_source
+Where is the grooming centre?,FAQ: studio location,location,answer_from_retrieved_source
+How can I reserve a slot?,FAQ: appointment booking,booking,answer_from_retrieved_source
+Can I just walk in with my dog?,FAQ: appointment booking,booking,answer_from_retrieved_source
+Do you take customers without prior booking?,FAQ: appointment booking,booking,answer_from_retrieved_source
+Should I call before coming?,FAQ: appointment booking,booking,answer_from_retrieved_source
+Can I send a WhatsApp to arrange grooming?,FAQ: appointment booking,booking,answer_from_retrieved_source
+What number should I use to make a booking?,FAQ: appointment booking,booking,answer_from_retrieved_source
+Is advance appointment booking compulsory?,FAQ: appointment booking,booking,answer_from_retrieved_source
+How much time should I set aside for grooming?,FAQ: session duration,timing,answer_from_retrieved_source
+Will a regular session take around an hour?,FAQ: session duration,timing,answer_from_retrieved_source
+Does the duration depend on the dog's fur?,FAQ: session duration,timing,answer_from_retrieved_source
+How long might my pet be at the studio?,FAQ: session duration,timing,answer_from_retrieved_source
+What's the usual appointment length?,FAQ: session duration,timing,answer_from_retrieved_source
+Can I pay by QR or UPI?,FAQ: payment methods,payment,answer_from_retrieved_source
+Do you accept card payments?,FAQ: payment methods,payment,answer_from_retrieved_source
+Is cash okay for the grooming bill?,FAQ: payment methods,payment,answer_from_retrieved_source
+Which payment options are available?,FAQ: payment methods,payment,answer_from_retrieved_source
+How early should I inform you if I cannot come?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+Can I move my slot to another day?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+What's the notice period for changing an appointment?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+Can I cancel on short notice?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+My dog has a skin rash. Should I still bring him?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+What if my pet has an open wound?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Will the groomer diagnose a skin problem?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+My dog seems sick today; can the session go ahead?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Should I tell the staff about allergies before grooming?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Can your team treat a contagious skin condition?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+What information should I share about a recent operation?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+What happens if I arrive twenty minutes late?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+Is there a fee if I collect my dog late?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+How long after the completion message can I pick up my pet?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+What if traffic makes me late for the appointment?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+Will you call me before changing the booked service?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+How is the late pickup charge calculated?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+What happens if my dog becomes very stressed during grooming?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+Can the groomer stop if my dog keeps trying to bite?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+Do you disinfect the bath and table between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+Are the towels reused for different dogs without washing?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+Will you put a muzzle on my dog automatically?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+Can I be contacted if the groomer needs to pause?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+Are you open on Mondays?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+What time do you open on Sundays?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+When does the last appointment begin?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I come at 6:30 PM for a new appointment?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Are you open on public holidays?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+What are your normal weekly operating days?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I check the haircut before I leave?,Handbook: pick-up checklist,handbook_collection,answer_from_retrieved_source
+When should I raise a concern about the grooming?,Handbook: pick-up checklist,handbook_collection,answer_from_retrieved_source
+Do you take photos of pets for records?,Handbook: pick-up checklist,handbook_collection,answer_from_retrieved_source
+Will you take my dog's picture without asking?,Handbook: pick-up checklist,handbook_collection,answer_from_retrieved_source
+"If I arrive 18 minutes after my slot, what might happen?",Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+My dog has allergies and a recent surgery. What should I tell the team?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Can I book for a cat and pay by card?,FAQ: pets accepted; FAQ: payment methods,mixed,answer_from_retrieved_source
+"If the dog is distressed and the groomer pauses, will they contact me?",Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+"Can I collect my dog 45 minutes after the completion message, and is there an extra charge?",Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+I want a Sunday appointment at 6 PM. Is that within the final slot start time?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Do you offer grooming at home in Viman Nagar?,FAQ: home visits,booking,answer_from_retrieved_source
+Can I walk in on a Tuesday morning?,FAQ: appointment booking,booking,answer_from_retrieved_source
+Can staff give my dog medication if I bring it?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Are grooming tools cleaned between dogs?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What should I check before leaving after the appointment?,Handbook: pick-up checklist,handbook_collection,answer_from_retrieved_source
+Can you guarantee that a nervous dog will finish the full haircut?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the late collection fee for one extra hour?,Handbook: late arrival and collection,handbook_late,answer_from_retrieved_source
+Can I book a grooming slot on Monday?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Does the studio provide medical treatment for skin infections?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Who won yesterday's IPL match?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What is the weather in Pune right now?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you recommend a veterinarian near me?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What is the best dog food brand?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you board my dog overnight?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you sell dog collars?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you groom rabbits?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What is the GST number of the studio?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you offer a monthly subscription?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you guarantee a flea-free coat?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you diagnose ear infections?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you provide pickup and drop service?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What is the owner's name?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I get a refund after the grooming is complete?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you have parking available?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you groom a 12-week-old puppy?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What is the price of a full grooming session?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you offer discounts for two dogs?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I pay using cryptocurrency?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you have an emergency vet on site?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you trim my cat's nails?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What is your exact street address?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you come to Kharadi today?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you sell grooming products online?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I book at 8 AM?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you provide training classes?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+What breed is easiest to groom?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you remove a tick safely?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Do you have CCTV in the grooming area?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can you guarantee a specific haircut result?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source
+Can I leave my dog there for an overnight stay?,ABSTAIN — not covered by the supplied FAQ or handbook.,out_of_scope,abstain
+Can I use UPI to settle the grooming payment?,FAQ: payment methods,payment,answer_from_retrieved_source
+What should I bring or tell the groomer before the session?,Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+Is the studio open every day of the week?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+How much notice is needed to reschedule?,FAQ: cancellation and rescheduling,cancel,answer_from_retrieved_source
+"If my dog has an allergy, should I mention it before the appointment?",Handbook: coat and skin preparation,handbook_skin,answer_from_retrieved_source
+How are towels handled between appointments?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What does the team do if a dog is showing severe distress?,Handbook: safety and handling,handbook_safety,answer_from_retrieved_source
+What is the latest time a fresh appointment can start?,Handbook: opening schedule,handbook_hours,answer_from_retrieved_source
+Can I stay in the grooming room while the dog is being washed?,FAQ: owner presence during grooming,booking,answer_from_retrieved_source

@@ -1,0 +1,13 @@
+id,question,answer,alt_questions
+timing,Aapki dukaan kab khulti hai?,"Dukaan subah 9 baje se raat 9 baje tak khulti hai, aur ravivaar ko bhi khuli rehti hai.",Dukaan ka time kya hai?
+delivery,Kya aap ghar par delivery karte hain?,"Haan, 5 km ke andar delivery free hai. 500 rupaye se zyada ke order par delivery hamesha free hai.",
+payment,Payment kaise kar sakte hain?,"Aap UPI, card ya cash on delivery se payment kar sakte hain.",
+return,Saman wapas kaise karein?,"Saman 7 din ke andar wapas ho sakta hai, bas packing aur bill saath hona chahiye.",
+refund,Refund kitne din mein milega?,Refund 3 se 5 kaam ke dino mein aapke bank account mein aa jata hai.,
+offer,Koi discount ya offer chal raha hai?,"Har mahine ke pehle hafte mein 10 percent ka discount milta hai, aur nayi customers ko pehle order par 50 rupaye off.",
+tracking,"Mera order kahan tak pahuncha, kaise pata karein?","Aapko SMS mein tracking link milega, ya aap hume 98765 43210 par call kar sakte hain.",
+wrongitem,Galat saman aa gaya to kya karein?,"Turant hume photo ke saath WhatsApp karein, hum 24 ghante mein sahi saman bhej denge.",
+bulk,Kya bulk order par alag rate milta hai?,"Haan, 10 se zyada items ke order par special rate milta hai. Aap hume call karke puchh sakte hain.",
+address,Delivery ka address kaise badlein?,Order dispatch hone se pehle hume call ya WhatsApp karke address badal sakte hain.,
+fresh,Kya saman fresh hota hai?,"Sabzi aur dairy roz subah taaza aati hai, aur expiry date pack par likhi hoti hai.",
+membership,Kya koi membership card hai?,"Haan, 199 rupaye mein saal bhar ka membership milta hai, jisme har order par 5 percent cashback milta hai.",

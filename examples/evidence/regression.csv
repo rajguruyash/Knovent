@@ -1,0 +1,7 @@
+id,category,expected_outcome,question,must_contain,must_not_contain,cite
+d2,direct,faq,Where is Pawfect Grooming Studio located?,Viman Nagar,,faq-002
+p10,paraphrase,grounded,Can the staff give my dog medicine?,cannot administer medication,,pawfect-handbook-002
+r7,related,insufficient,Do you give discounts to regular customers?,,discount of,
+r10,related,insufficient,Can I bring my puppy before its first vaccinations?,,vaccin,
+m2,multi-part,grounded,Which pets do you groom and what days are you open?,dogs only;Tuesday to Sunday,,faq-004;pawfect-handbook-007
+m6,multi-part,grounded,Are towels washed between dogs and may I take photos at pick-up?,Towels are washed;permission,,pawfect-handbook-005;pawfect-handbook-006

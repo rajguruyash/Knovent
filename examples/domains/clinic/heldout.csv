@@ -1,0 +1,34 @@
+query,entry_id,type,split
+when do you shut on saturdays,hours,paraphrase,dev
+i want to see a doctor next week how do i set that up,book,paraphrase,test
+can i move my visit to another day,cancel,paraphrase,dev
+is aetna ok with you,insurance,paraphrase,test
+can i just turn up without booking,walkin,paraphrase,dev
+need my chart sent to a new doctor,records,paraphrase,test
+my pills are running out,prescription,paraphrase,dev
+where can i get a covid jab,covid,paraphrase,test
+do i need to fast before the blood work,lab,paraphrase,dev
+are kids welcome,children,paraphrase,test
+how much does a knee operation cost,,out-of-scope-near,dev
+what is the capital of canada,,out-of-scope-far,dev
+are you open on sunday,hours,paraphrase,dev
+clinic hours,hours,short,dev
+set up a first visit as a new patient,book,paraphrase,test
+appointmnt booking,book,typo,dev
+late cancel fee 25 dollars,cancel,answer-terms,dev
+do you work with cigna,insurance,paraphrase,dev
+insurance cards,insurance,short,test
+how long is the wait for walk ins,walkin,paraphrase,test
+release form for my records,records,answer-terms,test
+how quickly are refills done,prescription,paraphrase,dev
+booster shot availability,covid,short,dev
+fasting blood test time,lab,answer-terms,dev
+kids paediatric days,children,short,test
+where do i park,parking,paraphrase,test
+parkng,parking,typo,test
+can i see the doctor over video,telehealth,paraphrase,dev
+telehealth link by email,telehealth,answer-terms,test
+do you do cosmetic surgery,,out-of-scope-near,test
+what are the side effects of ibuprofen,,out-of-scope-near,test
+who won the cricket match yesterday,,out-of-scope-far,test
+recommend a good pasta recipe,,out-of-scope-far,test

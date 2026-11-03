@@ -1,0 +1,8 @@
+id,question,answer,category,alt_questions
+faq-001,Is there a free plan?,Yes. The Free plan costs nothing and includes 1 agent.,plans,Do you have a free tier?
+faq-002,Can I upgrade my plan later?,Yes. You can upgrade at any time and the change applies immediately. Downgrades apply at the next renewal.,plans,
+faq-003,Do you offer annual billing?,Annual billing is available on request. Contact sales@beacon.example.,billing,
+faq-004,What is the money-back guarantee?,If you are not happy tell us within 14 days of buying and we will give you all your money back.,billing,
+faq-005,Do prices include VAT?,Yes. All prices on the pricing page include VAT.,billing,
+faq-006,Do you have an education programme?,Our education programme gives schools free access to the Team plan for one year.,billing,
+faq-007,How do I contact support?,Email help@beacon.example or use the chat widget in the app.,support,

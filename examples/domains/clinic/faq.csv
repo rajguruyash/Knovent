@@ -1,0 +1,13 @@
+id,question,answer,alt_questions
+hours,What are your opening hours?,We are open Monday to Friday from 8am to 6pm and Saturday from 9am to 1pm. The clinic is closed on Sundays.,When is the clinic open?|What time do you close?
+book,How do I book an appointment?,"You can book online, by phone on 555-0100, or at the front desk. New patients should arrive 15 minutes early to fill in forms.",Can I make an appointment?
+cancel,How do I cancel or reschedule an appointment?,Please give at least 24 hours' notice by phone or online. Late cancellations may incur a 25 dollar fee.,
+insurance,Which insurance plans do you accept?,"We accept most major plans including Aetna, Cigna and BlueCross. Bring your insurance card to every visit.",Do you take my insurance?
+walkin,Do you accept walk-in patients?,"Yes, walk-ins are seen on a first come basis, but patients with appointments are seen first so waits can be long.",
+records,How can I get a copy of my medical records?,Fill in a release form at the front desk or download it from our website. Records are ready within 5 business days.,
+prescription,How do I get a prescription refilled?,Call your pharmacy and ask them to send us a request. Refills take up to 2 business days.,Can I renew my medication?
+covid,Do you offer COVID-19 vaccines?,"Yes, vaccines and boosters are available by appointment, at no cost with most insurance plans.",
+lab,Can I have blood tests done at the clinic?,"Yes, our on-site lab does blood draws from 8am to noon. Fasting tests need an appointment before 10am.",
+children,Do you treat children?,"We see patients of all ages, from newborns to seniors. Paediatric visits are on Tuesday and Thursday afternoons.",
+parking,Is there parking at the clinic?,"Free parking is available behind the building, with accessible spaces by the main entrance.",
+telehealth,Do you offer video visits?,"Yes, telehealth visits are available for follow-ups and minor illnesses. You will receive a link by email 10 minutes before the visit.",

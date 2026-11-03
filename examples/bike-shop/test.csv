@@ -1,0 +1,37 @@
+query,entry_id
+do you open on sundays,hours
+what are the shop times,hours
+until what time are you open today,hours
+i want to send my purchase back,returns
+how do i get my money back for an unused helmet,returns
+return policy,returns
+how many days does fixing a bike take,repair-time
+turnaround time for repairs,repair-time
+when can i collect my bike after a service,repair-time
+how much is a full service,repair-cost
+cost of getting my bike serviced,repair-cost
+service prices,repair-cost
+can you bring a bike to my address,delivery
+delivery charge,delivery
+how fast is shipping,delivery
+how many years is the warranty,warranty
+is the frame covered if it breaks,warranty
+guarantee on new bikes,warranty
+do you accept credit cards,payment
+can i pay in cash,payment
+which ways of paying do you take,payment
+can i take a bike for a test spin,test-ride
+do i need to book a trial ride,test-ride
+is it free to try a bike,test-ride
+how do i know what size bike i need,sizing
+can someone measure me for a bike,sizing
+i am 165cm tall which size,sizing
+can i buy a bike on finance,finance
+do you offer buy now pay later,finance
+what are the credit terms,finance
+what is the weather like tomorrow,
+recommend a pizza place nearby,
+how do i reset my email password,
+who won the football match last night,
+do you rent out cars,
+what is the capital of france,

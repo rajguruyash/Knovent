@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knovent: answers from your own knowledge</title>
+<meta name="description" content="A business knowledge engine: it finds information in your FAQs, documents and web pages, checks that it really answers the question, and says so when it does not. AI runs on your own computer first.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Knovent: answers from your own knowledge">
+<meta property="og:description" content="A business knowledge engine: it finds information in your FAQs, documents and web pages, checks that it really answers the question, and says so when it does not. AI runs on your own computer first.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Knovent home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6f8cff"/><stop offset="1" stop-color="#f6c453"/></linearGradient></defs><rect width="32" height="32" rx="10" fill="url(#lg)"/><path d="M9 10.5h14M9 16h14M9 21.5h8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+      Knovent
+    </a>
+    <ul>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#capabilities">Capabilities</a></li>
+      <li><a href="#local">Local AI first</a></li>
+      <li><a href="#difference">Why it is different</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="actions">
+      <a class="btn link" href="/app">Sign in</a>
+      <a class="btn primary" href="/app?signup=1">Get started</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><i></i><i></i><i></i></button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="mobile-menu" aria-label="Menu"><a href="#how">How it works</a><a href="#capabilities">Capabilities</a><a href="#local">Local AI first</a><a href="#difference">Why it is different</a><a href="#faq">Questions</a><a href="/app">Sign in</a><a href="/app?signup=1">Create a business</a></nav>
+<main id="main">
+<section class="hero">
+<div class="scene" aria-hidden="true">
+<svg viewBox="0 0 1440 900" preserveAspectRatio="xMaxYMax slice" focusable="false">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#030826"/><stop offset=".55" stop-color="#0a1c6b"/><stop offset="1" stop-color="#1b3fbf"/></linearGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16379e"/><stop offset="1" stop-color="#040b34"/></linearGradient>
+<linearGradient id="beamg" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#ffd978" stop-opacity=".95"/><stop offset=".55" stop-color="#f6c453" stop-opacity=".35"/><stop offset="1" stop-color="#f6c453" stop-opacity="0"/></linearGradient>
+<radialGradient id="lamp"><stop offset="0" stop-color="#fff3c4"/><stop offset=".35" stop-color="#ffd978" stop-opacity=".8"/><stop offset="1" stop-color="#f6c453" stop-opacity="0"/></radialGradient>
+<filter id="soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="16"/></filter>
+</defs>
+<rect width="1440" height="900" fill="url(#sky)"/>
+<g class="stars" fill="#fdf3dc"><circle class="star s0" cx="673" cy="87" r="2"/><circle class="star s1" cx="1343" cy="34" r="1"/><circle class="star s2" cx="1107" cy="58" r="1.6"/><circle class="star s3" cx="1203" cy="39" r="1.2"/><circle class="star s4" cx="86" cy="54" r="2"/><circle class="star s0" cx="866" cy="45" r="1.2"/><circle class="star s1" cx="195" cy="292" r="2"/><circle class="star s2" cx="131" cy="299" r="1"/><circle class="star s3" cx="467" cy="332" r="1"/><circle class="star s4" cx="1191" cy="309" r="2"/><circle class="star s0" cx="111" cy="123" r="1"/><circle class="star s1" cx="1150" cy="78" r="1.6"/><circle class="star s2" cx="868" cy="83" r="1"/><circle class="star s3" cx="1179" cy="167" r="1.2"/><circle class="star s4" cx="221" cy="307" r="1.2"/><circle class="star s0" cx="772" cy="59" r="1"/><circle class="star s1" cx="1165" cy="40" r="1.2"/><circle class="star s2" cx="1026" cy="358" r="2"/><circle class="star s3" cx="653" cy="248" r="2"/><circle class="star s4" cx="750" cy="163" r="1.2"/><circle class="star s0" cx="378" cy="367" r="1.2"/><circle class="star s1" cx="177" cy="304" r="1.6"/><circle class="star s2" cx="1085" cy="263" r="1.6"/><circle class="star s3" cx="929" cy="157" r="1"/><circle class="star s4" cx="251" cy="272" r="2"/><circle class="star s0" cx="347" cy="185" r="1.2"/><circle class="star s1" cx="1011" cy="225" r="1"/><circle class="star s2" cx="1378" cy="49" r="1.6"/><circle class="star s3" cx="706" cy="365" r="1.6"/><circle class="star s4" cx="1227" cy="264" r="2"/><circle class="star s0" cx="150" cy="57" r="1.6"/><circle class="star s1" cx="980" cy="366" r="1"/><circle class="star s2" cx="134" cy="369" r="1.6"/><circle class="star s3" cx="1335" cy="305" r="2"/><circle class="star s4" cx="592" cy="376" r="2"/><circle class="star s0" cx="1379" cy="187" r="1"/><circle class="star s1" cx="955" cy="191" r="1.2"/><circle class="star s2" cx="1261" cy="69" r="2"/><circle class="star s3" cx="130" cy="121" r="1.6"/><circle class="star s4" cx="274" cy="136" r="2"/><circle class="star s0" cx="810" cy="264" r="1"/><circle class="star s1" cx="350" cy="239" r="2"/><circle class="star s2" cx="1135" cy="152" r="1.2"/><circle class="star s3" cx="891" cy="291" r="1.6"/><circle class="star s4" cx="860" cy="193" r="2"/><circle class="star s0" cx="482" cy="87" r="1"/></g>
+<g class="cloud c1" fill="#e9eeff" filter="url(#soft)"><ellipse cx="260" cy="170" rx="195" ry="60"/><ellipse cx="117" cy="193" rx="143" ry="44"/><ellipse cx="416" cy="191" rx="156" ry="49"/><ellipse cx="299" cy="136" rx="130" ry="52"/><ellipse cx="208" cy="144" rx="104" ry="42"/></g>
+<g class="cloud c2" fill="#cfd9ff" filter="url(#soft)"><ellipse cx="160" cy="300" rx="150" ry="46"/><ellipse cx="50" cy="318" rx="110" ry="34"/><ellipse cx="280" cy="316" rx="120" ry="38"/><ellipse cx="190" cy="274" rx="100" ry="40"/><ellipse cx="120" cy="280" rx="80" ry="32"/></g>
+<g class="cloud c3" fill="#f4ecd8" filter="url(#soft)"><ellipse cx="80" cy="110" rx="120" ry="37"/><ellipse cx="-8" cy="124" rx="88" ry="27"/><ellipse cx="176" cy="123" rx="96" ry="30"/><ellipse cx="104" cy="89" rx="80" ry="32"/><ellipse cx="48" cy="94" rx="64" ry="26"/></g>
+<g class="beam"><polygon points="1135,505 -200,250 -200,720" fill="url(#beamg)"/></g>
+<rect y="560" width="1440" height="340" fill="url(#sea)"/>
+<g class="rock"><path d="M1040 640 L1090 590 L1190 590 L1250 650 L1300 700 L1000 700 Z" fill="#050c3a"/></g>
+<g class="tower"><path d="M1118 590 L1132 410 L1168 410 L1182 590 Z" fill="#f4ecd8"/><path d="M1124 520 L1176 520 L1172 548 L1121 548 Z" fill="#14308f"/><path d="M1130 450 L1170 450 L1168 474 L1131 474 Z" fill="#14308f"/><rect x="1122" y="396" width="56" height="16" fill="#0a1c6b"/><path d="M1128 396 L1150 366 L1172 396 Z" fill="#0a1c6b"/><rect x="1136" y="372" width="28" height="24" fill="#ffd978"/></g>
+<circle class="lamp" cx="1150" cy="384" r="90" fill="url(#lamp)"/>
+<g class="wave w1"><path d="M0,620.0 L30,625.0 L60,628.7 L90,630.0 L120,628.7 L150,625.0 L180,620.0 L210,615.0 L240,611.3 L270,610.0 L300,611.3 L330,615.0 L360,620.0 L390,625.0 L420,628.7 L450,630.0 L480,628.7 L510,625.0 L540,620.0 L570,615.0 L600,611.3 L630,610.0 L660,611.3 L690,615.0 L720,620.0 L750,625.0 L780,628.7 L810,630.0 L840,628.7 L870,625.0 L900,620.0 L930,615.0 L960,611.3 L990,610.0 L1020,611.3 L1050,615.0 L1080,620.0 L1110,625.0 L1140,628.7 L1170,630.0 L1200,628.7 L1230,625.0 L1260,620.0 L1290,615.0 L1320,611.3 L1350,610.0 L1380,611.3 L1410,615.0 L1440,620.0 L1470,625.0 L1500,628.7 L1530,630.0 L1560,628.7 L1590,625.0 L1620,620.0 L1650,615.0 L1680,611.3 L1710,610.0 L1740,611.3 L1770,615.0 L1800,620.0 L1830,625.0 L1860,628.7 L1890,630.0 L1920,628.7 L1950,625.0 L1980,620.0 L2010,615.0 L2040,611.3 L2070,610.0 L2100,611.3 L2130,615.0 L2160,620.0 L2190,625.0 L2220,628.7 L2250,630.0 L2280,628.7 L2310,625.0 L2340,620.0 L2370,615.0 L2400,611.3 L2430,610.0 L2460,611.3 L2490,615.0 L2520,620.0 L2550,625.0 L2580,628.7 L2610,630.0 L2640,628.7 L2670,625.0 L2700,620.0 L2730,615.0 L2760,611.3 L2790,610.0 L2820,611.3 L2850,615.0 L2880,620.0 L2880,900 L0,900 Z" fill="#1a3fb0" opacity=".55"/></g>
+<g class="wave w2"><path d="M0,660.0 L30,665.4 L60,669.9 L90,672.9 L120,674.0 L150,672.9 L180,669.9 L210,665.4 L240,660.0 L270,654.6 L300,650.1 L330,647.1 L360,646.0 L390,647.1 L420,650.1 L450,654.6 L480,660.0 L510,665.4 L540,669.9 L570,672.9 L600,674.0 L630,672.9 L660,669.9 L690,665.4 L720,660.0 L750,654.6 L780,650.1 L810,647.1 L840,646.0 L870,647.1 L900,650.1 L930,654.6 L960,660.0 L990,665.4 L1020,669.9 L1050,672.9 L1080,674.0 L1110,672.9 L1140,669.9 L1170,665.4 L1200,660.0 L1230,654.6 L1260,650.1 L1290,647.1 L1320,646.0 L1350,647.1 L1380,650.1 L1410,654.6 L1440,660.0 L1470,665.4 L1500,669.9 L1530,672.9 L1560,674.0 L1590,672.9 L1620,669.9 L1650,665.4 L1680,660.0 L1710,654.6 L1740,650.1 L1770,647.1 L1800,646.0 L1830,647.1 L1860,650.1 L1890,654.6 L1920,660.0 L1950,665.4 L1980,669.9 L2010,672.9 L2040,674.0 L2070,672.9 L2100,669.9 L2130,665.4 L2160,660.0 L2190,654.6 L2220,650.1 L2250,647.1 L2280,646.0 L2310,647.1 L2340,650.1 L2370,654.6 L2400,660.0 L2430,665.4 L2460,669.9 L2490,672.9 L2520,674.0 L2550,672.9 L2580,669.9 L2610,665.4 L2640,660.0 L2670,654.6 L2700,650.1 L2730,647.1 L2760,646.0 L2790,647.1 L2820,650.1 L2850,654.6 L2880,660.0 L2880,900 L0,900 Z" fill="#12308f" opacity=".75"/></g>
+<g class="glints" fill="#ffd978"><ellipse class="glint g0" cx="440" cy="677" rx="17" ry="2"/><ellipse class="glint g1" cx="557" cy="606" rx="25" ry="2"/><ellipse class="glint g2" cx="1286" cy="693" rx="18" ry="2"/><ellipse class="glint g3" cx="657" cy="602" rx="14" ry="2"/><ellipse class="glint g0" cx="938" cy="789" rx="29" ry="2"/><ellipse class="glint g1" cx="1239" cy="763" rx="14" ry="2"/><ellipse class="glint g2" cx="1135" cy="627" rx="24" ry="2"/><ellipse class="glint g3" cx="1225" cy="800" rx="22" ry="2"/><ellipse class="glint g0" cx="897" cy="801" rx="13" ry="2"/><ellipse class="glint g1" cx="1066" cy="805" rx="11" ry="2"/><ellipse class="glint g2" cx="470" cy="634" rx="16" ry="2"/><ellipse class="glint g3" cx="982" cy="683" rx="13" ry="2"/><ellipse class="glint g0" cx="776" cy="626" rx="13" ry="2"/><ellipse class="glint g1" cx="80" cy="677" rx="27" ry="2"/><ellipse class="glint g2" cx="287" cy="786" rx="29" ry="2"/><ellipse class="glint g3" cx="132" cy="636" rx="16" ry="2"/><ellipse class="glint g0" cx="1337" cy="792" rx="14" ry="2"/><ellipse class="glint g1" cx="1379" cy="729" rx="21" ry="2"/><ellipse class="glint g2" cx="1313" cy="786" rx="25" ry="2"/><ellipse class="glint g3" cx="331" cy="659" rx="25" ry="2"/><ellipse class="glint g0" cx="1034" cy="845" rx="25" ry="2"/><ellipse class="glint g1" cx="718" cy="643" rx="14" ry="2"/><ellipse class="glint g2" cx="289" cy="775" rx="33" ry="2"/><ellipse class="glint g3" cx="622" cy="845" rx="32" ry="2"/><ellipse class="glint g0" cx="410" cy="611" rx="16" ry="2"/><ellipse class="glint g1" cx="1161" cy="785" rx="14" ry="2"/></g>
+<g class="wave w3"><path d="M0,720.0 L30,728.0 L60,733.9 L90,736.0 L120,733.9 L150,728.0 L180,720.0 L210,712.0 L240,706.1 L270,704.0 L300,706.1 L330,712.0 L360,720.0 L390,728.0 L420,733.9 L450,736.0 L480,733.9 L510,728.0 L540,720.0 L570,712.0 L600,706.1 L630,704.0 L660,706.1 L690,712.0 L720,720.0 L750,728.0 L780,733.9 L810,736.0 L840,733.9 L870,728.0 L900,720.0 L930,712.0 L960,706.1 L990,704.0 L1020,706.1 L1050,712.0 L1080,720.0 L1110,728.0 L1140,733.9 L1170,736.0 L1200,733.9 L1230,728.0 L1260,720.0 L1290,712.0 L1320,706.1 L1350,704.0 L1380,706.1 L1410,712.0 L1440,720.0 L1470,728.0 L1500,733.9 L1530,736.0 L1560,733.9 L1590,728.0 L1620,720.0 L1650,712.0 L1680,706.1 L1710,704.0 L1740,706.1 L1770,712.0 L1800,720.0 L1830,728.0 L1860,733.9 L1890,736.0 L1920,733.9 L1950,728.0 L1980,720.0 L2010,712.0 L2040,706.1 L2070,704.0 L2100,706.1 L2130,712.0 L2160,720.0 L2190,728.0 L2220,733.9 L2250,736.0 L2280,733.9 L2310,728.0 L2340,720.0 L2370,712.0 L2400,706.1 L2430,704.0 L2460,706.1 L2490,712.0 L2520,720.0 L2550,728.0 L2580,733.9 L2610,736.0 L2640,733.9 L2670,728.0 L2700,720.0 L2730,712.0 L2760,706.1 L2790,704.0 L2820,706.1 L2850,712.0 L2880,720.0 L2880,900 L0,900 Z" fill="#0a1f6e"/></g>
+<g class="wave w4"><path d="M0,790.0 L30,797.7 L60,804.1 L90,808.5 L120,810.0 L150,808.5 L180,804.1 L210,797.7 L240,790.0 L270,782.3 L300,775.9 L330,771.5 L360,770.0 L390,771.5 L420,775.9 L450,782.3 L480,790.0 L510,797.7 L540,804.1 L570,808.5 L600,810.0 L630,808.5 L660,804.1 L690,797.7 L720,790.0 L750,782.3 L780,775.9 L810,771.5 L840,770.0 L870,771.5 L900,775.9 L930,782.3 L960,790.0 L990,797.7 L1020,804.1 L1050,808.5 L1080,810.0 L1110,808.5 L1140,804.1 L1170,797.7 L1200,790.0 L1230,782.3 L1260,775.9 L1290,771.5 L1320,770.0 L1350,771.5 L1380,775.9 L1410,782.3 L1440,790.0 L1470,797.7 L1500,804.1 L1530,808.5 L1560,810.0 L1590,808.5 L1620,804.1 L1650,797.7 L1680,790.0 L1710,782.3 L1740,775.9 L1770,771.5 L1800,770.0 L1830,771.5 L1860,775.9 L1890,782.3 L1920,790.0 L1950,797.7 L1980,804.1 L2010,808.5 L2040,810.0 L2070,808.5 L2100,804.1 L2130,797.7 L2160,790.0 L2190,782.3 L2220,775.9 L2250,771.5 L2280,770.0 L2310,771.5 L2340,775.9 L2370,782.3 L2400,790.0 L2430,797.7 L2460,804.1 L2490,808.5 L2520,810.0 L2550,808.5 L2580,804.1 L2610,797.7 L2640,790.0 L2670,782.3 L2700,775.9 L2730,771.5 L2760,770.0 L2790,771.5 L2820,775.9 L2850,782.3 L2880,790.0 L2880,900 L0,900 Z" fill="#050f45"/><path d="M0,790.0 L30,797.7 L60,804.1 L90,808.5 L120,810.0 L150,808.5 L180,804.1 L210,797.7 L240,790.0 L270,782.3 L300,775.9 L330,771.5 L360,770.0 L390,771.5 L420,775.9 L450,782.3 L480,790.0 L510,797.7 L540,804.1 L570,808.5 L600,810.0 L630,808.5 L660,804.1 L690,797.7 L720,790.0 L750,782.3 L780,775.9 L810,771.5 L840,770.0 L870,771.5 L900,775.9 L930,782.3 L960,790.0 L990,797.7 L1020,804.1 L1050,808.5 L1080,810.0 L1110,808.5 L1140,804.1 L1170,797.7 L1200,790.0 L1230,782.3 L1260,775.9 L1290,771.5 L1320,770.0 L1350,771.5 L1380,775.9 L1410,782.3 L1440,790.0 L1470,797.7 L1500,804.1 L1530,808.5 L1560,810.0 L1590,808.5 L1620,804.1 L1650,797.7 L1680,790.0 L1710,782.3 L1740,775.9 L1770,771.5 L1800,770.0 L1830,771.5 L1860,775.9 L1890,782.3 L1920,790.0 L1950,797.7 L1980,804.1 L2010,808.5 L2040,810.0 L2070,808.5 L2100,804.1 L2130,797.7 L2160,790.0 L2190,782.3 L2220,775.9 L2250,771.5 L2280,770.0 L2310,771.5 L2340,775.9 L2370,782.3 L2400,790.0 L2430,797.7 L2460,804.1 L2490,808.5 L2520,810.0 L2550,808.5 L2580,804.1 L2610,797.7 L2640,790.0 L2670,782.3 L2700,775.9 L2730,771.5 L2760,770.0 L2790,771.5 L2820,775.9 L2850,782.3 L2880,790.0 L2880,900 L0,900 Z" fill="none" stroke="#e9eeff" stroke-opacity=".35" stroke-width="2"/></g>
+</svg></div>
+  <div class="wrap grid">
+    <div>
+      <span class="eyebrow">A knowledge engine, not another chatbot</span>
+      <h1><span class="ln">Answer customers from</span> <span class="ln">your own knowledge,</span> <span class="ln">and say <em>“I don’t know”</em></span> <span class="ln">when it isn’t there.</span></h1>
+      <p class="lead">Add your FAQs, documents and web pages. Knovent finds the right information, checks that it actually answers the question, and only then replies. AI runs on your own computer first; nothing leaves it unless you say so. A model never has the last word.</p>
+      <div class="cta"><a class="btn primary big" href="/app?signup=1">Create a business</a></div>
+      <p class="small risk">No AI key and no card details needed to begin. In local mode your files and questions stay on your computer.</p>
+    </div>
+    <div class="mock" role="img" aria-label="An example answer: part of the question is answered from a refund policy, and the engine says that nothing covers the refund fee">
+      <div class="bar"><i></i><i></i><i></i><span>Playground</span></div>
+      <div class="body">
+        <div class="bubble q">How long does a refund take, and is there a fee?</div>
+        <div class="bubble a">
+          <span class="pill warn">Answered in part</span>
+          <p>Approved refunds are processed within 7 business days. [1]</p>
+          <p class="tight">Nothing I have covers a refund fee. Would you like me to pass this to a person?</p>
+          <div class="evidence">
+            <span><b>Supported:</b> refund time, from <code>Refund policy</code> (direct)</span>
+            <span><b>Not supported:</b> refund fee, no source</span>
+            <span><b>AI wording:</b> not used (local only), <b>search:</b> meaning + keywords</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="proof" aria-label="Facts about the engine">
+      <div><b>22 MB</b><span>the model that reads questions; it runs on an ordinary CPU</span></div>
+      <div><b>0 calls</b><span>to the network needed to answer in local mode (tested with every connection blocked)</span></div>
+      <div><b>2 checks</b><span>before any AI wording is shown: evidence, then claim by claim verification</span></div>
+      <div><b>Every table</b><span>guarded by row level security, tested as each kind of user</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="how">
+  <div class="wrap center">
+    <span class="kicker">How it works</span>
+    <h2>From your documents to a reliable answer in four steps</h2>
+    <p class="lead">Nothing is guessed on the way. Each step shows what it found and why.</p>
+    <div class="steps">
+      <div class="step"><h3>Add your knowledge</h3><p class="muted">FAQ tables (CSV, Excel, JSON), PDFs, Word and text files, Markdown, or a web page. Large documents are cut into passages that can support an answer.</p></div>
+      <div class="step"><h3>Choose where AI runs</h3><p class="muted">On your own computer (recommended: a model that fits it is downloaded for you once you confirm), through your own API key (drop a .env file), or not at all.</p></div>
+      <div class="step"><h3>Test it with evidence</h3><p class="muted">Ask a question and see the answer type, the sources, what is supported, what is not, who wrote the answer and which steps were tried.</p></div>
+      <div class="step"><h3>Use it</h3><p class="muted">Ask through the dashboard or the API, or export a package that runs on your own computer with no connection to anything.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="capabilities">
+  <div class="wrap">
+    <div class="center"><span class="kicker">Capabilities</span><h2>Built to be right before it is fluent</h2><p class="lead">The parts that matter when a customer acts on what they are told.</p></div>
+    <div class="bento">
+      <div class="card hero-tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div><h3>Evidence before answers</h3><p class="muted">A similar question is not an answer. The engine checks that the text really contains the price, the time, the policy that was asked for.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><h3>An honest “I don’t know”</h3><p class="muted">When nothing answers, it says so. When part of a question is covered, it answers that part and names what is missing. When sources disagree, it shows both.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><h3>Search that reads meaning and words</h3><p class="muted">Embeddings catch rewordings; keywords catch exact terms and codes. Blended, and measured on nine datasets, not assumed.</p></div>
+      <div class="card wide"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>AI wording, checked</h3><p class="muted">Changed prices, dropped conditions, flipped policies and planted links are caught, and the stored wording is used instead. You see when that happened. An exact, verified FAQ answer is simply given: no model is asked to rewrite what is already right.</p></div>
+      <div class="card wide"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h3>Private by design</h3><p class="muted">Each business sees only its own knowledge. API keys are encrypted on the server and never shown again. Documents are treated as data, never as instructions.</p></div>
+      <div class="card wide"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01"/><path d="m3 3 18 18"/></svg></div><h3>Works offline</h3><p class="muted">The full engine runs on your own computer with no account, no key and no internet. Export it as a package and keep it improving from the questions you approve.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="tagline" aria-label="What Knovent promises"><div class="wrap"><p class="tag-text">Your customers get an answer taken from your own words, or an honest “I don’t know”. Never a guess dressed up as an answer.</p></div></section>
+
+<section class="block" id="local">
+  <div class="wrap center">
+    <span class="kicker">Local AI first</span>
+    <h2>Your computer first. Everything else is your call.</h2>
+    <p class="lead">The AI model runs on your own computer, picked to fit it and downloaded for you once you confirm. Outside providers are an explicitly authorised fallback, never the default.</p>
+    <div class="chain">
+      <div class="node first"><span class="pill good">Default</span><b>Your own computer</b><span class="muted small">A small, fast model on your hardware. Your questions and documents stay there.</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="pill muted">Off until you turn it on</span><b>Free hosted AI</b><span class="muted small">Only if your computer cannot answer, only after you agree to that provider. Quotas apply and it may be unavailable.</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><span class="pill muted">Off, with your spending limit</span><b>Paid hosted AI</b><span class="muted small">Last, and only within the monthly limit you set. Your own provider account can be used as a preferred or alternative step.</span></div>
+    </div>
+    <p class="muted small">Every answer says which step produced it. If no permitted step can answer, you get the deterministic answer, or a clear “unavailable”.</p>
+  </div>
+</section>
+
+<section class="block alt" id="difference">
+  <div class="wrap">
+    <div class="center"><span class="kicker">Why it is different</span><h2>Similar is not the same as answered</h2><p class="lead">The question “How much is a bath?” looks almost identical to “What services do you offer?”. Only one of them has a price in its answer.</p></div>
+    <div class="compare">
+      <div class="card bad"><span class="pill bad">A typical bot</span><h3>Matches by similarity</h3><p class="muted">Top match scores 0.97, so it replies with the services list. The customer asked for a price and is told about brushing and nail trims.</p></div>
+      <div class="card good"><span class="pill good">Knovent</span><h3>Checks the answer contains what was asked</h3><p class="muted">The same 0.97 changes nothing. The services answer states no price, so the reply is: “Nothing available covers the price,” with a way to reach a person.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="modes">
+  <div class="wrap center">
+    <span class="kicker">Two ways to run it</span>
+    <h2>On your computer, or hosted for your team</h2>
+    <p class="lead">The same retrieval, evidence and verification code in both. The offline promise belongs to the local one.</p>
+    <div class="two">
+      <div class="card"><h3>Local mode</h3><ul><li>Runs on your computer, with no account</li><li>Needs no internet to answer, and no AI key</li><li>Train on your own FAQ, compare, export a package</li><li>One person at a keyboard; each project is its own business</li></ul></div>
+      <div class="card"><h3>Hosted mode</h3><ul><li>Sign in, create a business, invite your team</li><li>Roles: owner, admin, editor, viewer</li><li>Knowledge and answers kept in your database</li><li>Local AI first; your own provider key is optional and encrypted</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="security">
+  <div class="wrap center">
+    <span class="kicker">Security</span>
+    <h2>Your knowledge stays yours</h2>
+    <p class="lead">Every business is isolated by the database itself. Keys, documents and conversations never cross between businesses, and sensitive changes are written to an audit trail nobody can edit.</p>
+    <div class="cta centered"><a class="btn big" href="/app">Sign in</a></div>
+  </div>
+</section>
+
+<section class="block" id="faq">
+  <div class="wrap center">
+    <span class="kicker">Questions</span>
+    <h2>Before you start</h2>
+    <div class="faqs">
+      <details class="faq"><summary>Do I need an AI key?</summary><p>No. Without one, the engine answers from your knowledge by its own rules, and says “I don’t know” when it should. AI is optional, and it runs on your own computer first.</p></details>
+      <details class="faq"><summary>Does my data leave my computer?</summary><p>Not with local AI. A hosted provider (free, paid or your own account) is used only if you turn that step on and agree to that provider’s data terms, and you can withdraw the agreement at any time.</p></details>
+      <details class="faq"><summary>What if my computer is too small to run a model?</summary><p>The setup recommends models that fit your hardware, from very small and fast ones upward. If none fits, it says so, and you can choose a hosted option, or no AI at all.</p></details>
+      <details class="faq"><summary>How do I connect my own API key?</summary><p>Drop your .env file or paste the key. The file is read in your browser for the one provider key you choose; nothing else in it is kept, and the key is stored encrypted and never shown again.</p></details>
+      <details class="faq"><summary>What files can I upload?</summary><p>FAQ tables as CSV, TSV, Excel or JSON, and documents as PDF, Word, Markdown, text or HTML. Files that look like keys or passwords are refused, because they are not knowledge.</p></details>
+      <details class="faq"><summary>What happens when my knowledge does not answer a question?</summary><p>You get a plain “I don’t know”. If part of a question is covered, that part is answered and the missing part is named. A model is never asked to fill the gap.</p></details>
+      <details class="faq"><summary>What does training do?</summary><p>It teaches the small search model your own wording, on your computer, and shows measured results next to the model as downloaded. If training does not help, the report says so and the original model is kept.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Start with one FAQ file</h2>
+    <p class="lead">Upload it, ask a few questions you know the answers to, and see exactly why each answer was given or refused.</p>
+    <div class="cta centered"><a class="btn primary big" href="/app?signup=1">Create a business</a></div>
+    <p class="small muted">No AI key needed to begin.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+<div class="footscene" aria-hidden="true"><svg viewBox="0 0 1200 420" preserveAspectRatio="xMaxYMax slice" focusable="false">
+<defs><filter id="soft2" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+<g class="cloud c4" fill="#fffaf0" filter="url(#soft2)"><ellipse cx="300" cy="90" rx="190" ry="40"/><ellipse cx="410" cy="110" rx="140" ry="34"/><ellipse cx="180" cy="116" rx="120" ry="30"/></g>
+<g class="cloud c5" fill="#fffaf0" filter="url(#soft2)"><ellipse cx="700" cy="60" rx="150" ry="30"/><ellipse cx="790" cy="76" rx="110" ry="26"/></g>
+<path d="M0 300 L220 230 L420 262 L640 200 L860 262 L1200 220 L1200 420 L0 420 Z" fill="#9db6ee"/>
+<path d="M0 340 Q300 300 600 340 T1200 330 L1200 420 L0 420 Z" fill="#2447b8"/>
+<g class="swell"><path d="M0 372 Q150 358 300 372 T600 372 T900 372 T1200 372 L1200 420 L0 420 Z" fill="#183a9c"/></g>
+<path d="M780 420 L820 300 L1000 290 L1080 330 L1120 420 Z" fill="#1c3f9f"/>
+<rect x="930" y="270" width="150" height="70" fill="#f4ecd8"/><path d="M930 270 Q1005 205 1080 270 Z" fill="#2447b8"/><rect x="1010" y="170" width="46" height="170" fill="#f4ecd8"/><path d="M1010 170 L1033 130 L1056 170 Z" fill="#2447b8"/>
+<path d="M880 420 q-10 -120 10 -150 q20 30 10 150 Z" fill="#0f2a7c"/><path d="M1130 420 q-10 -100 8 -125 q18 25 8 125 Z" fill="#0f2a7c"/>
+</svg></div>
+  <div class="wrap cols">
+    <div><a class="logo" href="/">Knovent</a><p class="about">A business knowledge engine that retrieves, verifies and admits what it does not know.</p></div>
+    <div><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#capabilities">Capabilities</a></li><li><a href="#local">Local AI first</a></li></ul></div>
+    <div><h4>Trust</h4><ul><li><a href="#security">Security</a></li><li><a href="#difference">Evidence checks</a></li><li><a href="#faq">FAQ</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms">Terms</a></li></ul></div>
+    <div><h4>Account</h4><ul><li><a href="/app">Sign in</a></li><li><a href="/app?signup=1">Create a business</a></li></ul></div>
+  </div>
+</footer>
+<script src="/site.js" defer></script>
+</body>
+</html>

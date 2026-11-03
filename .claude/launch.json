@@ -1,0 +1,40 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "studio",
+      "runtimeExecutable": "/Users/apple/Documents/faq-engine/.venv/bin/python",
+      "runtimeArgs": [
+        "-m",
+        "faqengine.cli",
+        "studio",
+        "--data",
+        "/Users/apple/Documents/faq-engine/studio_data"
+      ],
+      "port": 8765
+    },
+    {
+      "name": "studio-scratch",
+      "runtimeExecutable": "/Users/apple/Documents/faq-engine/.venv/bin/python",
+      "runtimeArgs": [
+        "-m",
+        "faqengine.cli",
+        "studio",
+        "--data",
+        "/private/tmp/claude-501/-Users-apple-Documents-washo-washo-website/e67d20ac-2f6e-44e3-831a-49069d490746/scratchpad/studio",
+        "--port",
+        "8766"
+      ],
+      "port": 8766
+    },
+    {
+      "name": "web-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/Users/apple/Documents/faq-engine/web/scripts/preview.mjs",
+        "8768"
+      ],
+      "port": 8768
+    }
+  ]
+}

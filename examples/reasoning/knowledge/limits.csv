@@ -1,0 +1,4 @@
+Limit,Free,Team,Growth,Scale,Enterprise
+API requests per minute,30,120,600,3000,Unlimited
+Max file upload (MB),10,25,100,500,2000
+Automations,0,5,50,500,Unlimited

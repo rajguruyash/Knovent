@@ -1,0 +1,21 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+fa1,multi_condition,csv,Which plans include API access and have at least 5 seats?,answered,Pro,Starter,pricing_plans.csv,,pricing_plans.csv
+fa2,structured,csv,What is the total number of seats across the Starter and Pro plans?,answered,6,,pricing_plans.csv,,pricing_plans.csv
+fa3,structured,csv,How much more does the Enterprise plan cost than the Business plan each month?,answered,54,,pricing_plans.csv,,pricing_plans.csv
+fa4,structured,csv,Which plan comes with the most seats?,answered,Enterprise;100,,pricing_plans.csv,,pricing_plans.csv
+fa5,structured,xlsx,How many API requests per minute can the Business plan make?,answered,1200,,integrations.xlsx,,integrations.xlsx
+fa6,scope,md,Do Starter customers get a 99.9% uptime commitment?,answered,Business and Enterprise,,support_sla.md,sla_2024.md,support_sla.md
+fa7,scope,xlsx,Is the Salesforce integration available on the Pro plan?,answered,Enterprise,,integrations.xlsx,,integrations.xlsx
+fa8,conflict,md,What uptime percentage does Acme promise?,conflict,,,support_sla.md;marketing_overview.md,,support_sla.md;marketing_overview.md
+fa9,conflict,faq;md,Within how many days must an invoice be paid?,conflict,,,faq.csv;billing_terms.md,,faq.csv;billing_terms.md
+fa10,missing,csv,What would 200 seats cost on the Enterprise plan?,insufficient,,,,,pricing_plans.csv
+fa11,missing,faq,Does Acme offer a student discount?,insufficient,,25%,,,
+fa12,missing,md,Who is the chief financial officer?,insufficient,,Priya;Daniel,,,
+fa13,multi_source,md,Who runs Acme and where is its headquarters?,answered,Priya Raman;Pune,,company_profile.md,,company_profile.md
+fa14,multi_source,xlsx,How long does the Slack integration take to set up and which plans have it?,answered,5 minutes;Pro;Business;Enterprise,,integrations.xlsx,,integrations.xlsx
+fa15,similar_terms,md,How long do I have to request a refund?,answered,14 days,30 days,billing_terms.md,refund_policy_2025.md,billing_terms.md
+fa16,similar_terms,md,How long is my data kept after I cancel?,answered,30 days,365,billing_terms.md,,billing_terms.md
+fa17,similar_terms,json,For how many days are audit logs kept?,answered,365,30 days,product_profile.json,,product_profile.json
+fa18,multi_condition,html,"Are the internships paid, and how long do they last?",answered,paid;6 months,,acme.example/careers,,acme.example/careers
+fa19,multi_condition,html,"When is the scheduled maintenance, and at what time of day?",answered,first Sunday;02:00,,acme.example/status,,acme.example/status
+fa20,multi_condition,faq,"Do non-profits get a discount, and how do they ask for it?",answered,25%;sales@acme.example,,faq.csv,,faq.csv

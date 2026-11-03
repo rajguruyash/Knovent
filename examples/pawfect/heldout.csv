@@ -1,0 +1,122 @@
+query,entry_id,type,split
+What can I get done for my dog there?,faq-001,question,test
+Do you offer nail clipping as part of grooming?,faq-001,question,test
+Can you brush my dog's coat at the studio?,faq-001,question,test
+Is a breed-style haircut available?,faq-001,question,test
+Do you clean dogs' ears?,faq-001,question,test
+Which grooming treatments can I book?,faq-001,question,test
+I need a bath and trim for my dog; what kind of work do you do?,faq-001,question,test
+Does the salon provide coat brushing?,faq-001,question,test
+Can I book a nail trim without asking for other services?,faq-001,question,test
+What grooming options are available for dogs?,faq-001,question,test
+Which part of Pune is the salon in?,faq-002,question,test
+Is the grooming place in Viman Nagar?,faq-002,question,test
+Where should I bring my dog for the appointment?,faq-002,question,test
+What neighbourhood is Pawfect based in?,faq-002,question,test
+Is your studio located in Pune?,faq-002,question,test
+Can you share the area where the shop is situated?,faq-002,question,test
+Where is the grooming centre?,faq-002,question,test
+How can I reserve a slot?,faq-005,question,test
+Can I just walk in with my dog?,faq-005,question,test
+Do you take customers without prior booking?,faq-005,question,test
+Should I call before coming?,faq-005,question,test
+Can I send a WhatsApp to arrange grooming?,faq-005,question,test
+What number should I use to make a booking?,faq-005,question,test
+Is advance appointment booking compulsory?,faq-005,question,test
+How much time should I set aside for grooming?,faq-007,question,test
+Will a regular session take around an hour?,faq-007,question,test
+Does the duration depend on the dog's fur?,faq-007,question,test
+How long might my pet be at the studio?,faq-007,question,test
+What's the usual appointment length?,faq-007,question,test
+Can I pay by QR or UPI?,faq-009,question,test
+Do you accept card payments?,faq-009,question,test
+Is cash okay for the grooming bill?,faq-009,question,test
+Which payment options are available?,faq-009,question,test
+How early should I inform you if I cannot come?,faq-010,question,test
+Can I move my slot to another day?,faq-010,question,test
+What's the notice period for changing an appointment?,faq-010,question,test
+Can I cancel on short notice?,faq-010,question,test
+My dog has a skin rash. Should I still bring him?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+What if my pet has an open wound?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Will the groomer diagnose a skin problem?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+My dog seems sick today; can the session go ahead?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Should I tell the staff about allergies before grooming?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Can your team treat a contagious skin condition?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+What information should I share about a recent operation?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+What happens if I arrive twenty minutes late?,pawfect-handbook-003,question,test
+Is there a fee if I collect my dog late?,pawfect-handbook-003,question,test
+How long after the completion message can I pick up my pet?,pawfect-handbook-003,question,test
+What if traffic makes me late for the appointment?,pawfect-handbook-003,question,test
+Will you call me before changing the booked service?,pawfect-handbook-003,question,test
+How is the late pickup charge calculated?,pawfect-handbook-003,question,test
+What happens if my dog becomes very stressed during grooming?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+Can the groomer stop if my dog keeps trying to bite?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+Do you disinfect the bath and table between appointments?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+Are the towels reused for different dogs without washing?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+Will you put a muzzle on my dog automatically?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+Can I be contacted if the groomer needs to pause?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+Are you open on Mondays?,pawfect-handbook-007,question,test
+What time do you open on Sundays?,pawfect-handbook-007,question,test
+When does the last appointment begin?,pawfect-handbook-007,question,test
+Can I come at 6:30 PM for a new appointment?,pawfect-handbook-007,question,test
+Are you open on public holidays?,pawfect-handbook-007,question,test
+What are your normal weekly operating days?,pawfect-handbook-007,question,test
+Can I check the haircut before I leave?,pawfect-handbook-006,question,test
+When should I raise a concern about the grooming?,pawfect-handbook-006,question,test
+Do you take photos of pets for records?,pawfect-handbook-006,question,test
+Will you take my dog's picture without asking?,pawfect-handbook-006,question,test
+"If I arrive 18 minutes after my slot, what might happen?",pawfect-handbook-003,question,test
+My dog has allergies and a recent surgery. What should I tell the team?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Can I book for a cat and pay by card?,faq-004|faq-009,ambiguous,test
+"If the dog is distressed and the groomer pauses, will they contact me?",pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+"Can I collect my dog 45 minutes after the completion message, and is there an extra charge?",pawfect-handbook-003,question,test
+I want a Sunday appointment at 6 PM. Is that within the final slot start time?,pawfect-handbook-007,question,test
+Do you offer grooming at home in Viman Nagar?,faq-003,question,test
+Can I walk in on a Tuesday morning?,faq-005,question,test
+Can staff give my dog medication if I bring it?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Are grooming tools cleaned between dogs?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+What should I check before leaving after the appointment?,pawfect-handbook-006,question,test
+Can you guarantee that a nervous dog will finish the full haircut?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+What is the late collection fee for one extra hour?,pawfect-handbook-003,question,test
+Can I book a grooming slot on Monday?,pawfect-handbook-007,question,test
+Does the studio provide medical treatment for skin infections?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Who won yesterday's IPL match?,,out-of-scope,test
+What is the weather in Pune right now?,,out-of-scope,test
+Can you recommend a veterinarian near me?,,out-of-scope,test
+What is the best dog food brand?,,out-of-scope,test
+Can you board my dog overnight?,,out-of-scope,test
+Do you sell dog collars?,,out-of-scope,test
+Can you groom rabbits?,,out-of-scope,test
+What is the GST number of the studio?,,out-of-scope,test
+Do you offer a monthly subscription?,,out-of-scope,test
+Can you guarantee a flea-free coat?,,out-of-scope,test
+Can you diagnose ear infections?,,out-of-scope,test
+Do you provide pickup and drop service?,,out-of-scope,test
+What is the owner's name?,,out-of-scope,test
+Can I get a refund after the grooming is complete?,,out-of-scope,test
+Do you have parking available?,,out-of-scope,test
+Can you groom a 12-week-old puppy?,,out-of-scope,test
+What is the price of a full grooming session?,,out-of-scope,test
+Do you offer discounts for two dogs?,,out-of-scope,test
+Can I pay using cryptocurrency?,,out-of-scope,test
+Do you have an emergency vet on site?,,out-of-scope,test
+Can you trim my cat's nails?,,out-of-scope,test
+What is your exact street address?,,out-of-scope,test
+Can you come to Kharadi today?,,out-of-scope,test
+Do you sell grooming products online?,,out-of-scope,test
+Can I book at 8 AM?,,out-of-scope,test
+Do you provide training classes?,,out-of-scope,test
+What breed is easiest to groom?,,out-of-scope,test
+Can you remove a tick safely?,,out-of-scope,test
+Do you have CCTV in the grooming area?,,out-of-scope,test
+Can you guarantee a specific haircut result?,,out-of-scope,test
+How are towels handled between appointments?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+What does the team do if a dog is showing severe distress?,pawfect-handbook-004|pawfect-handbook-005,ambiguous,test
+What is the latest time a fresh appointment can start?,pawfect-handbook-007,question,test
+Can I stay in the grooming room while the dog is being washed?,faq-008,question,test
+Can I leave my dog there for an overnight stay?,,out-of-scope,test
+Can I use UPI to settle the grooming payment?,faq-009,question,test
+What should I bring or tell the groomer before the session?,pawfect-handbook-001|pawfect-handbook-002,ambiguous,test
+Is the studio open every day of the week?,pawfect-handbook-007,question,test
+How much notice is needed to reschedule?,faq-010,question,test
+"If my dog has an allergy, should I mention it before the appointment?",pawfect-handbook-001|pawfect-handbook-002,ambiguous,test

@@ -1,0 +1,13 @@
+id,question,answer,alt_questions
+reset,How do I reset my password?,"Click ""Forgot password"" on the sign-in page and we will email you a reset link that is valid for 30 minutes.",I forgot my password
+invite,How do I invite teammates?,"Open Settings, choose Members, and click Invite. Teammates get an email with a join link.",Can I add people to my workspace?
+pricing,How much does Taskly cost?,The Free plan is 0 dollars for up to 5 users. Team is 8 dollars per user per month and Business is 15 dollars per user per month.,What are your plans?
+cancel,How do I cancel my subscription?,"Go to Settings, Billing, and choose Cancel plan. You keep access until the end of the billing period.",
+export,Can I export my data?,"Yes. Use Settings, Data, Export to download all projects as CSV or JSON.",
+integrations,Which integrations do you support?,"Taskly integrates with Slack, Google Calendar, GitHub and Zapier.",
+sso,Do you support single sign-on?,"SSO with Google, Okta and Microsoft is available on the Business plan.",
+api,Is there an API?,"Yes, the REST API is available on the Team and Business plans. Create a token under Settings, Developer.",
+mobile,Is there a mobile app?,"Taskly has apps for iOS and Android, available from the App Store and Google Play.",
+security,Is my data secure?,"All data is encrypted in transit and at rest, and we are SOC 2 Type II certified. Backups run every night.",
+support,How do I contact support?,Email help@taskly.example or use the chat bubble in the app. Business customers get a 4 hour response time.,
+refund,Do you offer refunds?,We refund annual plans within 14 days of purchase. Monthly plans are not refundable.,

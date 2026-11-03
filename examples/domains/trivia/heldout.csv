@@ -1,0 +1,31 @@
+query,entry_id,type,split
+name the french capital,france,paraphrase,dev
+height of everest,everest,paraphrase,test
+author of romeo and juliet,shakespeare,paraphrase,dev
+how fast does light move,lightspeed,paraphrase,test
+reason the sky looks blue,sky,paraphrase,dev
+distance to the moon,moon,paraphrase,test
+who is the artist behind the mona lisa,monalisa,paraphrase,dev
+who came up with the telephone,phone,paraphrase,test
+number of spider legs,spider,paraphrase,dev
+age of the cosmos,universe,paraphrase,test
+what is the capital of australia,,out-of-scope-near,dev
+what is the best pizza topping,,out-of-scope-far,dev
+france capital city,france,short,dev
+mount everest height metres,everest,short,test
+romeo and juliet writer,shakespeare,paraphrase,dev
+speed of light in km per second,lightspeed,paraphrase,test
+why are skies blue,sky,paraphrase,dev
+moon distance km,moon,short,dev
+mona lisa painter,monalisa,short,test
+telephone inventor,phone,short,dev
+spiders eight legs,spider,answer-terms,dev
+how many years old is the universe,universe,paraphrase,test
+quickest animal on land,fastest,paraphrase,dev
+worlds tallest building,tallest,short,test
+burj khalifa height,tallest,answer-terms,test
+cheetah speed,fastest,answer-terms,dev
+who wrote hamlet,,out-of-scope-near,test
+how tall is mount kilimanjaro,,out-of-scope-near,test
+how do i renew my passport,,out-of-scope-far,test
+what does my insurance cover,,out-of-scope-far,test

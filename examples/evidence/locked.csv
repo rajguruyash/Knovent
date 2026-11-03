@@ -1,0 +1,37 @@
+id,category,expected_outcome,question,must_contain,must_not_contain,cite
+d1,direct,faq,Which pets do you groom?,dogs only,,faq-004
+d3,direct,faq,How do I book an appointment?,9000012345,,faq-005
+d4,direct,faq,How long does a grooming session take?,60 to 90 minutes,,faq-007
+d5,direct,grounded,What time does the studio open and close?,9:00 AM;7:00 PM,,pawfect-handbook-007
+d6,direct,grounded,Is the studio closed on Mondays?,closed on Mondays,,pawfect-handbook-007
+d10,direct,grounded,Is grooming paused if a dog is very distressed?,paused,,pawfect-handbook-004
+p2,paraphrase,faq,Do you take cats?,dogs only,,faq-004
+p4,paraphrase,faq,How can I reserve a slot?,9000012345,,faq-005
+p5,paraphrase,grounded,What is the latest time I can start an appointment?,5:30 PM,,pawfect-handbook-007
+p6,paraphrase,grounded,"My dog has a skin allergy, should I mention it?",allergies,,pawfect-handbook-001
+p7,paraphrase,grounded,How long can I wait before collecting my dog?,30 minutes,,pawfect-handbook-003
+p8,paraphrase,grounded,Do you use a muzzle?,only when necessary,,pawfect-handbook-004
+p9,paraphrase,grounded,Are your grooming tools cleaned between dogs?,cleaned grooming tools,,pawfect-handbook-005
+p11,paraphrase,grounded,Will you take photos of my dog?,permission,,pawfect-handbook-006
+p12,paraphrase,faq,Is it okay to stay in the room while my dog is groomed?,cannot remain in the grooming area,,faq-008
+pa1,partial,partial,Do you groom cats and do you offer teeth brushing?,dogs only,teeth brushing is,faq-004
+pa2,partial,partial,Are you open on Mondays and do you accept Amex cards?,closed on Mondays,Amex cards are,pawfect-handbook-007
+pa3,partial,partial,What are your opening hours and do you offer puppy discounts?,9:00 AM,,pawfect-handbook-007
+pa4,partial,partial,Where are you located and how much does a full groom cost?,Viman Nagar,₹,faq-002
+pa6,partial,partial,Is the studio open on Sundays and do you groom rabbits?,Tuesday to Sunday,rabbits are,pawfect-handbook-007
+r2,related,insufficient,Do you offer dog daycare?,,daycare is,
+r3,related,insufficient,Which shampoo brands do you use?,,brand,
+r5,related,insufficient,How many groomers work at the studio?,,groomers work,
+r6,related,insufficient,Is there a fee for cancelling an appointment?,,fee of,
+r8,related,insufficient,What time is the last pick-up of the day?,,last pick-up is,
+r9,related,insufficient,Do you offer a de-shedding treatment?,,de-shedding,
+u1,unsupported,insufficient,What is the capital of France?,,Paris,
+u2,unsupported,insufficient,Who won the IPL match yesterday?,,
+u4,unsupported,insufficient,What is the weather in Pune today?,,
+u5,unsupported,insufficient,Can you recommend a good veterinarian?,,
+u6,unsupported,insufficient,How do I invest in mutual funds?,,
+m1,multi-part,faq,Where are you located and how do I book?,Viman Nagar;9000012345,,faq-002;faq-005
+m3,multi-part,grounded,What happens if I am more than 15 minutes late and what is the late collection fee?,shorten;₹100,,pawfect-handbook-003
+c1,conflict,conflict,What notice is needed to cancel an appointment?,,,
+c2,conflict,conflict,Do you accept UPI payments?,,,
+c4,conflict,conflict,What is the minimum notice for rescheduling?,,,

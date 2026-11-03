@@ -1,0 +1,49 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+f1,faq,faq,Do you offer a free trial?,answered,14 day,,faq.csv,,faq.csv
+f8,faq,faq,Where do you keep customer data?,answered,frankfurt,,faq.csv,,faq.csv
+d4,document,md,How soon are customers told about a data breach?,answered,72 hours,,security_privacy.md,,security_privacy.md
+d5,document,md,Does Acme Cloud have a SOC 2 report?,answered,soc 2,,security_privacy.md,,security_privacy.md
+d6,document,md,What are the support hours?,answered,monday to friday,,support_sla.md,,support_sla.md
+d7,document,md,What happens to my data after I cancel?,answered,30 days,,billing_terms.md,,billing_terms.md
+d9,document,md,Is the company headquartered in Pune?,answered,pune,,company_profile.md,,company_profile.md
+w2,website,html,What time is the maintenance window?,answered,02:00,,acme.example/status,,acme.example/status
+c2,csv,csv,How many seats come with the Business plan?,answered,25,,pricing_plans.csv,,pricing_plans.csv
+j2,json,json,What is the address of the Pune office?,answered,baner road,,offices.json,,offices.json
+j3,json,json,Which version of Acme Cloud is current?,answered,4.2,,product_profile.json,,product_profile.json
+m2,multi_source,faq;csv,"Is there a free trial, and how much is the Pro plan?",answered,14 day;20 usd,,faq.csv;pricing_plans.csv,,faq.csv;pricing_plans.csv
+m4,multi_source,faq;xlsx,"Can I export my data, and is there a Zapier integration?",answered,csv;zapier,,faq.csv;integrations.xlsx,,faq.csv;integrations.xlsx
+m5,multi_source,faq;md,"How do I contact support, and what are the support hours?",answered,support@acme.example;monday to friday,,faq.csv;support_sla.md,,faq.csv;support_sla.md
+p3,multi_part,faq,"Can I export my data, and where is it stored?",answered,csv;frankfurt,,faq.csv,,faq.csv
+p4,multi_part,xlsx,"How long does the Slack integration take to set up, and which plans have it?",answered,"5 minutes;pro, business and enterprise",,integrations.xlsx,,integrations.xlsx
+pa1,partial,md,What are the support hours and do you offer support in Hindi?,partial,monday to friday,,support_sla.md,,support_sla.md
+cf2,conflict,faq;md,When are invoices due?,conflict,,,faq.csv;billing_terms.md,,faq.csv;billing_terms.md
+o2,outdated,md,Within how many days of payment can I ask for a refund?,answered,14 days,30 days,billing_terms.md,refund_policy_2025.md,billing_terms.md
+o4,outdated,md,How quickly does priority support respond?,answered,4 hours,24 hours,support_sla.md,sla_2024.md,support_sla.md
+u2,unsupported,,What is the capital of France?,insufficient,,,,,
+u6,unsupported,,Is Acme Cloud HIPAA compliant?,insufficient,,,,,
+v1,vague,,What about that?,clarification,,,,,
+e1,faq,faq,Is the mobile app free?,answered,free to download,,faq.csv,,faq.csv
+e2,faq,faq,What happens if I downgrade my plan?,answered,next renewal,,faq.csv,,faq.csv
+e3,document,md,Who is the chief technology officer?,answered,daniel okafor,,company_profile.md,,company_profile.md
+e4,document,md,Which TLS version is used in transit?,answered,tls 1.2,,security_privacy.md,,security_privacy.md
+e5,document,md,How quickly does Enterprise support answer?,answered,1 hour,,support_sla.md,sla_2024.md,support_sla.md
+e6,document,md,Is annual billing available?,answered,annual billing,,billing_terms.md,,billing_terms.md
+e7,website,html,Is the service operational at the moment?,answered,operational,,acme.example/status,,acme.example/status
+e8,website,html,Are the internships paid?,answered,paid,,acme.example/careers,,acme.example/careers
+e9,csv,csv,How many seats does the Enterprise plan include?,answered,100,,pricing_plans.csv,,pricing_plans.csv
+e10,csv,csv,What does the Business plan include?,answered,advanced reports,,pricing_plans.csv,,pricing_plans.csv
+e11,excel,xlsx,Which category is the Salesforce integration in?,answered,crm,,integrations.xlsx,,integrations.xlsx
+e12,excel,xlsx,How much storage does the Business plan have?,answered,500,,integrations.xlsx,,integrations.xlsx
+e13,json,json,What is the phone number of the Leeds office?,answered,113,,offices.json,,offices.json
+e14,json,json,When was the current version released?,answered,2026-03-01,,product_profile.json,,product_profile.json
+e15,json,json,How many days are audit logs kept?,answered,365,,product_profile.json,,product_profile.json
+e16,multi_source,csv;xlsx,What is the Pro plan's API limit and how much does it cost?,answered,600;20 usd,,pricing_plans.csv;integrations.xlsx,,pricing_plans.csv;integrations.xlsx
+e17,multi_source,faq;md,"Where is data stored, and is it encrypted at rest?",answered,frankfurt;aes-256,,faq.csv;security_privacy.md,,faq.csv;security_privacy.md
+e18,multi_source,md;json,Who leads the company and how many staff work in Pune?,answered,priya raman;80,,company_profile.md;offices.json,,company_profile.md;offices.json
+e19,partial,xlsx,How long does the Salesforce integration take and does it support custom objects?,partial,60,,integrations.xlsx,,integrations.xlsx
+e20,partial,md,What is the breach notification time and is there a bug bounty programme?,partial,72 hours,,security_privacy.md,,security_privacy.md
+e21,conflict,faq;md,What is the payment term for invoices?,conflict,,,faq.csv;billing_terms.md,,faq.csv;billing_terms.md
+e22,outdated,md,How fast does priority support answer on business days?,answered,4 hours,24 hours,support_sla.md,sla_2024.md,support_sla.md
+e23,unsupported,,Do you offer a reseller programme?,insufficient,,,,,
+e24,unsupported,,Which cloud provider hosts the application?,insufficient,,,,,
+e25,unsupported,,Is there a student discount?,insufficient,,,,,

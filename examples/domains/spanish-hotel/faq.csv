@@ -1,0 +1,13 @@
+id,question,answer,alt_questions
+checkin,¿A qué hora es el check-in?,El check-in es a partir de las 15:00 y el check-out hasta las 12:00.,¿Cuándo puedo entrar a la habitación?
+breakfast,¿El desayuno está incluido?,"Sí, el desayuno buffet está incluido y se sirve de 7:00 a 10:30.",
+wifi,¿Hay wifi gratis?,"Sí, el wifi es gratuito en todo el hotel.",
+parking,¿Tienen aparcamiento?,"Tenemos parking privado por 12 euros al día, sujeto a disponibilidad.",
+pets,¿Se admiten mascotas?,Aceptamos perros pequeños por 15 euros por noche. Avise al reservar.,
+cancel,¿Puedo cancelar mi reserva?,La cancelación es gratuita hasta 48 horas antes de la llegada. Después se cobra la primera noche.,
+airport,¿Cómo llego desde el aeropuerto?,El hotel está a 20 minutos del aeropuerto. Ofrecemos traslado privado por 35 euros con reserva previa.,
+pool,¿Tienen piscina?,"Sí, piscina exterior abierta de junio a septiembre de 9:00 a 20:00.",
+gym,¿Hay gimnasio?,El gimnasio está abierto las 24 horas para los huéspedes.,
+latecheckout,¿Se puede hacer el check-out tarde?,"El check-out tardío hasta las 14:00 cuesta 20 euros, según disponibilidad.",
+kids,¿Los niños pagan?,Los niños menores de 6 años se alojan gratis compartiendo habitación con sus padres.,
+luggage,¿Pueden guardar mi equipaje?,"Sí, guardamos el equipaje gratis antes del check-in y después del check-out.",

@@ -1,0 +1,31 @@
+query,entry_id,type,split
+dukaan sunday ko khuli hai kya,timing,paraphrase,dev
+ghar tak saman mangwa sakte hain kya,delivery,paraphrase,test
+upi se paise de sakta hoon kya,payment,paraphrase,dev
+kharab saman lauta sakte hain,return,paraphrase,test
+paise wapas kab aayenge,refund,paraphrase,dev
+koi sale ya chhoot hai abhi,offer,paraphrase,test
+order ka status kaise dekhun,tracking,paraphrase,dev
+ulta saman bhej diya hai,wrongitem,paraphrase,test
+thok mein kharidne par kya rate hai,bulk,paraphrase,dev
+pata galat daal diya,address,paraphrase,test
+kya aap online classes chalate hain,,out-of-scope-near,dev
+aaj mausam kaisa rahega,,out-of-scope-far,dev
+kitne baje band hoti hai,timing,short,dev
+free delivery 500 rupaye order,delivery,answer-terms,dev
+cod available hai,payment,short,test
+7 din return bill packing,return,answer-terms,test
+refund 3 se 5 din,refund,answer-terms,dev
+pehle order par kuch discount milega,offer,paraphrase,dev
+tracking link sms,tracking,answer-terms,test
+galat item photo whatsapp,wrongitem,answer-terms,dev
+10 items special rate,bulk,answer-terms,test
+dispatch se pehle address change,address,paraphrase,test
+sabzi taaza hoti hai kya,fresh,paraphrase,dev
+expiry date,fresh,short,dev
+membership cashback 5 percent,membership,answer-terms,dev
+199 wala card,membership,short,test
+kya aap paneer ghar par banate hain,,out-of-scope-near,test
+job vacancy hai kya,,out-of-scope-near,test
+cricket score kya hai,,out-of-scope-far,test
+pm kaun hai,,out-of-scope-far,test

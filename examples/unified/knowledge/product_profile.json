@@ -1,0 +1,21 @@
+{
+ "product": {
+  "name": "Acme Cloud",
+  "version": "4.2",
+  "released": "2026-03-01",
+  "modules": [
+   {
+    "name": "Reports",
+    "included_in": "all plans"
+   },
+   {
+    "name": "Automation",
+    "included_in": "Pro and above"
+   }
+  ]
+ },
+ "limits": {
+  "max_file_size_mb": 100,
+  "audit_log_retention_days": 365
+ }
+}

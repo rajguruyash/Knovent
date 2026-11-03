@@ -1,0 +1,63 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "functions": {
+    "api/sources/ingest.js": {
+      "maxDuration": 150
+    },
+    "api/respond.js": {
+      "maxDuration": 60
+    },
+    "api/llm/*.js": {
+      "maxDuration": 60
+    },
+    "api/local/*.js": {
+      "maxDuration": 60
+    },
+    "api/local/companions/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co http://127.0.0.1:47890 http://localhost:47890; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ]
+}

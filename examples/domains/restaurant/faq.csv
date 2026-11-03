@@ -1,0 +1,13 @@
+id,question,answer,alt_questions
+hours,What are your opening hours?,"Lunch is 12 to 3pm and dinner is 6 to 10pm, Tuesday to Sunday. We are closed on Mondays.",
+reserve,How do I make a reservation?,Reserve online or call 555-0142. Parties of 8 or more need to book at least 3 days ahead.,Can I book a table?
+vegetarian,Do you have vegetarian options?,"Yes, over a third of the menu is vegetarian, and we can make most pasta dishes vegan on request.",
+glutenfree,Do you offer gluten-free dishes?,We have gluten-free pasta and pizza bases for a 2 dollar supplement. Please tell your server about any allergies.,
+delivery,Do you deliver?,We deliver within 5 km through our website and the major delivery apps. Delivery is free over 30 dollars.,
+dress,Is there a dress code?,No dress code. Smart casual is most common.,
+kids,Do you have a children's menu?,"Yes, kids under 12 can choose from a small menu for 9 dollars including a drink.",
+parking,Where can I park?,"There is a public car park 2 minutes away on Elm Street, and street parking is free after 6pm.",
+private,Can I book the restaurant for a private event?,"Yes, our upstairs room seats up to 40 guests. Contact events@luigis.example for packages.",
+giftcards,Do you sell gift cards?,Gift cards from 25 dollars are available at the restaurant and online.,
+service,Do you add a service charge?,A 12 percent service charge is added for parties of 6 or more. Otherwise tipping is at your discretion.,
+dogs,Are dogs allowed?,Dogs are welcome on the outdoor terrace but not inside.,

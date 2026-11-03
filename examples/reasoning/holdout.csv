@@ -1,0 +1,26 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+hb1,multi_condition,csv,Which plans cost under 100 USD a month and include Chat?,answered,Team;Growth,Scale;Free,plans.csv,,plans.csv
+hb2,structured,csv,How much would 8 extra agents cost on the Team plan?,answered,64 USD,,plans.csv,,plans.csv
+hb3,structured,csv,By how much does the Scale plan's storage exceed the Growth plan's storage?,answered,800,,plans.csv,,plans.csv
+hb4,structured,csv,How many automations does the Growth plan include?,answered,50,,limits.csv,,limits.csv
+hb5,limit_check,csv,Can a Team customer upload a 40 MB file?,answered,25,,limits.csv,,limits.csv
+hb6,scope,xlsx,Is audit logging available on the Scale plan?,answered,Enterprise,,features.xlsx,,features.xlsx
+hb7,scope,xlsx;csv,Is the WhatsApp inbox included on the Team plan?,answered,Growth,,features.xlsx,,features.xlsx
+hb8,scope,csv,Is the Slack integration included in the Growth plan?,insufficient,,,,,integrations.csv
+hb9,date,md,Is support open on Sundays?,answered,Monday to Friday,,support.md,,support.md
+hb10,conflict,md,Does the Growth plan get email replies within 1 hour?,conflict,,,support.md;marketing.md,,support.md;marketing.md
+hb11,conflict,faq;md,Is VAT added on top of the Scale plan price?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+hb12,conflict,faq;md,Is there a 14 day money-back guarantee?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+hb13,missing,md,How many customers does Beacon Desk have?,insufficient,,,,,company.md
+hb14,missing,md,Does Beacon Desk have an office in the United States?,insufficient,,,,,company.md
+hb15,missing,md,In which year was Beacon Desk founded?,insufficient,,,,,company.md
+hb16,missing_value,csv,Is there a fixed list price for the Enterprise plan?,answered,Contact,,plans.csv,,plans.csv
+hb17,multi_source,md,Where is the headquarters and who is the chief executive officer?,answered,Leeds;Dana Whitfield,,company.md,,company.md
+hb18,multi_source,xlsx;csv,"Do all plans have API access, and how many API requests per minute does Growth allow?",answered,600;all plans,,features.xlsx;limits.csv,,features.xlsx;limits.csv
+hb19,multi_source,xlsx;csv,What is the cheapest plan with custom reports?,answered,Growth,,features.xlsx;plans.csv,,features.xlsx;plans.csv
+hb20,similar_terms,md,How long is the onboarding call on the Team plan?,answered,30 minutes,60,support.md,,support.md
+hb21,similar_terms,md,How many business days until an approved refund is paid?,answered,5 business days,,policies.md,,policies.md
+hb22,trap,md,Can I get a refund on the Scale plan once I have 12 agents?,answered,10,,policies.md,,policies.md
+hb23,scope,faq,Which organisations get free access to the Team plan for a year?,answered,school,,faq.csv,,faq.csv
+hb24,partial,csv;md,"What storage does the Growth plan have, and what uptime commitment does it come with?",partial,200,99.9,plans.csv,,plans.csv
+hb25,scope,faq,Which email address do I use to ask about annual billing?,answered,sales@beacon.example,,faq.csv,,faq.csv

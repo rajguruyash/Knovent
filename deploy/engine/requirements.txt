@@ -1,0 +1,7 @@
+# What the hosted compute service needs. No PyTorch: the embedding model runs as ONNX on CPU.
+numpy>=1.26
+onnxruntime>=1.18
+tokenizers>=0.19
+psycopg[binary]>=3.2
+cryptography>=42
+pypdf>=4

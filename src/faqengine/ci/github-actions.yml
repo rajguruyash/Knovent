@@ -1,0 +1,57 @@
+# Copy this file to .github/workflows/improve-faq-engine.yml in the repository that holds this package.
+#
+# Every Monday (and whenever you press "Run workflow") it rebuilds the engine from its source files plus the questions production
+# learned, tests the candidate against the live version on your held-out questions, and commits the new version only if it is not worse.
+# Your normal deployment (container build, rsync, ...) then ships what was committed; serve.py loads it on its next request.
+name: improve-faq-engine
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+env:
+  PACKAGE_DIR: .          # where this package lives in the repository
+  FAQENGINE_INSTALL: ""   # how to install the faqengine tool, for example "git+https://github.com/you/faq-engine"
+  PROD_URL: ""            # optional: your server's address, to pull what it learned (GET /learned, needs the FAQENGINE_FEEDBACK_KEY secret)
+  REFRESH_WEB: ""         # set to "1" to read the web pages in source/web.json again on every run
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          test -n "$FAQENGINE_INSTALL" || { echo "Set FAQENGINE_INSTALL at the top of this file: how to install the faqengine tool"; exit 1; }
+          pip install -r "$PACKAGE_DIR/runtime/requirements.txt"
+          pip install "$FAQENGINE_INSTALL"
+      - name: Pull what production learned
+        if: env.PROD_URL != ''
+        env:
+          FAQENGINE_FEEDBACK_KEY: ${{ secrets.FAQENGINE_FEEDBACK_KEY }}
+        run: |
+          curl -fsS -H "Authorization: Bearer $FAQENGINE_FEEDBACK_KEY" "$PROD_URL/learned" \
+            | python -c "import sys, json; [print(json.dumps(r)) for r in json.load(sys.stdin)['learned']]" > "$RUNNER_TEMP/learned.jsonl"
+      - name: Retrain, test against the live version, promote only if it is not worse
+        run: |
+          extra=""
+          if [ -f "$RUNNER_TEMP/learned.jsonl" ]; then extra="--learned $RUNNER_TEMP/learned.jsonl"; fi
+          if [ -n "$REFRESH_WEB" ]; then extra="$extra --refresh-web"; fi
+          python "$PACKAGE_DIR/ci/improve.py" retrain $extra
+      - name: Commit the new version
+        run: |
+          git config user.name "faq-engine bot"
+          git config user.email "faq-engine@users.noreply.github.com"
+          git add -A "$PACKAGE_DIR"
+          if ! git diff --cached --quiet; then
+            git commit -m "Improve the FAQ engine from what production learned"
+            git push
+          fi

@@ -1,0 +1,19 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+c1,control,csv,How much is the Growth plan per month?,answered,79 USD,89,plans.csv,price_update.md,plans.csv
+c2,control,faq,Is there a free plan?,answered,Free plan,,faq.csv,,faq.csv
+c4,control,md,How long do refunds take?,answered,5 business days,,policies.md,,policies.md
+k4,comparison,csv,Which plan has the most agents?,answered,Scale;Enterprise;Unlimited,,plans.csv,,plans.csv
+k5,comparison,csv,Which plan allows the largest file upload?,answered,Enterprise;2000,,limits.csv,,limits.csv
+k10,comparison,csv;xlsx,How many plans include WhatsApp?,answered,3,,features.xlsx,,features.xlsx
+p1,price_calc,csv,How much would 3 Team plans cost per month?,answered,87 USD,,plans.csv,,plans.csv
+f1,feature_compare,xlsx;csv,Which plans include WhatsApp?,answered,Growth;Scale;Enterprise,Team,features.xlsx,,features.xlsx
+f3,feature_compare,xlsx;csv,Does the Team plan include WhatsApp?,answered,No,,features.xlsx|plans.csv,,features.xlsx;plans.csv
+f4,semantic_header,xlsx,Is SSO available on the Scale plan?,answered,Yes;Scale,,features.xlsx,,features.xlsx
+h4,semantic_header,csv,Which plans can use Zapier?,insufficient,does not name plans,,,,integrations.csv
+l1,limit_check,csv,Can I have 10 agents on the Team plan?,answered,No;5,,plans.csv,,plans.csv
+t3,trap,faq,Do you give discounts to students?,insufficient,,schools,,,
+s5,multi_sentence,md,"Can I cancel at any time, and what happens to my data?",answered,any time;60 days,,policies.md,,policies.md
+s6,multi_sentence,md,How long is the onboarding call?,answered,30 minutes;60 minutes,,support.md,,support.md
+x3,conflict,md,How quickly does support reply on the Team plan?,conflict,,,marketing.md;support.md,,marketing.md;support.md
+pa1,partial,csv;faq,How much is the Growth plan and is there a free trial?,partial,79 USD,,plans.csv,,plans.csv
+pa4,partial,md;csv,Who is the finance director and how many employees does the company have?,partial,120,,company.md,,company.md

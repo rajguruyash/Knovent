@@ -1,0 +1,10 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+f3,faq,faq,Which web browsers does the app work in?,answered,chrome,,faq.csv,,faq.csv
+d8,document,md,How long does it take to process an approved refund?,answered,7 business days,,billing_terms.md,,billing_terms.md
+w1,website,html,When does scheduled maintenance happen?,answered,first sunday,,acme.example/status,,acme.example/status
+c5,csv,csv,What is the cheapest plan?,answered,starter,,pricing_plans.csv,,pricing_plans.csv
+x1,excel,xlsx,Is there a Slack integration?,answered,slack,,integrations.xlsx,,integrations.xlsx
+j4,json,json,Which plans include the Automation module?,answered,pro and above,,product_profile.json,,product_profile.json
+m3,multi_source,md,Who is the chief executive officer and where is the headquarters?,answered,priya raman;pune,,company_profile.md,,company_profile.md
+pa2,partial,csv,How much is the Pro plan and is there an annual discount?,partial,20 usd,,pricing_plans.csv,,pricing_plans.csv
+v2,vague,,and it?,clarification,,,,,

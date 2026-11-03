@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "faqengine"
+version = "0.1.0"
+description = "Train, evaluate and export a custom FAQ retrieval engine on your own hardware."
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "torch",
+  "transformers",
+  "onnx",
+  "onnxruntime",
+  "onnxscript",
+  "snowballstemmer",
+  "pypdf",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+faqengine = "faqengine.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+faqengine = ["runtime/*.py", "runtime/*.txt", "ci/*", "studio/static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

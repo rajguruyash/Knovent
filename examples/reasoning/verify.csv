@@ -1,0 +1,39 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+w1,comparison,csv,Which tier is the least expensive?,answered,Free,,plans.csv,,plans.csv
+w2,comparison,csv,What is the priciest plan?,answered,Scale;199 USD,,plans.csv,,plans.csv
+w3,comparison,csv,Which plan comes with the most storage?,answered,Enterprise;Unlimited,,plans.csv,,plans.csv
+w4,comparison,csv,Which plan has the fewest automations?,answered,Free;0,,limits.csv,,limits.csv
+w5,semantic_header,xlsx,Does Growth come with SSO?,answered,No;Scale and Enterprise,,features.xlsx,,features.xlsx
+w6,semantic_header,xlsx,Is the audit log part of the Enterprise plan?,answered,Yes;Enterprise,,features.xlsx,,features.xlsx
+w7,feature_compare,csv,Which plans give me Voice support?,answered,Scale,Team,plans.csv,,plans.csv
+w8,feature_compare,csv,What is the difference in price between Team and Scale?,answered,29 USD;199 USD;170 USD,,plans.csv,,plans.csv
+w9,price_calc,csv,How much would 4 Growth plans cost?,answered,316 USD,,plans.csv,,plans.csv
+w10,price_calc,csv,What do 20 extra agents cost on Team?,answered,160 USD,,plans.csv,,plans.csv
+w11,limit_check,csv,Can the Free plan have 3 agents?,answered,No;1,,plans.csv,,plans.csv
+w12,limit_check,csv,Is a 200 MB upload possible on the Scale plan?,answered,Yes;500,,limits.csv,,limits.csv
+w13,comparison,csv,Which plans offer at least 100 GB of storage?,answered,Growth;Scale;Enterprise,Team,plans.csv,,plans.csv
+w14,comparison,csv,What is the total number of automations across the Free and Team plans?,answered,5,,limits.csv,,limits.csv
+w15,conflict,faq;md,What is the refund window?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md
+w16,multi_sentence,md,Are refunds possible on the Scale plan?,answered,10 agents,,policies.md,,policies.md
+w17,control,faq,What does the Free plan include?,answered,1 agent,,faq.csv,,faq.csv
+w19,date,md,What are the support hours on 15 July 2026?,answered,Saturday;8:00,,support.md,,support.md
+w20,date,md,Are there holiday hours for 2025?,insufficient,out of date,closed on 25,,,holiday_2025.md
+w22,trap,faq,Do you offer a student discount?,insufficient,,schools,,,
+w23,trap,faq,Is there a discount for paying annually?,insufficient,,available on request,,,
+w24,trap,md,Is there a trial of the Scale plan?,insufficient,,,,,
+w25,context,md,What uptime does the Scale plan get?,answered,99.9,99.5,sla_2026.md,sla_2025.md,sla_2026.md
+w26,trap,md,Do Scale customers get an uptime guarantee?,answered,99.9,99.5,sla_2026.md,sla_2025.md,sla_2026.md
+w27,conflict,md,How quickly are tickets answered on the Growth plan?,conflict,,,marketing.md;support.md,,marketing.md;support.md
+w28,vocabulary,md,Who is the CEO?,answered,Dana Whitfield,,company.md,,company.md
+w29,vocabulary,md,How many people work for Beacon Desk?,answered,120,,company.md,,company.md
+w30,vocabulary,md,Where are you based?,answered,Leeds,,company.md,,company.md
+w31,comparison,csv,Which integration takes the longest to set up?,answered,Salesforce;60 minutes,,integrations.csv,,integrations.csv
+w32,comparison,csv,How many integrations are there?,answered,3,,integrations.csv,,integrations.csv
+w33,semantic_header,csv,Which plans include Salesforce?,insufficient,does not name plans,,,,integrations.csv
+w34,missing_value,csv,What is the price of the Enterprise plan?,answered,Contact us,,plans.csv,,plans.csv
+w35,feature_compare,csv,How much are the Free plan and the Scale plan?,answered,0 USD;199 USD,,plans.csv,,plans.csv
+w36,feature_compare,xlsx,Which plans have WhatsApp and SSO?,answered,Scale;Enterprise,Team,features.xlsx,,features.xlsx
+w37,feature_compare,csv,Compare the Free and Growth plans on price.,answered,0 USD;79 USD,,plans.csv,,plans.csv
+w38,comparison,csv,How much storage do the Team and Growth plans have in total?,answered,250,,plans.csv,,plans.csv
+w39,semantic_header,xlsx,Is the mobile app available on the Growth plan?,insufficient,does not name plans,,,,features.xlsx
+w40,conflict,faq;md,What is the VAT policy?,conflict,,,faq.csv;policies.md,,faq.csv;policies.md

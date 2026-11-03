@@ -1,0 +1,16 @@
+id,category,expected_outcome,question,must_contain,must_not_contain,cite
+d7,direct,grounded,What fee applies for late collection?,₹100,,pawfect-handbook-003
+d8,direct,faq,Do you provide home visits?,No,,faq-003
+d9,direct,faq,Do I need an appointment?,walk-ins are not accepted,,faq-006
+p1,paraphrase,faq,Can you clean my dog's ears?,ear cleaning,,faq-001
+p3,paraphrase,faq,Which area of Pune are you in?,Viman Nagar,,faq-002
+p13,paraphrase,grounded,Do dogs need to be on a leash when they arrive?,leash,,pawfect-handbook-002
+p14,paraphrase,faq,Is it possible to turn up without booking?,walk-ins are not accepted,,faq-006
+pa5,partial,partial,Can I stay during grooming and do you have a waiting lounge?,cannot remain in the grooming area,,faq-008
+r1,related,insufficient,How much does a bath cost?,,₹,
+r4,related,insufficient,Do you groom large breeds like Great Danes?,,Great Dane,
+u3,unsupported,insufficient,How do I fix a flat bicycle tyre?,,
+m4,multi-part,grounded,Do you groom cats and are you open on Sunday?,dogs only;Sunday,,faq-004;pawfect-handbook-007
+m5,multi-part,faq,How long is a session and can I stay with my dog?,60 to 90 minutes;cannot remain,,faq-007;faq-008
+c3,conflict,conflict,Can I reschedule an appointment at short notice?,,,
+c5,conflict,conflict,Is UPI accepted at the counter?,,,

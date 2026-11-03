@@ -1,0 +1,14 @@
+[
+ {
+  "city": "Pune",
+  "staff": 80,
+  "address": "12 Baner Road, Pune",
+  "phone": "+91 20 5550 0101"
+ },
+ {
+  "city": "Leeds",
+  "staff": 40,
+  "address": "4 Park Row, Leeds",
+  "phone": "+44 113 555 0102"
+ }
+]

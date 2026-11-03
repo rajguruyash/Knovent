@@ -1,0 +1,42 @@
+id,category,source_types,question,expected,must_contain,must_not_contain,cite,forbid_cite,gold
+f2,faq,faq,"Can I try the product before paying, without entering a card?",answered,no card,,faq.csv,,faq.csv
+f4,faq,faq,Is there an Android app?,answered,android,,faq.csv,,faq.csv
+f5,faq,faq,How can I get my data out of the system?,answered,csv,,faq.csv,,faq.csv
+f6,faq,faq,How long is the password reset link valid?,answered,1 hour,,faq.csv,,faq.csv
+f7,faq,faq,Do charities get a discount?,answered,25%,,faq.csv,,faq.csv
+d1,document,md,When was Acme Cloud founded?,answered,2014,,company_profile.md,,company_profile.md
+d2,document,md,Who is the chief executive officer?,answered,priya raman,,company_profile.md,,company_profile.md
+d3,document,md,How is customer data encrypted at rest?,answered,aes-256,,security_privacy.md,,security_privacy.md
+d10,document,md,How many employees does Acme Cloud have?,answered,120,,company_profile.md,,company_profile.md
+w3,website,html,Is Acme hiring in Leeds?,answered,leeds,,acme.example/careers,,acme.example/careers
+w4,website,html,How long do internships last?,answered,6 months,,acme.example/careers,,acme.example/careers
+c1,csv,csv,How much does the Pro plan cost per month?,answered,20 usd,,pricing_plans.csv,,pricing_plans.csv
+c3,csv,csv;md,Which plan includes SSO?,answered,enterprise,,pricing_plans.csv|security_privacy.md,,pricing_plans.csv
+c4,csv,csv,What is included in the Starter plan?,answered,email support,,pricing_plans.csv,,pricing_plans.csv
+x2,excel,xlsx,How long does the Salesforce integration take to set up?,answered,60,,integrations.xlsx,,integrations.xlsx
+x3,excel,xlsx,What is the API rate limit on the Pro plan?,answered,600,,integrations.xlsx,,integrations.xlsx
+x4,excel,xlsx,Which plans can use Zapier?,answered,all plans,,integrations.xlsx,,integrations.xlsx
+x5,excel,xlsx,How many API requests per minute does the Starter plan allow?,answered,60,,integrations.xlsx,,integrations.xlsx
+j1,json,json,How many people work in the Leeds office?,answered,40,,offices.json,,offices.json
+j5,json,json,What is the maximum file size?,answered,100,,product_profile.json,,product_profile.json
+m1,multi_source,csv;md,"Does your Enterprise plan include SSO, and what happens if I cancel?",answered,sso;end of the period,,pricing_plans.csv|security_privacy.md;billing_terms.md,,pricing_plans.csv;billing_terms.md
+m6,multi_source,md;json,"How many employees are there, and how many work in Leeds?",answered,120;40,,company_profile.md;offices.json,,company_profile.md;offices.json
+m7,multi_source,csv;xlsx,"How much is the Business plan, and what is its API request limit?",answered,45 usd;1200,,pricing_plans.csv;integrations.xlsx,,pricing_plans.csv;integrations.xlsx
+m8,multi_source,html;md,"Is Acme hiring in Pune, and what are the support hours?",answered,pune;monday to friday,,acme.example/careers;support_sla.md,,acme.example/careers;support_sla.md
+p1,multi_part,md,What is the refund window and how long do refunds take?,answered,14 days;7 business days,30 days,billing_terms.md,refund_policy_2025.md,billing_terms.md
+p2,multi_part,csv,What is the price of the Pro plan and how many seats does it have?,answered,20 usd;5,,pricing_plans.csv,,pricing_plans.csv
+pa3,partial,json,Where is the Pune office and how many parking spaces does it have?,partial,baner road,,offices.json,,offices.json
+pa4,partial,html,When is scheduled maintenance and which regions are affected?,partial,first sunday,,acme.example/status,,acme.example/status
+pa5,partial,xlsx,Does Acme have a Slack integration and a Microsoft Teams integration?,partial,slack,,integrations.xlsx,,integrations.xlsx
+pa6,partial,faq,How long is the free trial and does it include Enterprise features?,partial,14 day,,faq.csv,,faq.csv
+cf1,conflict,faq;md,How many days do I have to pay an invoice?,conflict,,,faq.csv;billing_terms.md,,faq.csv;billing_terms.md
+cf3,conflict,md,What uptime does Acme Cloud guarantee?,conflict,,,support_sla.md;marketing_overview.md,,support_sla.md;marketing_overview.md
+cf4,conflict,md,What is the uptime commitment?,conflict,,,support_sla.md;marketing_overview.md,,support_sla.md;marketing_overview.md
+o1,outdated,md,What is the refund window?,answered,14 days,30 days,billing_terms.md,refund_policy_2025.md,billing_terms.md
+o3,outdated,md,What uptime did the 2024 service level agreement promise?,insufficient,,99.5,,sla_2024.md,
+u1,unsupported,,Do you support single sign-on with Okta?,insufficient,,,,,
+u3,unsupported,,Do you offer on-premise installation?,insufficient,,,,,
+u4,unsupported,,Who are your investors?,insufficient,,,,,
+u5,unsupported,,What is the chief executive's phone number?,insufficient,,,,,
+u7,unsupported,,How much is the Platinum plan?,insufficient,,,,,
+u8,unsupported,,Do you have an office in Singapore?,insufficient,,,,,

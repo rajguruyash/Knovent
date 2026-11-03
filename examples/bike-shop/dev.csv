@@ -1,0 +1,61 @@
+query,entry_id
+what time do you close on saturday,hours
+are you open at the weekend,hours
+can i send back something i bought,returns
+what is your refund policy,returns
+how many days until my bike is fixed,repair-time
+when will my repair be done,repair-time
+price of a service for my bike,repair-cost
+what do you charge to fix a puncture or tune up,repair-cost
+will you bring it to my house,delivery
+is shipping free,delivery
+how long is the guarantee,warranty
+what happens if the frame cracks,warranty
+do you take visa or cash,payment
+can i pay by bank transfer,payment
+can i try one out first,test-ride
+do you let people take a bike for a spin,test-ride
+what size should i get if i am 180cm,sizing
+how do i know which frame fits me,sizing
+do you do monthly payments,finance
+is there interest free credit,finance
+what are your trading hours,hours
+what time do you open in the morning,hours
+is the shop open on saturday,hours
+when do you close in the evening,hours
+can i get a refund if i change my mind,returns
+how long do i have to bring something back,returns
+do i need my receipt to return a purchase,returns
+what is the process for sending an item back,returns
+how many days will my bike be in the workshop,repair-time
+when will i get my bike back after a repair,repair-time
+how quick is your repair service,repair-time
+roughly how long is a service turnaround,repair-time
+how much for a basic tune up,repair-cost
+what does a full service cost,repair-cost
+are parts included in the service price,repair-cost
+what are your workshop prices,repair-cost
+can you deliver a bike to my home,delivery
+how much do you charge for delivery,delivery
+is delivery free over a certain amount,delivery
+how many days does delivery take,delivery
+how long is the warranty on a new bike,warranty
+what does the warranty cover,warranty
+is there a guarantee on the frame,warranty
+do components have a warranty,warranty
+which cards do you take,payment
+can i pay with cash or transfer,payment
+do you accept cheques,payment
+what ways can i pay,payment
+can i do a test ride,test-ride
+do i need to bring id to try a bike,test-ride
+how long is a test ride,test-ride
+are test rides free,test-ride
+how do i pick the correct frame size,sizing
+can you help me find my size,sizing
+what size bike for someone 175cm,sizing
+do you do bike fittings,sizing
+can i buy now and pay later,finance
+is there zero percent finance,finance
+how long can i spread payments over,finance
+what is the minimum for finance,finance

@@ -1,0 +1,11 @@
+id,question,answer,category,alt_questions
+faq-001,Do you offer a free trial?,Yes. Every plan has a 14 day free trial and no card is needed to start.,billing,Is there a trial period?
+faq-002,How do I contact support?,Email support@acme.example. Pro and Enterprise customers also get a phone line.,support,
+faq-003,Can I change my plan later?,Yes. You can upgrade at any time and the change applies immediately. Downgrades apply at the next renewal.,billing,
+faq-004,Which payment methods do you accept?,We accept credit cards and bank transfer. Invoices are payable within 30 days.,billing,
+faq-005,Where is my data stored?,Customer data is stored in Frankfurt and Mumbai data centres.,security,
+faq-006,Do you have a mobile app?,Yes. There are apps for iOS and Android and both are free to download.,product,
+faq-007,Can I export my data?,Yes. Export everything as CSV or JSON from Settings at any time.,product,
+faq-008,Do you offer discounts for non-profits?,Yes. Registered non-profits get 25% off any paid plan. Email sales@acme.example with your registration number.,billing,
+faq-009,What browsers do you support?,The latest two versions of Chrome and Firefox and Safari and Edge.,product,
+faq-010,How do I reset my password?,Use the Forgot password link on the sign-in page. The reset link expires after 1 hour.,account,

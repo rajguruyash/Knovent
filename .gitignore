@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.DS_Store
+
+# datasets, trained runs and exported packages are regenerated, never committed
+data/
+runs/
+dist/
+studio_data/
+
+# built model files and local build output
+hosted_models/
+
+web/node_modules/
+web/public/vendor/
+
+# secrets: never committed (the protected environment file lives OUTSIDE the repository, in ~/.config/faq-engine/.env)
+.env
+.env.*
+*.env
+env
+*.pem
+*.key
+secrets/
