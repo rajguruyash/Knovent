@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Hardened runtime (required for notarization). Nothing is granted: no JIT, no unsigned memory, no library-validation opt-out, no network or file entitlements (the app is not sandboxed).
+       If a Developer ID build fails to start under the hardened runtime, add ONLY what the failure names, and record why here. -->
+</dict>
+</plist>

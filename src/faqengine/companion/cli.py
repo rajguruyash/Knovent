@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import sys
 import threading
+from pathlib import Path
 
 from . import hardware, models
 from .auth import Pairings
@@ -19,25 +20,26 @@ from .server import Companion, serve
 
 
 LABEL = "ai.knovent.companion"
-ORIGIN_OK = __import__("re").compile(r"^https?://[A-Za-z0-9.-]+(:\d{1,5})?$")
 
 
-def launch_agent_plist(executable: str, origins: list[str], port: int = 47890, log: str = "~/Library/Logs/knovent-companion.log") -> str:
-    """The macOS LaunchAgent that starts the companion when the person logs in and keeps it running. It trusts only the website addresses it is given (a browser sets Origin itself and a page cannot
-    forge it), so those pages pair with it without a code; any other page still needs the code. It binds 127.0.0.1 only, like the companion always does."""
+def launch_agent_plist(program_args: list[str], origins: list[str], port: int = 47890, log: str = "~/Library/Logs/knovent-companion.log", label: str = LABEL) -> str:
+    """The macOS LaunchAgent that starts the companion when the person logs in and keeps it running. `program_args` is the program to run (the installed companion, or `python -m ...` when run from
+    source); `run`, the port and the origins are added here. It trusts only the website addresses it is given (a browser sets Origin itself and a page cannot forge it), so those pages pair
+    with it without a code; any other page still needs the code. It binds 127.0.0.1 only, like the companion always does."""
     from xml.sax.saxutils import escape
 
-    args = [executable, "companion", "run", "--port", str(port)] + [x for o in origins for x in ("--origin", o)]
+    args = [*program_args, "run", "--port", str(port)] + [x for o in origins for x in ("--origin", o)]
     items = "".join(f"\n    <string>{escape(a)}</string>" for a in args)
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Label</key><string>{LABEL}</string>
+  <key>Label</key><string>{escape(label)}</string>
   <key>ProgramArguments</key><array>{items}
   </array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
+  <key>ProcessType</key><string>Background</string>
   <key>EnvironmentVariables</key><dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string></dict>
   <key>StandardOutPath</key><string>{escape(log)}</string>
   <key>StandardErrorPath</key><string>{escape(log)}</string>
@@ -47,67 +49,32 @@ def launch_agent_plist(executable: str, origins: list[str], port: int = 47890, l
 
 
 def _install_service(origins: list[str], port: int) -> int:
-    import subprocess
-    from pathlib import Path
+    """The developer's way to install the login service from a source checkout (customers use the installer program, companion/installer.py)."""
+    from . import installer
 
-    if sys.platform != "darwin":
-        print("The background service is built for macOS only. On other systems, run `faqengine companion run --origin <your site address>` when you need it.")
-        return 1
-    bad = [o for o in origins if not ORIGIN_OK.match(o.rstrip("/"))]
-    if not origins or bad:
-        print("Give the address of your website with --origin, for example:  --origin https://your-site.vercel.app" + (f"   (not valid: {', '.join(bad)})" if bad else ""))
-        return 1
-    exe = str(Path(sys.argv[0]).resolve()) if Path(sys.argv[0]).name == "faqengine" else str(Path(sys.executable).parent / "faqengine")
-    plist = Path.home() / "Library" / "LaunchAgents" / f"{LABEL}.plist"
-    plist.parent.mkdir(parents=True, exist_ok=True)
-    plist.write_text(launch_agent_plist(exe, [o.rstrip("/") for o in origins], port, str(Path.home() / "Library" / "Logs" / "knovent-companion.log")))
-    subprocess.run(["launchctl", "unload", str(plist)], capture_output=True)  # replaces an earlier install
-    subprocess.run(["pkill", "-f", "faqengine companion run"], capture_output=True)  # a copy started by hand would hold the port
-    done = subprocess.run(["launchctl", "load", "-w", str(plist)], capture_output=True, text=True)
-    if done.returncode:
-        print("Could not start the service: " + (done.stderr or done.stdout).strip()[:200])
-        return 1
-    print(f"Installed. The companion now starts when you log in and trusts: {', '.join(origins)}.\nNothing else changes: it listens on 127.0.0.1 only. Remove it any time with:  faqengine companion uninstall")
-    return 0
+    res = installer.install(origins, port=port, ui=installer.ConsoleUI(yes=True), program_args=[str(Path(sys.argv[0]).resolve()), "companion"] if Path(sys.argv[0]).name == "faqengine" else None)
+    print(res.summary())
+    return 0 if res.ok else 1
 
 
 def _uninstall_service() -> int:
-    import subprocess
-    from pathlib import Path
+    from . import installer
 
-    plist = Path.home() / "Library" / "LaunchAgents" / f"{LABEL}.plist"
-    subprocess.run(["launchctl", "unload", str(plist)], capture_output=True)
-    existed = plist.exists()
-    plist.unlink(missing_ok=True)
-    print("Removed the background companion." if existed else "The background companion was not installed.")
-    return 0
+    res = installer.uninstall(ui=installer.ConsoleUI(yes=True))
+    print(res.summary())
+    return 0 if res.ok else 1
 
 
-def _start_ollama_if_installed() -> None:
-    """Ollama (the program that runs the model) is installed by the person; if it is there but not running, start it so nobody has to. Nothing is installed or downloaded."""
-    import shutil
-    import subprocess
-    import time
-    import urllib.request
-
-    def up() -> bool:
-        try:
-            urllib.request.urlopen("http://127.0.0.1:11434", timeout=1).close()
-            return True
-        except Exception:  # noqa: BLE001 (any failure means "not running")
-            return False
-
-    if up() or not shutil.which("ollama"):
+def start_runtime_in_background(comp: Companion) -> None:
+    """Starts the model runtime if it is installed and not running, and keeps watching it (companion/lifecycle.py). Returns at once: the companion is usable while this happens."""
+    if comp.supervisor is None:
         return
-    try:
-        subprocess.Popen(["ollama", "serve"], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-    except OSError:
-        return
-    for _ in range(10):
-        time.sleep(0.5)
-        if up():
-            print("Started Ollama for you.")
-            return
+
+    def go() -> None:
+        comp.supervisor.ensure_running(wait=20.0)
+        comp.supervisor.watch()
+
+    threading.Thread(target=go, daemon=True, name="ollama-start").start()
 
 
 def build(sub) -> None:
@@ -167,7 +134,7 @@ def cmd_companion(args) -> int:
     except OSError:
         print(f"Port {args.port} is already in use: a companion is probably already running on this computer (in another window).\nStop it first with:  pkill -f 'companion run'   then start this again.")
         return 1
-    _start_ollama_if_installed()
+    start_runtime_in_background(comp)
     print(f"Pairing code: {comp.pairings.new_code()}   (valid 5 minutes, single use; enter it in the application's Settings; press Enter here for a new one)")
 
     def more():
@@ -175,8 +142,15 @@ def cmd_companion(args) -> int:
             print(f"Pairing code: {comp.pairings.new_code()}")
 
     threading.Thread(target=more, daemon=True).start()
+    import signal
+
+    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))  # the login service stops it with SIGTERM: stop cleanly
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\nstopped")
+    finally:
+        httpd.server_close()
+        if comp.supervisor:
+            comp.supervisor.stop()
     return 0

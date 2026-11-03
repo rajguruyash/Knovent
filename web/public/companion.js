@@ -35,18 +35,25 @@ const Companion = (() => {
   async function sha256Hex(bytes) {
     return hex(await crypto.subtle.digest('SHA-256', bytes));
   }
-  async function signature(key, method, path, ts, nonce, bodyText) {
-    const material = [method.toUpperCase(), path, ts, nonce, await sha256Hex(enc.encode(bodyText))].join('\n');
+  async function signature(key, method, path, ts, nonce, bodyText, business) {
+    const material = [method.toUpperCase(), path, ts, nonce, await sha256Hex(enc.encode(bodyText)), ...(business ? [business] : [])].join('\n');  // a key made for a business signs for that business only
     return hex(await crypto.subtle.sign('HMAC', key, enc.encode(material)));
   }
 
+  /** Why a pairing was refused is said plainly, with a `code` the page can act on; only a request that never got an answer is reported as "not reachable". */
+  function failure(code, message) { const e = new Error(message); e.code = code; return e; }
   async function pairNow(business, code, label) {
     let res;
-    try { res = await fetch(BASE + '/v1/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(code ? { code, label } : { label }), mode: 'cors', cache: 'no-store' }); } catch { throw new Error('The companion is not reachable on this computer. Is it running?'); }
-    if (!res.ok) throw new Error('The code was not accepted. It works once, for five minutes: ask the companion for a new one.');
-    const { key_id: keyId, secret } = await res.json();
+    try { res = await fetch(BASE + '/v1/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...(code ? { code } : {}), label, business }), mode: 'cors', cache: 'no-store' }); } catch { throw failure('unreachable', 'The companion is not reachable on this computer. Is it running?'); }
+    if (!res.ok) {
+      let why = ''; try { why = (await res.json()).error || ''; } catch { /* not JSON */ }
+      if (why === 'origin_not_trusted') throw failure('origin_not_trusted', 'This website is not set up on your computer yet. Install Knovent from this site, or type the pairing code the companion shows.');
+      if (why === 'code_not_accepted' || code) throw failure('code_not_accepted', 'The code was not accepted. It works once, for five minutes: ask the companion for a new one.');
+      throw failure('refused', 'The companion answered but refused to pair (' + res.status + ').');
+    }
+    const { key_id: keyId, secret, bound } = await res.json();
     const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);  // extractable: false
-    await store('readwrite', (st) => st.put({ business, keyId, key }));
+    await store('readwrite', (st) => st.put({ business, keyId, key, bound: !!bound }));
     return keyId;
   }
 
@@ -55,16 +62,17 @@ const Companion = (() => {
     if (!k) throw new Error('This business has no paired companion in this browser. Pair it in Settings.');
     const bodyText = bodyObj === undefined ? '' : JSON.stringify(bodyObj);
     const ts = String(Math.floor(Date.now() / 1000)), nonce = randomNonce();
-    const headers = { 'X-Companion-Key': k.keyId, 'X-Companion-Ts': ts, 'X-Companion-Nonce': nonce, 'X-Companion-Sig': await signature(k.key, method, path, ts, nonce, bodyText) };
+    const headers = { 'X-Companion-Key': k.keyId, 'X-Companion-Ts': ts, 'X-Companion-Nonce': nonce, 'X-Companion-Sig': await signature(k.key, method, path, ts, nonce, bodyText, k.bound ? business : null) };
+    if (k.bound) headers['X-Companion-Business'] = business;
     if (bodyText) headers['Content-Type'] = 'application/json';
     let res;
-    try { res = await fetch(BASE + path, { method, headers, body: bodyText || undefined, mode: 'cors', cache: 'no-store' }); } catch { throw new Error('The companion is not reachable on this computer. Is it running?'); }
+    try { res = await fetch(BASE + path, { method, headers, body: bodyText || undefined, mode: 'cors', cache: 'no-store' }); } catch { throw failure('unreachable', 'The companion is not reachable on this computer. Is it running?'); }
     let data = {};
     try { data = await res.json(); } catch { /* not JSON */ }
     if ((res.status === 401 || res.status === 403) && !retried) {  // the companion does not know this key (it was restarted, or its pairing file changed): pair again by itself, which a page served from this computer may do, and retry once
       try { await pairNow(business, '', 'this browser'); return await request(business, method, path, bodyObj, true); } catch { /* falls through to the plain message */ }
     }
-    if (res.status === 401 || res.status === 403) throw new Error('The companion no longer accepts this browser. Press “Look again”, or pair it with the code it shows.');
+    if (res.status === 401 || res.status === 403) throw failure('not_accepted', 'The companion no longer accepts this browser. Press “Look again”, or pair it with the code it shows.');
     if (!res.ok) throw new Error(data.error || 'The companion refused the request (' + res.status + ').');
     return data;
   }

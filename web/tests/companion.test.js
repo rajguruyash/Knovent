@@ -59,7 +59,7 @@ test("pairing stores a key that cannot be read back, and nothing but the code is
   const row = idb.rows.get("biz");
   assert.equal(row.key.extractable, false); // the page can sign with it, and nothing can export it
   await assert.rejects(() => webcrypto.subtle.exportKey("raw", row.key));
-  assert.deepEqual(JSON.parse(calls[0].body), { code: "1234-5678", label: "my browser" });
+  assert.deepEqual(JSON.parse(calls[0].body), { code: "1234-5678", label: "my browser", business: "biz" }); // the code, a name and which business: never a secret
   assert.equal(calls[0].url, "http://127.0.0.1:47890/v1/pair");
 });
 
@@ -107,4 +107,42 @@ test("hello learns only that a companion is there", async () => {
   const { C, calls } = sandbox(() => ({ status: 200, body: { companion: true, version: "0.1.0", pairing_open: true } }));
   assert.deepEqual(plain(await C.hello()), { present: true, companion: true, version: "0.1.0", pairing_open: true });
   assert.equal(calls[0].headers, undefined); // nothing identifying is sent
+});
+
+test("automatic pairing: no code is sent, the key is bound to the selected business, and every later request says which business it is for", async () => {
+  const { C, calls, idb } = sandbox((url) => (url.endsWith("/v1/pair") ? { status: 200, body: { key_id: "k".repeat(16), secret: SECRET, bound: true } } : { status: 200, body: { ok: 1 } }));
+  await C.pair("biz-one-1234", "", "my browser");
+  assert.deepEqual(JSON.parse(calls[0].body), { label: "my browser", business: "biz-one-1234" }); // no code at all
+  assert.equal(idb.rows.get("biz-one-1234").bound, true);
+  await C.status("biz-one-1234");
+  assert.equal(calls[1].headers["X-Companion-Business"], "biz-one-1234");
+  await C.pair("biz-two-5678", "", "my browser"); // a second business pairs on its own, and does not touch the first
+  assert.equal(await C.paired("biz-one-1234"), true);
+  await C.status("biz-two-5678");
+  assert.equal(calls.at(-1).headers["X-Companion-Business"], "biz-two-5678");
+});
+
+test("a website the companion does not trust is told so, and an unreachable companion is told differently", async () => {
+  const untrusted = sandbox(() => ({ status: 401, body: { error: "origin_not_trusted" } }));
+  await assert.rejects(() => untrusted.C.pair("biz", "", "b"), (e) => e.code === "origin_not_trusted" && /not set up on your computer yet/.test(e.message));
+  assert.equal(await untrusted.C.paired("biz"), false); // nothing was stored
+  const down = sandbox(() => { throw new TypeError("Failed to fetch"); });
+  await assert.rejects(() => down.C.pair("biz", "", "b"), (e) => e.code === "unreachable" && /not reachable/.test(e.message));
+  const wrongCode = sandbox(() => ({ status: 401, body: { error: "code_not_accepted" } }));
+  await assert.rejects(() => wrongCode.C.pair("biz", "0000-0000", "b"), (e) => e.code === "code_not_accepted");
+});
+
+test("an expired, revoked or forgotten key is replaced by the page itself, once, and the request then succeeds", async () => {
+  let accepted = false, pairs = 0;
+  const { C } = sandbox((url) => {
+    if (url.endsWith("/v1/pair")) { pairs += 1; accepted = true; return { status: 200, body: { key_id: String(pairs).repeat(16), secret: SECRET, bound: true } }; }
+    return accepted ? { status: 200, body: { fine: true } } : { status: 401, body: { error: "not authorised" } };
+  });
+  await C.pair("biz-abcd-1234", "1234-5678", "b");
+  accepted = false; pairs = 0; // the companion forgets the key (expired, revoked, restarted)
+  assert.deepEqual(plain(await C.status("biz-abcd-1234")), { fine: true });
+  assert.equal(pairs, 1); // paired again once, not in a loop
+  const never = sandbox((url) => (url.endsWith("/v1/pair") ? { status: 401, body: { error: "origin_not_trusted" } } : { status: 401, body: { error: "not authorised" } }));
+  never.idb.rows.set("biz", { business: "biz", keyId: "k".repeat(16), key: await webcrypto.subtle.importKey("raw", new TextEncoder().encode(SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]), bound: false });
+  await assert.rejects(() => never.C.status("biz"), (e) => e.code === "not_accepted"); // a site that is not trusted does not loop, and says what to do
 });

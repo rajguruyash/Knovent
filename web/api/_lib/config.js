@@ -28,5 +28,15 @@ export class ConfigError extends Error {
 
 /** The only settings a browser may be given. */
 export function publicConfig(env = process.env) {
-  return { supabaseUrl: env.SUPABASE_URL ?? "", anonKey: env.SUPABASE_ANON_KEY ?? "" };
+  /** @param {unknown} u */
+  const https = (u) => (typeof u === "string" && /^https:\/\/[^\s"'<>]+$/.test(u) ? u : "");
+  /** @type {Record<string, any>} */
+  let manifest = {};
+  try { manifest = JSON.parse(env.COMPANION_DOWNLOADS || "{}"); } catch { manifest = {}; }  // {"macos-arm64": "https://...", "windows-x64": "https://..."}: where each installer is published
+  /** @type {Record<string, string>} */
+  const downloads = {};
+  for (const k of ["macos-arm64", "macos-x64", "windows-x64"]) if (https(manifest[k])) downloads[k] = manifest[k];  // only systems an installer is built for; https only
+  const legacy = https(env.COMPANION_DOWNLOAD_URL ?? "");
+  if (legacy && !downloads["macos-arm64"]) downloads["macos-arm64"] = legacy;
+  return { supabaseUrl: env.SUPABASE_URL ?? "", anonKey: env.SUPABASE_ANON_KEY ?? "", companionDownloadUrl: downloads["macos-arm64"] ?? "", companionDownloads: downloads };
 }

@@ -65,6 +65,8 @@ The local-only capability is provided by the Python engine on the user's machine
 | `SUPABASE_ANON_KEY` | no (public by design; safe because RLS guards the data) | the project's anon key |
 | `ENGINE_URL` | yes (server only) | address of the engine service |
 | `ENGINE_SERVICE_SECRET` | **yes** | shared secret the functions send to the engine (at least 24 random characters) |
+| `COMPANION_DOWNLOADS` | no (public) | JSON object of installer addresses by system, e.g. `{"macos-arm64": "https://...zip", "windows-x64": "https://...exe"}` (https only; a system with no entry is not offered). Publish Windows only after `docs/cross-platform-companion.md` says it passed |
+| `COMPANION_DOWNLOAD_URL` | no (public) | older single address, used for `macos-arm64` when `COMPANION_DOWNLOADS` has none: | https address of the companion installer for this site (see `docs/local-companion.md`); the site's "Download Knovent for Mac" button points to it. Build it with `scripts/build_companion_macos.sh https://your-site.vercel.app` |
 
 No service-role key and no database password belong in Vercel. `GET /api/config` returns only `SUPABASE_URL` and `SUPABASE_ANON_KEY`; a test scans everything served to a browser for secrets.
 

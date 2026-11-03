@@ -76,6 +76,7 @@ async function boot() {
     cfg = await res.json();
     if (!res.ok) throw new Error(cfg.error);
   } catch (e) { root.replaceChildren(h('div', { class: 'banner warn' }, e.message || 'This deployment is not configured yet.')); return; }
+  S.cfg = cfg;
   S.sb = window.supabase.createClient(cfg.supabaseUrl, cfg.anonKey);
   S.sb.auth.onAuthStateChange((_event, session) => { const was = S.session && S.session.user && S.session.user.id; S.session = session; if ((session && session.user && session.user.id) !== was) load(); });
   S.session = (await S.sb.auth.getSession()).data.session;
@@ -543,7 +544,7 @@ async function refreshCompanion() {
   S.cstatus = null;
   if (S.chello.present && !(await Companion.paired(S.current.id)) && S.current && !S._autoPairTried) {
     S._autoPairTried = true;  // the companion pairs by itself with an origin it trusts; otherwise the code box stays as the fallback
-    try { await Companion.pair(S.current.id, '', S.session.user.email.split('@')[0] + '’s browser'); } catch (e) { S.pairMsg = { kind: 'warn', text: 'Automatic pairing did not work (' + e.message + '). Press “Look again”, or type the code the companion shows.' }; }
+    try { await Companion.pair(S.current.id, '', S.session.user.email.split('@')[0] + '’s browser'); } catch (e) { S.notTrusted = e.code === 'origin_not_trusted'; S.pairMsg = { kind: 'warn', text: e.code === 'unreachable' ? 'The companion did not answer the pairing request. Press “Look again”.' : e.message }; }
   }
   if (S.chello.present && await Companion.paired(S.current.id)) {
     try {
@@ -561,6 +562,40 @@ function healthLine(Hh) {
   return h('div', { class: 'banner ' + kind + ' small', role: 'status' }, text + (st.questions ? ' ' + st.questions + ' question' + (st.questions === 1 ? '' : 's') + ' answered since the companion started, ' + st.failures + ' failed' + (st.last_seconds != null ? '; the last took ' + st.last_seconds + ' s' : '') + '.' : ''));
 }
 function noModelSelectedEarly(C) { return !(C.installed && C.installed.selected) && !((S.ai && S.ai.companions) || []).some((c) => !c.revoked); }
+// What a customer sees when Knovent is not on their computer yet: one button, plain steps, no Terminal. The page keeps looking by itself (every few seconds) and continues the moment it finds the companion.
+function detectOS() {
+  const p = String((typeof navigator !== 'undefined' && ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent)) || '').toLowerCase();
+  return /mac/.test(p) ? 'mac' : /win/.test(p) ? 'windows' : /linux|x11/.test(p) ? 'linux' : 'other';
+}
+// The systems a person can choose from. A browser cannot reliably say which chip a Mac has, so the choice is theirs to correct; after installing, the companion itself reports the system (checked below).
+const PLATFORMS = [['macos-arm64', 'Mac with Apple silicon (M1 or newer)'], ['macos-x64', 'Mac with an Intel chip'], ['windows-x64', 'Windows PC (64 bit)'], ['linux-x64', 'Linux']];
+const PLATFORM_NAME = { 'macos-arm64': 'Mac', 'macos-x64': 'Mac', 'windows-x64': 'Windows' };
+function platformKey() {
+  if (S.platformChoice) return S.platformChoice;
+  const os = detectOS();
+  return os === 'mac' ? 'macos-arm64' : os === 'windows' ? 'windows-x64' : os === 'linux' ? 'linux-x64' : '';
+}
+function installCard({ checking, check, safari, hosted }) {
+  if (checking) return h('div', { class: 'banner info small', role: 'status' }, 'Looking for Knovent on this computer…');
+  if (!hosted) return h('div', { class: 'install' }, h('div', { class: 'banner warn', role: 'status' }, h('b', {}, 'Knovent is not running on this computer'), h('div', { class: 'small' }, 'Open the Knovent app on this computer again, then press “Look again”.')), h('div', { class: 'row' }, check));
+  const key = platformKey(), downloads = (S.cfg && S.cfg.companionDownloads) || {}, url = downloads[key] || (key === 'macos-arm64' && S.cfg && S.cfg.companionDownloadUrl) || '';
+  const picker = h('div', { class: 'row' }, h('label', { class: 'small', for: 'platform' }, 'My computer is a'), h('select', { id: 'platform', 'aria-label': 'My computer is a', onchange: (e) => { S.platformChoice = e.target.value; S.installClicked = false; render(); } }, PLATFORMS.map(([k, t]) => h('option', { value: k, selected: k === key }, t))));
+  const head = [h('h3', {}, 'Install Knovent for your computer'), picker];
+  if (key === 'linux-x64' || !key) return h('div', { class: 'install' }, ...head, h('div', { class: 'banner info small', role: 'status' }, 'Local AI is not available for this system yet. Today it works on Macs and on Windows PCs. You can choose “Through an API service” instead, or open Knovent on a Mac or a Windows PC.'));
+  const name = PLATFORM_NAME[key], waiting = !!S.installClicked;
+  const steps = key === 'windows-x64'
+    ? ['Open the downloaded “Knovent Companion Setup”. If Windows says “Windows protected your PC”, choose More info, then Run anyway.', 'Follow the window that appears. It asks before it installs anything, and it does not need an administrator.', 'Come back to this page. It finds your PC by itself and continues.']
+    : ['Open the downloaded “Knovent Companion”. If macOS says it cannot check the developer, press Control, click it, and choose Open.', 'Follow the window that appears. It asks before it installs anything.', 'Come back to this page. It finds your Mac by itself and continues.'];
+  return h('div', { class: 'install' }, ...head,
+    h('p', { class: 'muted' }, 'One small installer sets up local AI on this ' + (name === 'Windows' ? 'PC' : 'Mac') + '. It starts by itself when you log in, uses the free AI runtime Ollama (and asks before installing it), and keeps your questions and documents on your computer.'),
+    url ? h('a', { class: 'btn primary big', href: url, download: '', onclick: () => { S.installClicked = true; setTimeout(render, 0); } }, 'Download Knovent for ' + name)
+      : h('div', { class: 'banner warn', role: 'status' }, 'The installer for ' + (name || 'this system') + ' has not been published for this site yet. Ask the person who runs Knovent to add it.'),
+    h('ol', { class: 'setup-steps' }, steps.map((t, i) => h('li', {}, h('b', {}, String(i + 1)), h('span', {}, t)))),
+    waiting ? h('div', { class: 'banner info small', role: 'status' }, 'Waiting for the installer to finish… this page checks every few seconds' + (S.checkedAt ? ' (last check ' + S.checkedAt.toLocaleTimeString() + ')' : '') + '. If nothing happens within a minute after the installer says it is ready, refresh this page.') : null,
+    safari ? h('div', { class: 'banner info small' }, 'Safari does not let a secure website connect to a program on your computer. After installing, open this page in Chrome, Edge or Brave.') : null,
+    h('div', { class: 'row' }, check));
+}
+
 function deviceConsentCard() {
   const allow = () => { try { localStorage.setItem('knovent_device_ok', '1'); } catch { /* not kept: asked again next time */ } S.deviceOk = true; refreshCompanion(); };
   return h('section', { class: 'panel inner', id: 'local-companion' }, h('h2', {}, 'Let Knovent use the AI on this computer?'),
@@ -575,26 +610,17 @@ function localPanel(canAdmin) {
   if (hostedPage && !S.deviceOk) return deviceConsentCard();  // a page on the internet reaches this computer only after the person says so
   if (H === null) setTimeout(() => { if (S.chello === null) { S.chello = false; refreshCompanion(); } }, 0);
   const embedded = canAdmin && S.current && (!S.current.onboarding_completed_at || S.reonboard);
-  if (embedded && S.chello === false && !S._poll) { S._poll = setTimeout(() => { S._poll = null; refreshCompanion(); }, 4000); }
+  if ((embedded || S.installClicked) && S.chello === false && !S._poll) { S._poll = setTimeout(() => { S._poll = null; refreshCompanion(); }, 4000); }
   const wrap = (...kids) => h('section', { class: 'panel' + (embedded ? ' inner' : ''), id: 'local-companion' }, h('h2', {}, 'Your own computer (local AI)'),
     h('p', { class: 'muted' }, 'A small program, the companion, runs on this computer and lets this application use a model that runs here. The question’s evidence goes to your computer and to no AI provider. It needs a model runtime (Ollama or llama.cpp) on the same computer.'), ...kids);
   const pairs = (S.ai && S.ai.companions || []).filter((c) => !c.revoked);
-  const notes = [h('p', { class: 'small muted' }, 'Tested on: macOS on Apple silicon only, with stand-ins for the runtimes; no real model has been run through it. Linux and Windows code paths are not run on real machines. The page reaches the companion at http://127.0.0.1:47890 from Chrome-family browsers; other browsers are untested.')];
+  const notes = [h('p', { class: 'small muted' }, 'Works on macOS with Apple silicon. Windows and Linux are not supported yet. Your browser may ask to allow access to your local network: choose Allow.')];
   const check = h('button', { class: 'btn', type: 'button', disabled: !!S.checking, onclick: refreshCompanion }, S.checking ? 'Checking…' : H && H.present ? 'Refresh' : 'Look again');
   const hosted = typeof location !== 'undefined' && typeof location.hostname === 'string' && !['127.0.0.1', 'localhost'].includes(location.hostname);
-  const cmd = hosted ? '.venv/bin/faqengine companion install --origin ' + location.origin : '.venv/bin/faqengine companion run';
   const safari = typeof navigator !== 'undefined' && typeof location !== 'undefined' && /^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent) && location.protocol === 'https:';
-  if (!H || !H.present) return wrap(
-    S.checking || H === null ? h('div', { class: 'banner info small', role: 'status' }, 'Looking for the companion on this computer…')
-      : h('div', { class: 'banner warn', role: 'status' }, h('b', {}, 'Not found yet'), h('div', { class: 'small' }, 'Checked at ' + (S.checkedAt ? S.checkedAt.toLocaleTimeString() : 'just now') + '. The companion is a small program that must be running on this computer. Start it with one of these, then press “Look again” (this page also re-checks every few seconds):')),
-    S.checking || H === null ? null : h('ul', { class: 'small how' },
-      hosted ? null : h('li', {}, 'Double-click ', h('b', {}, 'Start Local AI Companion.command'), ' in the project folder, or'),
-      h('li', {}, hosted ? 'run this once in a terminal inside the project folder (it then starts by itself every time you log in, and this page finds it with no code): ' : 'run this in a terminal: ', h('code', {}, cmd), ' ', h('button', { class: 'btn link', type: 'button', onclick: async (e) => { try { await navigator.clipboard.writeText(cmd); e.target.textContent = 'Copied'; } catch { e.target.textContent = 'Select and copy it'; } } }, 'Copy')),
-      h('li', {}, 'you also need Ollama running (https://ollama.com/download).')),
-    safari ? h('div', { class: 'banner info small' }, 'Safari does not let a secure web page talk to a program on your own computer. Open this page in Chrome, Edge or Brave to connect to the companion.') : null,
-    h('div', { class: 'row' }, check), ...notes, pairs.length ? h('p', { class: 'small muted' }, 'Paired for this business: ' + pairs.map((c) => c.label + ' (' + c.runtime + ' ' + c.model + ')').join('; ') + '.') : null);
+  if (!H || !H.present) return wrap(installCard({ checking: S.checking || H === null, check, safari, hosted }), pairs.length ? h('p', { class: 'small muted' }, 'Paired for this business: ' + pairs.map((c) => c.label + ' (' + c.runtime + ' ' + c.model + ')').join('; ') + '.') : null);
   const code = h('input', { type: 'text', inputmode: 'numeric', autocomplete: 'off', placeholder: '1234-5678', maxlength: 9, 'aria-label': 'Pairing code', style: 'max-width:160px' });
-  if (!C) return wrap(h('div', { class: 'banner good small' }, 'A companion is running on this computer' + (H.version ? ' (version ' + H.version + ')' : '') + '. This browser is not paired with it for this business.'),
+  if (!C) return wrap(h('div', { class: 'banner good small' }, 'A companion is running on this computer' + (H.version ? ' (version ' + H.version + ')' : '') + '. This browser is not paired with it for this business.'), S.notTrusted && hosted ? installCard({ checking: false, check, safari, hosted }) : null,
     canAdmin ? h('div', {}, h('p', { class: 'small' }, 'In the companion’s window it shows a pairing code (valid five minutes, usable once). Type it here.'),
       h('div', { class: 'row' }, code, h('button', { class: 'btn primary', type: 'button', onclick: async () => { try { await Companion.pair(b, code.value, S.session.user.email.split('@')[0] + '’s browser'); S.pairMsg = null; await refreshCompanion(); say('Paired. Choose the model to use below.', 'good'); } catch (e) { S.pairMsg = { kind: 'bad', text: e.message }; render(); } } }, 'Pair'), check))
       : h('p', { class: 'small muted' }, 'Only owners and admins can pair a companion.'),
@@ -657,7 +683,10 @@ function localPanel(canAdmin) {
       await refreshCompanion();
     } catch (e) { S.pull = null; fail(e); }
   };
-  return wrap(h('div', { class: 'banner good small' }, 'Paired with the companion on this computer.'),
+  const reported = hw && String(hw.os || '').toLowerCase().slice(0, 3);
+  const chosenOs = S.platformChoice && S.platformChoice.split('-')[0].slice(0, 3);
+  const mismatch = chosenOs && reported && chosenOs !== reported ? h('div', { class: 'banner warn small', role: 'status' }, 'This computer reports ' + hw.os + ' ' + hw.arch + ', but you chose a different system. The installer you downloaded may not match this computer.') : null;
+  return wrap(mismatch, pairs.length && C.health && C.health.state === 'ready' ? h('div', { class: 'banner good ready', role: 'status' }, h('b', {}, '✓ Local AI ready'), h('div', { class: 'small' }, 'Your Mac is set up and answering with ' + pairs[pairs.length - 1].model + '. Nothing leaves this computer.')) : h('div', { class: 'banner good small' }, 'Paired with the companion on this computer.'),
     h('div', { class: 'small' }, h('b', {}, 'This computer: '), hw.os + ' ' + hw.os_version + ' · ' + hw.arch + ' · ' + hw.cpu + ' · ' + hw.cores + ' cores · ' + (hw.ram_gb == null ? 'memory unknown' : hw.ram_gb + ' GB') + (hw.gpus.length ? ' · ' + hw.gpus.map((g) => g.name + (g.vram_gb ? ' ' + g.vram_gb + ' GB' : '') + (g.unified ? ' (shared)' : '') + (g.usable_for_models ? '' : ' (not used for models)')).join(', ') : ' · no GPU found')),
     Object.entries(C.runtimes).map(([rt, d]) => h('div', { class: 'small' }, h('b', {}, rt + ': '), d.running ? 'running · ' + ((d.models || []).join(', ') || 'no models yet') : d.installed ? 'installed, not running' : 'not found')),
     (rec.limits || []).map((x) => h('div', { class: 'banner warn small' }, x)),

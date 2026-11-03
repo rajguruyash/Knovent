@@ -16,6 +16,7 @@ from pathlib import Path
 
 from . import hardware, models
 from .auth import ORIGIN, Pairings, host_ok
+from .lifecycle import OllamaSupervisor
 from .runtimes import LlamaCpp, Ollama, Runtime, RuntimeError_
 
 log = logging.getLogger("faqengine.companion")
@@ -23,17 +24,20 @@ VERSION = "0.1.0"
 MAX_BODY = 1_000_000
 MAX_PROMPT = 200_000
 MODEL_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@-]{0,127}$")
-CORS_HEADERS = "Content-Type, X-Companion-Key, X-Companion-Ts, X-Companion-Nonce, X-Companion-Sig"
+CORS_HEADERS = "Content-Type, X-Companion-Key, X-Companion-Ts, X-Companion-Nonce, X-Companion-Sig, X-Companion-Business"
 
 
 class Companion:
-    def __init__(self, pairings: Pairings, runtimes: dict[str, Runtime] | None = None, detect=hardware.detect, allow_custom_models: bool = False):
+    def __init__(self, pairings: Pairings, runtimes: dict[str, Runtime] | None = None, detect=hardware.detect, allow_custom_models: bool = False, supervisor: OllamaSupervisor | None = None):
         self.pairings = pairings
         self.runtimes = runtimes if runtimes is not None else {"ollama": Ollama(), "llamacpp": LlamaCpp()}
+        ol = self.runtimes.get("ollama")
+        self.supervisor = supervisor if supervisor is not None else (OllamaSupervisor(ol) if isinstance(ol, Ollama) and ol.base == Ollama.default_base else None)  # only the real runtime on its own address is ever started: a stand-in is left alone
         self.detect, self.allow_custom_models = detect, allow_custom_models
         self._busy = threading.Semaphore(1)
         self._active: dict[str, threading.Event] = {}
         self._jobs: dict[str, dict] = {}
+        self._cancels: dict[str, threading.Event] = {}
         self._lock = threading.Lock()
         self._hw: tuple[float, hardware.Hardware] | None = None
         self.stats = {"questions": 0, "failures": 0, "last_seconds": None, "last_failure": None, "last_at": None}  # counts and times only: never what was asked or answered
@@ -53,7 +57,8 @@ class Companion:
             except RuntimeError_:
                 d["models"] = []
             rts[name] = d
-        return {"companion": True, "version": VERSION, "hardware": self.hardware().public(), "runtimes": rts, "selected": self.pairings.selected or None, "busy": self._busy._value == 0}
+        return {"companion": True, "version": VERSION, "hardware": self.hardware().public(), "runtimes": rts, "selected": self.pairings.selected or None, "busy": self._busy._value == 0,
+                "runtime_state": self.supervisor.state() if self.supervisor else None}
 
     # ---- models
     def select(self, runtime: object, model: object, device: object = "auto") -> dict:
@@ -79,22 +84,31 @@ class Companion:
         known = {m.ollama for m in models.catalogue() if m.ollama}
         if model not in known and not self.allow_custom_models:
             raise ValueError("that model is not in the companion's list; add it to the list or start the companion with custom models allowed")
-        job = uuid.uuid4().hex[:16]
-        self._jobs[job] = {"state": "running", "done": 0, "total": 0, "error": None, "model": model, "selected": False, "updated": None}
+        with self._lock:  # one download per model: a second request while one runs gets the same job (and then_select is remembered), never a second download
+            running = next((j for j, v in self._jobs.items() if v["model"] == model and v["state"] == "running"), None)
+            if running:
+                self._jobs[running]["select_when_done"] = self._jobs[running].get("select_when_done") or then_select
+                return {"job": running}
+            job = uuid.uuid4().hex[:16]
+            self._jobs[job] = {"state": "running", "done": 0, "total": 0, "error": None, "model": model, "selected": False, "updated": None, "select_when_done": then_select}
+            cancel = self._cancels[job] = threading.Event()
         before = next((m["digest"] for m in rt.installed() if m["name"] == model), None) if update else None
 
         def work():
             try:
-                rt.pull(model, lambda d, t: self._jobs[job].update(done=d, total=t))
+                rt.pull(model, lambda d, t: self._jobs[job].update(done=d, total=t), cancel)
                 if update:
                     after = next((m["digest"] for m in rt.installed() if m["name"] == model), None)
                     self._jobs[job]["updated"] = before is not None and after is not None and before != after
-                if then_select:
+                if cancel.is_set():
+                    self._jobs[job]["state"] = "cancelled"
+                    return
+                if self._jobs[job].get("select_when_done"):
                     self.pairings.select("ollama", model)
                     self._jobs[job]["selected"] = True
                 self._jobs[job]["state"] = "done"
             except RuntimeError_ as e:
-                self._jobs[job].update(state="failed", error=e.kind)
+                self._jobs[job].update(state="cancelled" if cancel.is_set() else "failed", error=None if cancel.is_set() else e.kind)
 
         threading.Thread(target=work, daemon=True).start()
         return {"job": job}
@@ -107,8 +121,14 @@ class Companion:
             raise ValueError("downloading a model needs the person's confirmation")
         rt = self.runtimes.get("ollama")
         d = rt.detect() if rt else {"installed": False, "running": False}
-        if not isinstance(rt, Ollama) or not d.get("running"):
-            raise ValueError("Ollama is not running on this computer: install and start it first (https://ollama.com/download), then try again")
+        if not isinstance(rt, Ollama):
+            raise ValueError("the model runtime is not available on this computer")
+        if not d.get("running") and self.supervisor is not None:
+            self.supervisor.ensure_running()  # installed but not running: start it (never a second copy)
+            d = rt.detect()
+        if not d.get("running"):
+            why = (self.supervisor.last_error if self.supervisor else None) or "could_not_start"
+            raise ValueError({"not_installed": "The AI runtime (Ollama) is not installed on this computer yet. The Knovent installer can set it up for you.", "gave_up": "The AI runtime keeps stopping. Restart your computer, then try again."}.get(why, "The AI runtime could not be started. Try again in a moment."))
         rec = models.recommend(self.hardware())
         pick = model_id if isinstance(model_id, str) and model_id else rec["start_with"]
         row = next((r for r in rec["models"] if r["id"] == pick), None)
@@ -195,6 +215,14 @@ class Companion:
             return {**base, "state": "model_missing", "ok": False, "runtime": d}
         return {**base, "state": "busy" if base["busy"] else "ready", "ok": True, "runtime": d, "loaded": sel["model"] in rt.loaded()}
 
+    def cancel_download(self, job_id: object) -> bool:
+        """Stops a running download. What was already fetched stays, and a later download of the same model continues from it."""
+        ev = self._cancels.get(job_id) if isinstance(job_id, str) else None
+        if ev is None or self._jobs.get(job_id, {}).get("state") != "running":
+            return False
+        ev.set()
+        return True
+
     def job(self, job_id: object) -> dict | None:
         return self._jobs.get(job_id) if isinstance(job_id, str) else None
 
@@ -275,9 +303,12 @@ def make_handler(c: Companion, port: int, extra_origins: set[str] | None = None)
                 return None
             return self.rfile.read(n) if n else b""
 
-        def _refuse(self, why: str) -> None:
+        def _refuse(self, why: str, body: dict | None = None) -> None:
+            """A refusal. The browser is allowed to READ it (CORS headers, only for a well formed Origin): otherwise it hides the 401 and the page reports "not reachable" about a companion that answered.
+            Reading a refusal grants nothing. Signed requests always get the same words (no hint of which check failed); only the unsigned pairing step says why, because the person needs to know."""
             log.warning("request refused: %s (%s)", why, self.path.split("?")[0])
-            self._send(401, {"error": "not authorised"})  # always the same words: no hint of which check failed
+            origin = self._origin() if host_ok(self.headers.get("Host"), port) else None
+            self._send(401, body or {"error": "not authorised"}, origin)
 
         def log_message(self, fmt, *args):  # no access log with addresses of prompts: nothing is logged here
             pass
@@ -317,11 +348,14 @@ def make_handler(c: Companion, port: int, extra_origins: set[str] | None = None)
                     return self._send(400, {"error": "not JSON"}, origin)
                 d = d if isinstance(d, dict) else {}
                 trusted = origin is not None and (origin in (extra_origins or set()) or LOCAL_APP.match(origin))
-                got = c.pairings.pair_trusted(origin, d.get("label")) if trusted and not d.get("code") else c.pairings.pair(d.get("code"), origin, d.get("label"))
+                biz = d.get("business") if isinstance(d.get("business"), str) else None
+                got = c.pairings.pair_trusted(origin, d.get("label"), biz) if trusted and not d.get("code") else c.pairings.pair(d.get("code"), origin, d.get("label"), biz)
                 if got is None:
-                    return self._refuse("pairing code")
+                    if d.get("code"):
+                        return self._refuse("pairing code", {"error": "code_not_accepted"})
+                    return self._refuse("origin not trusted", {"error": "origin_not_trusted"})  # no code and not a trusted address: the page must say so, and offer the installer or the code
                 return self._send(200, got, origin)
-            key_id, why = c.pairings.verify(method, path, body, {k: self.headers.get(k, "") for k in ("X-Companion-Key", "X-Companion-Ts", "X-Companion-Nonce", "X-Companion-Sig")})
+            key_id, why = c.pairings.verify(method, path, body, {k: self.headers.get(k, "") for k in ("X-Companion-Key", "X-Companion-Ts", "X-Companion-Nonce", "X-Companion-Sig", "X-Companion-Business")})
             if key_id is None:
                 return self._refuse(why or "signature")
             if origin is not None and origin != c.pairings.origin_of(key_id):
@@ -346,6 +380,8 @@ def make_handler(c: Companion, port: int, extra_origins: set[str] | None = None)
                     status, out = 200, c.update(d.get("runtime"), d.get("model"))
                 elif method == "POST" and path == "/v1/provision":
                     status, out = 200, c.provision(d.get("confirm"), d.get("model"))
+                elif method == "POST" and path == "/v1/models/pull/cancel":
+                    status, out = 200, {"cancelled": c.cancel_download(d.get("job"))}
                 elif method == "POST" and path == "/v1/models/pull":
                     status, out = 200, c.pull(d.get("runtime"), d.get("model"))
                 elif method == "POST" and path == "/v1/infer":

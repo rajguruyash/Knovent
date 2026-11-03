@@ -199,7 +199,7 @@ test("the page is given the public settings and nothing else", async () => {
   Object.assign(process.env, { SUPABASE_URL: SUPABASE, SUPABASE_ANON_KEY: "anon-public-key", ENGINE_URL: ENGINE, ENGINE_SERVICE_SECRET: SECRET, SUPABASE_SERVICE_ROLE_KEY: "service-role-secret" });
   try {
     const res = await asJson(config());
-    assert.deepEqual(Object.keys(res.body).sort(), ["anonKey", "supabaseUrl"]);
+    assert.deepEqual(Object.keys(res.body).sort(), ["anonKey", "companionDownloadUrl", "companionDownloads", "supabaseUrl"]);
     assert.ok(!JSON.stringify(res.body).includes("secret") && !JSON.stringify(res.body).includes("engine"));
     assert.equal((await asJson(health())).body.ok, true);
   } finally {

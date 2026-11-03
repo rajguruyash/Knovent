@@ -25,3 +25,6 @@ env
 *.pem
 *.key
 secrets/
+
+# the companion installer build
+build/

@@ -1,0 +1,66 @@
+# Builds the Windows x64 companion setup program and runs the real-machine acceptance test on a REAL Windows machine (GitHub's windows-latest runner).
+# Run it by hand: Actions > Companion Windows > Run workflow. It does not run on push, because it downloads Ollama (about 1 GB) and, if asked, two small models.
+# Until this workflow has passed, Windows is NOT a supported platform (docs/cross-platform-companion.md).
+name: Companion Windows
+on:
+  workflow_dispatch:
+    inputs:
+      origin:
+        description: "Your website address, written into the build (the only site the companion pairs with by itself)"
+        required: true
+        default: "https://knovent-web.vercel.app"
+      download_models:
+        description: "Also test model download (qwen3-0.6b), cancellation (gemma3-1b) and inference"
+        type: boolean
+        default: true
+
+jobs:
+  windows-x64:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Build the companion and its setup program (unsigned)
+        shell: pwsh
+        run: scripts\build_companion_windows.ps1 -Origin "${{ inputs.origin }}"
+      - name: The program runs without Python on the PATH
+        shell: cmd
+        run: |
+          set PATH=C:\Windows\System32;C:\Windows
+          dist\knovent-companion\knovent-companion.exe status > status.json
+          type status.json
+      - name: Install with the real setup program, silently, for this user
+        shell: pwsh
+        run: |
+          $setup = (Get-ChildItem dist\Knovent-Companion-Setup-*-windows-x64.exe)[0].FullName
+          Start-Process $setup -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART" -Wait
+          if (-not (Test-Path "$env:LOCALAPPDATA\Knovent\app\knovent-companion.exe")) { throw "setup did not install the program" }
+      - name: Acceptance test (install without Ollama, pairing, wrong origin, models, inference, crash recovery, upgrade, uninstall)
+        shell: pwsh
+        run: |
+          $exe = "$env:LOCALAPPDATA\Knovent\app\knovent-companion.exe"
+          $extra = @()
+          if ("${{ inputs.download_models }}" -eq "true") { $extra = @("--model","qwen3-0.6b","--cancel-model","gemma3-1b") }
+          python scripts\platform_selftest.py --exe $exe --origin "${{ inputs.origin }}" --report selftest-windows.json --recovery-wait 480 @extra
+      - name: Uninstall with the real uninstaller
+        if: always()
+        shell: pwsh
+        run: |
+          $u = "$env:LOCALAPPDATA\Knovent\app\unins000.exe"
+          if (Test-Path $u) { Start-Process $u -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES" -Wait }
+          Start-Sleep 8
+          "task left behind: " + [bool](schtasks /Query /TN ai.knovent.companion 2>$null)
+          "program folder left behind: " + (Test-Path "$env:LOCALAPPDATA\Knovent\app\knovent-companion.exe")
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: knovent-companion-windows-x64
+          path: |
+            dist/Knovent-Companion-Setup-*-windows-x64.exe
+            dist/Knovent-Companion-Setup-*-windows-x64.exe.sha256
+            selftest-windows.json

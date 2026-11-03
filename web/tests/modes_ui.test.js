@@ -116,12 +116,53 @@ test("if the settings could not be loaded the page says answers are deterministi
 });
 
 // ---------------------------------------------------------------- the companion panel
-test("no companion: how to start one, and what is and is not tested", () => {
+test("no companion: a customer is told what to do in plain words, never to type a command", () => {
   const p = page();
   p.set("chello", { present: false });
   const t = p.run("localPanel(true)").textContent;
-  assert.match(t, /Not found yet.*must be running on this computer.*faqengine companion run/s);
-  assert.match(t, /macOS on Apple silicon only.*no real model has been run through it/s);
+  assert.match(t, /Knovent is not running on this computer.*Look again/s);
+  assert.ok(!/terminal|faqengine|ollama serve|\.venv|companion run/i.test(t), "no developer instructions in customer onboarding");
+});
+
+test("on the website: one install button for a Mac, the steps, no Terminal, and a waiting state that continues by itself", () => {
+  const p = page();
+  p.set("chello", { present: false });
+  p.ctx.location.hostname = "knovent-web.vercel.app"; p.ctx.location.protocol = "https:";
+  p.ctx.navigator = { platform: "MacIntel", userAgent: "Mozilla/5.0 Chrome/130" };
+  p.set("deviceOk", true);  // (the hosted page asks the person first; see the consent card)
+  p.set("cfg", { companionDownloadUrl: "https://github.com/x/Knovent/releases/download/v1/Knovent-Companion-macOS-arm64.zip" });
+  let el = p.run("localPanel(true)");
+  const a = el.all((e) => e.tag === "a" && /btn/.test(e.className))[0];
+  assert.equal(a.textContent, "Download Knovent for Mac");
+  assert.match(a.attrs.href, /^https:\/\/github\.com\//);
+  assert.match(el.textContent, /Install Knovent for your computer.*Apple silicon.*Open the downloaded .Knovent Companion.*finds your Mac by itself/s);
+  assert.ok(!/terminal|faqengine|ollama serve|\.venv|companion install/i.test(el.textContent));
+  p.set("installClicked", true);
+  el = p.run("localPanel(true)");
+  assert.match(el.textContent, /Waiting for the installer to finish/);
+  p.set("cfg", { companionDownloadUrl: "" });
+  assert.match(p.run("localPanel(true)").textContent, /installer for Mac has not been published for this site yet/);
+  // Windows: offered only when a Windows installer is configured, with Windows' own words and no Terminal
+  p.ctx.navigator = { platform: "Win32", userAgent: "Windows" };
+  p.set("cfg", { companionDownloads: { "windows-x64": "https://github.com/x/Knovent/releases/download/v1/Knovent-Companion-Setup-0.1.0-windows-x64.exe" } });
+  p.set("installClicked", false);
+  const wel = p.run("localPanel(true)");
+  assert.equal(wel.all((e) => e.tag === "a" && /btn/.test(e.className))[0].textContent, "Download Knovent for Windows");
+  assert.match(wel.textContent, /Knovent Companion Setup.*Windows protected your PC.*More info.*does not need an administrator.*finds your PC by itself/s);
+  assert.ok(!/terminal|faqengine|ollama serve|\.venv|schtasks|powershell/i.test(wel.textContent));
+  p.set("cfg", { companionDownloads: {} });
+  assert.match(p.run("localPanel(true)").textContent, /installer for Windows has not been published for this site yet/); // never a dead download button
+  // the person can correct what the browser guessed: four choices, and choosing changes what is offered
+  const sel = p.run("localPanel(true)").all((e) => e.tag === "select")[0];
+  assert.deepEqual(sel.all((e) => e.tag === "option").map((o) => o.attrs.value), ["macos-arm64", "macos-x64", "windows-x64", "linux-x64"]);
+  p.set("cfg", { companionDownloads: { "macos-x64": "https://github.com/x/Knovent/releases/download/v1/Knovent-Companion-0.1.0-macOS-x64.zip" } });
+  p.set("platformChoice", "macos-x64");
+  assert.equal(p.run("localPanel(true)").all((e) => e.tag === "a" && /btn/.test(e.className))[0].textContent, "Download Knovent for Mac");
+  // Linux: not offered, said plainly
+  p.set("platformChoice", "linux-x64");
+  const lin = p.run("localPanel(true)").textContent;
+  assert.match(lin, /not available for this system yet/);
+  assert.ok(!/Download Knovent/.test(lin));
 });
 
 test("a companion that is here but not paired: only an admin can pair, with the code from the companion's own screen", async () => {

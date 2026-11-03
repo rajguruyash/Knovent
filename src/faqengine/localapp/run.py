@@ -87,11 +87,12 @@ def cmd_app(args) -> int:
     secret = secrets.token_hex(24)
     engine_httpd = engine_serve(engine, secret, args.engine_port)
     threading.Thread(target=engine_httpd.serve_forever, daemon=True).start()
-    ccli._start_ollama_if_installed()
+    comp = None
     try:
         comp = Companion(Pairings(), allow_custom_models=False)
-        chttpd = companion_serve(47890, comp, set(), announce=lambda *_: None)
+        chttpd = companion_serve(47890, comp, {o.rstrip("/") for o in [*args.origin, *os.environ.get("FAQENGINE_APP_ORIGIN", "").split(",")] if o.strip()}, announce=lambda *_: None)
         threading.Thread(target=chttpd.serve_forever, daemon=True).start()
+        ccli.start_runtime_in_background(comp)
     except OSError:
         print("(a companion is already running on this computer; using it)")
     env = {**os.environ, "KNOVENT_ENGINE": f"http://127.0.0.1:{args.engine_port}", "KNOVENT_SECRET": secret, "KNOVENT_DATA": str(data)}
@@ -113,6 +114,8 @@ def cmd_app(args) -> int:
     finally:
         proc.terminate()
         engine_httpd.shutdown()
+        if comp is not None and comp.supervisor:
+            comp.supervisor.stop()
     return 0
 
 
@@ -122,6 +125,7 @@ def build(sub) -> None:
     p.add_argument("--engine-port", type=int, default=8769)
     p.add_argument("--data", default="~/.knovent", help="where businesses' files and settings are kept")
     p.add_argument("--no-browser", action="store_true")
+    p.add_argument("--origin", action="append", default=[], help="a hosted site address this computer's companion should pair with without a code (e.g. https://your-site.vercel.app)")
     p.set_defaults(fn=cmd_app)
 
 

@@ -476,7 +476,7 @@ def test_pairing_over_http_needs_the_code_from_this_computers_screen(service):
     st, body, _ = service.call("POST", "/v1/pair", {"code": code, "label": "x"}, origin=None)
     assert st == 401  # a browser origin is required: it is what the pairing is bound to
     st, body, _ = service.call("POST", "/v1/pair", {"code": code, "label": "my browser"})
-    assert st == 200 and set(body) == {"key_id", "secret"} and service.comp.pairings.allowed_origins() == {ORIGIN}
+    assert st == 200 and set(body) == {"key_id", "secret", "bound"} and service.comp.pairings.allowed_origins() == {ORIGIN}
     assert service.call("POST", "/v1/pair", {"code": code, "label": "again"})[0] == 401
 
 
@@ -703,7 +703,7 @@ def test_setting_up_checks_the_disk_and_that_the_runtime_is_running_before_it_do
     monkeypatch.undo()
     service.comp.runtimes["ollama"].base = "http://127.0.0.1:9"
     st, body, _ = service.call("POST", "/v1/provision", {"confirm": True}, secret=secret, key=key)
-    assert st == 400 and "Ollama is not running" in body["error"]
+    assert st == 400 and "AI runtime" in body["error"] and "ollama serve" not in body["error"]  # said plainly, never as a command to type
 
 
 def test_the_new_management_calls_need_a_signature_like_every_other(service):
@@ -746,11 +746,76 @@ def test_an_origin_the_person_listed_pairs_without_a_code(tmp_path):
     assert len(p.listing()) <= 20
 
 
-def test_the_login_service_runs_the_companion_with_only_the_given_origins():
-    import plistlib
+# ---- automatic pairing: trusted site, untrusted site, business binding, revocation, expiry
+LOCAL_SITE = "http://127.0.0.1:8768"
+BIZ_A, BIZ_B = "11111111-aaaa-bbbb-cccc-000000000001", "22222222-aaaa-bbbb-cccc-000000000002"
 
-    from faqengine.companion.cli import launch_agent_plist
 
-    d = plistlib.loads(launch_agent_plist("/x/.venv/bin/faqengine", ["https://my-site.vercel.app"], 47890, "/tmp/k.log").encode())
-    assert d["Label"] == "ai.knovent.companion" and d["RunAtLoad"] and d["KeepAlive"]
-    assert d["ProgramArguments"] == ["/x/.venv/bin/faqengine", "companion", "run", "--port", "47890", "--origin", "https://my-site.vercel.app"]
+def test_a_trusted_site_pairs_automatically_for_the_selected_business_and_only_that_business(service):
+    st, a, _ = service.call("POST", "/v1/pair", {"label": "me", "business": BIZ_A}, origin=LOCAL_SITE)
+    assert st == 200 and a["bound"] is True
+    hdr = {**signed(a["secret"], a["key_id"], "GET", "/v1/status"), "X-Companion-Business": BIZ_A}
+    hdr["X-Companion-Sig"] = auth.sign(a["secret"], "GET", "/v1/status", hdr["X-Companion-Ts"], hdr["X-Companion-Nonce"], b"", BIZ_A)
+    st, _, _ = service.call("GET", "/v1/status", origin=LOCAL_SITE, extra=hdr)
+    assert st == 200
+    # the same key presented for another business, or for none, is refused
+    for biz in (BIZ_B, None):
+        h = {**signed(a["secret"], a["key_id"], "GET", "/v1/status", nonce="m" * 20)}
+        h["X-Companion-Sig"] = auth.sign(a["secret"], "GET", "/v1/status", h["X-Companion-Ts"], h["X-Companion-Nonce"], b"", biz)
+        if biz:
+            h["X-Companion-Business"] = biz
+        st, _, _ = service.call("GET", "/v1/status", origin=LOCAL_SITE, extra=h)
+        assert st == 401, biz
+    # pairing business B does not disturb business A's key
+    st, b, _ = service.call("POST", "/v1/pair", {"label": "me", "business": BIZ_B}, origin=LOCAL_SITE)
+    assert st == 200 and len({k["key_id"] for k in service.comp.pairings.listing()}) == 2
+
+
+def test_a_site_the_companion_does_not_trust_is_refused_with_a_reason_the_browser_is_allowed_to_read(service):
+    st, body, headers = service.call("POST", "/v1/pair", {"label": "x", "business": BIZ_A}, origin="https://evil.example")
+    assert st == 401 and body == {"error": "origin_not_trusted"}
+    assert headers.get("Access-Control-Allow-Origin") == "https://evil.example"  # readable: otherwise Chrome hides the 401 and the page says "not reachable"
+    assert service.comp.pairings.listing() == []  # nothing was created
+    st, body, _ = service.call("POST", "/v1/pair", {"label": "x", "code": "0000-0000"}, origin="https://evil.example")
+    assert st == 401 and body == {"error": "code_not_accepted"}
+
+
+def test_a_refusal_of_a_signed_request_is_readable_too_so_the_page_can_pair_again(service):
+    st, body, headers = service.call("GET", "/v1/status", origin=LOCAL_SITE, extra={"X-Companion-Key": "0" * 16, "X-Companion-Ts": str(int(time.time())), "X-Companion-Nonce": "n" * 20, "X-Companion-Sig": "0" * 64})
+    assert st == 401 and body == {"error": "not authorised"}  # the same words for every signed refusal
+    assert headers.get("Access-Control-Allow-Origin") == LOCAL_SITE
+
+
+def test_a_revoked_key_stops_working_at_once(service):
+    st, a, _ = service.call("POST", "/v1/pair", {"label": "me", "business": BIZ_A}, origin=LOCAL_SITE)
+    def call_status(nonce):
+        h = {**signed(a["secret"], a["key_id"], "GET", "/v1/status", nonce=nonce), "X-Companion-Business": BIZ_A}
+        h["X-Companion-Sig"] = auth.sign(a["secret"], "GET", "/v1/status", h["X-Companion-Ts"], nonce, b"", BIZ_A)
+        return service.call("GET", "/v1/status", origin=LOCAL_SITE, extra=h)[0]
+    assert call_status("a" * 20) == 200
+    assert service.comp.pairings.remove(a["key_id"]) is True
+    assert call_status("b" * 20) == 401
+
+
+def test_a_key_expires_and_the_trusted_site_then_pairs_again(tmp_path):
+    now = [1_700_000_000.0]
+    p = auth.Pairings(tmp_path / "k.json", clock=lambda: now[0])
+    got = p.pair_trusted(LOCAL_SITE, "me", BIZ_A)
+    h = lambda n, t=None: {**signed(got["secret"], got["key_id"], "GET", "/v1/status", nonce=n, ts=str(int(now[0]))), "X-Companion-Business": BIZ_A}  # noqa: E731
+    def good(n):
+        hd = h(n)
+        hd["X-Companion-Sig"] = auth.sign(got["secret"], "GET", "/v1/status", hd["X-Companion-Ts"], n, b"", BIZ_A)
+        return p.verify("GET", "/v1/status", b"", hd)
+    assert good("a" * 20)[0] == got["key_id"]
+    now[0] += auth.KEY_TTL + 10  # past its expiry
+    key, why = good("b" * 20)
+    assert key is None and why == "expired"
+    again = p.pair_trusted(LOCAL_SITE, "me", BIZ_A)  # the page pairs again by itself; the same business's old key is replaced, not piled up
+    assert again["key_id"] != got["key_id"] and len([k for k in p.listing() if k["business"] == BIZ_A]) == 1
+
+
+def test_a_legacy_key_without_a_business_still_works(service):
+    got = service.comp.pairings.pair_trusted(LOCAL_SITE, "old")  # no business: how keys were made before
+    assert got["bound"] is False
+    st, _, _ = service.call("GET", "/v1/status", origin=LOCAL_SITE, extra=signed(got["secret"], got["key_id"], "GET", "/v1/status"))
+    assert st == 200
