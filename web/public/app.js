@@ -561,8 +561,18 @@ function healthLine(Hh) {
   return h('div', { class: 'banner ' + kind + ' small', role: 'status' }, text + (st.questions ? ' ' + st.questions + ' question' + (st.questions === 1 ? '' : 's') + ' answered since the companion started, ' + st.failures + ' failed' + (st.last_seconds != null ? '; the last took ' + st.last_seconds + ' s' : '') + '.' : ''));
 }
 function noModelSelectedEarly(C) { return !(C.installed && C.installed.selected) && !((S.ai && S.ai.companions) || []).some((c) => !c.revoked); }
+function deviceConsentCard() {
+  const allow = () => { try { localStorage.setItem('knovent_device_ok', '1'); } catch { /* not kept: asked again next time */ } S.deviceOk = true; refreshCompanion(); };
+  return h('section', { class: 'panel inner', id: 'local-companion' }, h('h2', {}, 'Let Knovent use the AI on this computer?'),
+    h('p', { class: 'muted' }, 'To answer with a model that runs on your own computer, this page needs to look for a small helper program (the companion) on this computer. Your browser may then ask whether to allow access to devices on your local network: choose Allow.'),
+    h('ul', { class: 'small how' }, h('li', {}, 'Only this computer is contacted. Nothing is sent to any other company.'), h('li', {}, 'If you choose a model, your customers’ questions and the passages found for them are given to that model on this computer.'), h('li', {}, 'You can take this back at any time by choosing another AI setup or removing the companion.')),
+    h('div', { class: 'row' }, h('button', { class: 'btn primary', type: 'button', onclick: allow }, 'Allow and check my computer'), h('button', { class: 'btn link', type: 'button', onclick: () => { S.reonboard = false; S.form.choice = null; render(); } }, 'Not now')));
+}
 function localPanel(canAdmin) {
   const b = S.current.id, C = S.cstatus, H = S.chello;
+  const hostedPage = typeof location !== 'undefined' && typeof location.hostname === 'string' && !['127.0.0.1', 'localhost'].includes(location.hostname);
+  if (hostedPage && !S.deviceOk) { try { S.deviceOk = localStorage.getItem('knovent_device_ok') === '1'; } catch { /* asked each time */ } }
+  if (hostedPage && !S.deviceOk) return deviceConsentCard();  // a page on the internet reaches this computer only after the person says so
   if (H === null) setTimeout(() => { if (S.chello === null) { S.chello = false; refreshCompanion(); } }, 0);
   const embedded = canAdmin && S.current && (!S.current.onboarding_completed_at || S.reonboard);
   if (embedded && S.chello === false && !S._poll) { S._poll = setTimeout(() => { S._poll = null; refreshCompanion(); }, 4000); }
@@ -571,7 +581,7 @@ function localPanel(canAdmin) {
   const pairs = (S.ai && S.ai.companions || []).filter((c) => !c.revoked);
   const notes = [h('p', { class: 'small muted' }, 'Tested on: macOS on Apple silicon only, with stand-ins for the runtimes; no real model has been run through it. Linux and Windows code paths are not run on real machines. The page reaches the companion at http://127.0.0.1:47890 from Chrome-family browsers; other browsers are untested.')];
   const check = h('button', { class: 'btn', type: 'button', disabled: !!S.checking, onclick: refreshCompanion }, S.checking ? 'Checking…' : H && H.present ? 'Refresh' : 'Look again');
-  const hosted = typeof location !== 'undefined' && !['127.0.0.1', 'localhost'].includes(location.hostname);
+  const hosted = typeof location !== 'undefined' && typeof location.hostname === 'string' && !['127.0.0.1', 'localhost'].includes(location.hostname);
   const cmd = hosted ? '.venv/bin/faqengine companion install --origin ' + location.origin : '.venv/bin/faqengine companion run';
   const safari = typeof navigator !== 'undefined' && typeof location !== 'undefined' && /^((?!chrome|android|crios|edg).)*safari/i.test(navigator.userAgent) && location.protocol === 'https:';
   if (!H || !H.present) return wrap(
