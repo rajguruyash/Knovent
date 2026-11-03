@@ -243,3 +243,20 @@ test("the settings page does not break when the engine is older than the page an
   p.set("ai", { settings: { mode: "local", fallback: "deterministic" }, route: { mode: "local", usable: true }, switched_on_by_the_operator: ["local"], companions: [] }); // no policy, no steps, no hosted
   assert.match(p.run("answerModePanel(true)").textContent, /Now: a custom set of steps/);
 });
+
+test("after 'Change AI setup', choosing this computer (or no AI) and continuing leaves the wizard; it does not stay open doing nothing", async () => {
+  const saved = { policy: "local_only", settings: { mode: "local" }, steps: [{ step: "local", usable: true }], companions: [{ id: "c", revoked: false, fit: "comfortable" }] };
+  const p = page((url) => (url === "/api/ai/settings/save" ? [200, saved] : [404, {}]));
+  p.state().sb = SB;
+  p.run("S.current.onboarding_completed_at = '2026-11-01T00:00:00Z'"); // the business finished setup once (first with "No AI for now")
+  for (const route of ["local", "none"]) {
+    p.state().reonboard = true; p.state().form.choice = route; // "Change AI setup" -> a choice
+    p.set("ai", { companions: [{ id: "c", revoked: false, fit: "comfortable" }], steps: [], settings: {} });
+    const el = p.run("onboardingPanel()");
+    await (route === "local" ? el.buttons("Use my computer for AI")[0] : el.buttons("Continue without AI")[0]).fire("click");
+    await p.flush();
+    assert.equal(p.state().reonboard, false, route + ": the wizard is closed");
+    assert.equal(p.state().form.choice, null, route + ": the choice is cleared");
+    assert.ok(p.state().msg && p.state().msg.kind === "good", route + ": the person is told what happened");
+  }
+});

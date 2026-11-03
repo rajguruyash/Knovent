@@ -284,7 +284,7 @@ function llmForm(onDone) {
 
 function onboardingPanel() {
   const F = S.form;
-  const complete = async (mode) => { const { error } = await S.sb.from('businesses').update({ answer_mode: mode, onboarding_completed_at: new Date().toISOString() }).eq('id', S.current.id); if (error) throw error; S.current.onboarding_completed_at = new Date().toISOString(); S.current.answer_mode = mode; };
+  const complete = async (mode) => { const { error } = await S.sb.from('businesses').update({ answer_mode: mode, onboarding_completed_at: new Date().toISOString() }).eq('id', S.current.id); if (error) throw error; S.current.onboarding_completed_at = new Date().toISOString(); S.current.answer_mode = mode; S.reonboard = false; F.choice = null; F.provisionOk = false; };  // setup is done: leave the wizard (it stayed open when it was reached from "Change AI setup", so Continue looked like it did nothing)
   const none = async () => { try { await complete('local_only'); say('No AI for now: answers come from the deterministic engine, and nothing is sent anywhere. You can turn AI on later in Settings.', 'good'); } catch (e) { fail(e); } };
   const usesMyComputer = async () => {
     try { S.ai = await api('/api/ai/settings/save', { business_id: S.current.id, policy: 'local_only' }); await complete('local_only'); say('AI will run on your own computer. Nothing is sent to any other company. Outside fallbacks can be added later in Settings, and are off until you turn them on.', 'good'); } catch (e) { fail(e); }
