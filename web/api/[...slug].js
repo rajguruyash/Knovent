@@ -55,7 +55,11 @@ const ROUTES = {
 
 /** @param {Request} request */
 async function dispatch(request) {
-  const path = new URL(request.url).pathname.replace(/\/+$/, "");
+  const url = new URL(request.url);
+  let path = url.pathname.replace(/\/+$/, "");
+  // Vercel hands only ONE-segment paths (/api/config) to this file. vercel.json rewrites every longer endpoint (/api/ai/settings/get) to /api/gw?p=<the original path>; the lookup below is the same
+  // fixed list as before, so `p` can name nothing that a direct request could not.
+  if (path === "/api/gw") path = (url.searchParams.get("p") || "").replace(/\/+$/, "");
   const mod = Object.hasOwn(ROUTES, path) ? ROUTES[path] : undefined;
   if (!mod) return json({ error: "Not found." }, 404);
   const handler = mod[request.method];

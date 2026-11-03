@@ -93,3 +93,24 @@ test("the one deployed function routes to every endpoint file, and an unknown pa
   assert.equal((await mod.GET(new Request("https://x.test/api/respond"))).status, 405);
   assert.equal((await mod.GET(new Request("https://x.test/api/health"))).status, 200);
 });
+
+test("every endpoint that is more than one segment deep is rewritten to the one function (Vercel only routes single-segment paths to api/[...slug].js; this was the cause of 404 on every signed-in call)", async () => {
+  const v = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
+  const router = readFileSync(join(root, "api", "[...slug].js"), "utf8");
+  const nested = [...router.matchAll(/^  "(\/api\/[^"]+)": r\d+,/gm)].map((m) => m[1]).filter((p) => p.split("/").length > 3);
+  assert.ok(nested.length >= 15);
+  const rules = (v.rewrites || []).map((r) => ({ depth: r.source.split("/").length - 2, dest: r.destination }));
+  for (const p of nested) {
+    const depth = p.split("/").length - 2;  // segments after /api
+    const rule = rules.find((r) => r.depth === depth);
+    assert.ok(rule, `${p}: no rewrite for ${depth} segments`);
+    assert.ok(rule.dest.startsWith("/api/gw?p=/api/"), rule.dest);
+  }
+  assert.equal(Math.max(...nested.map((p) => p.split("/").length - 2)), Math.max(...rules.map((r) => r.depth)));  // no deeper endpoint than the rules cover
+  const mod = await import("../api/[...slug].js");
+  const via = (p, m = "GET") => mod[m](new Request("https://x.test/api/gw?p=" + p, { method: m }));
+  assert.notEqual((await via("/api/ai/disclosure", "POST")).status, 404); // a nested endpoint is reached through the rewrite
+  assert.ok(![404, 405].includes((await via("/api/ai/settings/get", "POST")).status)); // and its own handler runs (sign-in and configuration checks), not the router's refusal
+  assert.equal((await via("/api/nope/nothing")).status, 404);            // an unknown path is still refused
+  assert.equal((await via("")).status, 404);
+});
