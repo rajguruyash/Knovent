@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 COPY src/faqengine/__init__.py /app/faqengine/__init__.py
 COPY src/faqengine/kb.py src/faqengine/sources.py src/faqengine/web.py /app/faqengine/
 COPY src/faqengine/runtime /app/faqengine/runtime
+COPY src/faqengine/inference /app/faqengine/inference
 COPY src/faqengine/hosted /app/faqengine/hosted
 # the shared embedding model, built once with scripts/build_base_model.py
 COPY hosted_models/minilm-l6 /models/minilm-l6

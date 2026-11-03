@@ -42,6 +42,26 @@ A Vercel Python function is a feasible alternative for a very small deployment (
 
 The container image runs on any always-on host (Render, Fly.io, Railway, Cloud Run with minimum one instance, a VM). It was **not built here** (no Docker was available): treat the first build as part of deployment and run `tests/test_hosted.py`'s scenarios against it.
 
+## Running the engine as a Vercel Python function (no second host)
+
+`web/api/engine.py` runs the same service code (`faqengine.hosted.service`) as a Vercel Python function, so the whole site is one Vercel project. The site's own functions call it exactly as they would call the container: `Authorization: Bearer <ENGINE_SERVICE_SECRET>`, `POST <ENGINE_URL>/v1/...`.
+
+* **What is deployed.** `web/engine/` holds a copy of the 43 modules `faqengine.hosted.service` really imports plus the 22 MB int8 MiniLM-L6 model (Apache-2.0). It is made by `python scripts/vendor_engine.py` and a test (`tests/test_engine_function.py`) fails if it differs from `src/`; never edit it by hand. `web/requirements.txt` lists the six Python packages (about 160 MB, inside Vercel's 500 MB limit). `vercel.json` rewrites `/api/engine/*` to the function (first in the list: `/api/engine/v1/x` has three segments, which the site's own rewrite would otherwise take).
+* **Variables (Vercel, Production, server only).** All were previously "engine host only"; here Vercel holds them, so treat the project like the engine host (limit who can read its variables):
+
+  | Variable | Value |
+  |---|---|
+  | `ENGINE_URL` | `https://<your production domain>/api/engine` |
+  | `ENGINE_SERVICE_SECRET` | one long random string (at least 24 characters, e.g. `openssl rand -hex 32`); the site's functions and the engine function read the same variable |
+  | `DATABASE_URL` | Supabase's **pooled** connection string (Transaction pooler, port 6543): the function opens a short connection per request and uses no prepared statements |
+  | `SUPABASE_URL` (already set), `SUPABASE_SERVICE_ROLE_KEY` | so the engine can read uploaded files |
+  | `LLM_CREDENTIAL_KEYS` | only when a business may store its own provider key |
+
+  `SUPABASE_SERVICE_ROLE_KEY` and the database password bypass row level security. They stay out of anything served to a browser (a test scans for that) but they are now in Vercel's environment: do not give "Preview" deployments or other projects access to them.
+* **If a variable is missing** the function answers 503 with the name of the setting (never a value).
+* **What changes compared with the container.** The per-business search index and the request rate limits live in memory, which a function instance loses when it is recycled: the first question after that rebuilds the index from the database (slower, never wrong). The limits are therefore per instance. Reading a web site and large uploads run inside a request (60 s limit here). For many active businesses or heavy ingestion use the container.
+* **Verified:** the function's handler answers `/health`, refuses a request without the shared secret, and refuses a wrong secret, a bad body and an unknown route, locally. **Not verified:** a deployment on Vercel, the first cold start, and the database paths against a real Supabase project (the migrations need Supabase's `auth` schema and pgvector).
+
 ## What is local and what is hosted
 
 | | Local mode (Studio / exported package) | Hosted mode |
@@ -68,7 +88,7 @@ The local-only capability is provided by the Python engine on the user's machine
 | `COMPANION_DOWNLOADS` | no (public) | JSON object of installer addresses by system, e.g. `{"macos-arm64": "https://...zip", "windows-x64": "https://...exe"}` (https only; a system with no entry is not offered). Publish Windows only after `docs/cross-platform-companion.md` says it passed |
 | `COMPANION_DOWNLOAD_URL` | no (public) | older single address, used for `macos-arm64` when `COMPANION_DOWNLOADS` has none: | https address of the companion installer for this site (see `docs/local-companion.md`); the site's "Download Knovent for Mac" button points to it. Build it with `scripts/build_companion_macos.sh https://your-site.vercel.app` |
 
-No service-role key and no database password belong in Vercel. `GET /api/config` returns only `SUPABASE_URL` and `SUPABASE_ANON_KEY`; a test scans everything served to a browser for secrets.
+With the container engine, no service-role key and no database password belong in Vercel (they live on the engine host); with the Python-function engine above they do, as server-only variables. `GET /api/config` returns only `SUPABASE_URL` and `SUPABASE_ANON_KEY`; a test scans everything served to a browser for secrets.
 
 **Engine service**
 

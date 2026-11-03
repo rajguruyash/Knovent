@@ -42,7 +42,7 @@ class Store:
 
     @contextmanager
     def conn(self):
-        with self._slots, psycopg.connect(self.dsn) as c:  # (leaving the block commits, or rolls back on an error, and closes)
+        with self._slots, psycopg.connect(self.dsn, prepare_threshold=None) as c:  # (leaving the block commits, or rolls back on an error, and closes; no server-side prepared statements, which a pooled connection string (pgbouncer, transaction mode) does not allow)
             yield c
 
     def _one(self, sql, params=()):

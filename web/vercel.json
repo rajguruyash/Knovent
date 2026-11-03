@@ -6,6 +6,11 @@
   "functions": {
     "api/[...slug].js": {
       "maxDuration": 150
+    },
+    "api/engine.py": {
+      "maxDuration": 60,
+      "includeFiles": "engine/**",
+      "excludeFiles": "{node_modules/**,public/**,tests/**,scripts/**}"
     }
   },
   "headers": [
@@ -49,6 +54,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/engine/:path*",
+      "destination": "/api/engine?p=/:path*"
+    },
     {
       "source": "/api/:a/:b/:c",
       "destination": "/api/gw?p=/api/:a/:b/:c"

@@ -40,7 +40,7 @@ test("vercel.json sets the security headers and long limits only where they are 
   assert.match(all["Content-Security-Policy"], /frame-ancestors 'none'/);
   assert.ok(!/unsafe-inline|unsafe-eval/.test(all["Content-Security-Policy"].replace(/style-src[^;]*;/, "")));
   assert.ok(v.headers.some((h) => h.source === "/api/(.*)" && h.headers.some((x) => x.key === "Cache-Control" && x.value === "no-store")));
-  assert.deepEqual(Object.keys(v.functions), ["api/[...slug].js"]); // ONE function: the free plan allows twelve per deployment and the API has twenty three endpoints
+  assert.deepEqual(Object.keys(v.functions), ["api/[...slug].js", "api/engine.py"]); // TWO functions: the whole API in one (the free plan allows twelve per deployment and the API has twenty three endpoints) and the Python engine
   assert.ok(v.functions["api/[...slug].js"].maxDuration <= 300); // inside Vercel's limit on every plan
 });
 
@@ -99,7 +99,7 @@ test("every endpoint that is more than one segment deep is rewritten to the one 
   const router = readFileSync(join(root, "api", "[...slug].js"), "utf8");
   const nested = [...router.matchAll(/^  "(\/api\/[^"]+)": r\d+,/gm)].map((m) => m[1]).filter((p) => p.split("/").length > 3);
   assert.ok(nested.length >= 15);
-  const rules = (v.rewrites || []).map((r) => ({ depth: r.source.split("/").length - 2, dest: r.destination }));
+  const rules = (v.rewrites || []).filter((r) => !r.source.startsWith("/api/engine/")).map((r) => ({ depth: r.source.split("/").length - 2, dest: r.destination }));
   for (const p of nested) {
     const depth = p.split("/").length - 2;  // segments after /api
     const rule = rules.find((r) => r.depth === depth);

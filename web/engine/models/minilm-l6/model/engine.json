@@ -1,0 +1,14 @@
+{
+  "max_len": 128,
+  "pad_id": 0,
+  "pad_token": "[PAD]",
+  "query_prefix": "",
+  "doc_prefix": "",
+  "pooling": "mean",
+  "dim": 384,
+  "base": "minilm-l6",
+  "hf_id": "sentence-transformers/all-MiniLM-L6-v2",
+  "license": "apache-2.0",
+  "fine_tuned": false,
+  "onnx": "encoder.int8.onnx"
+}
