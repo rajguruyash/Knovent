@@ -128,3 +128,46 @@ def test_storage_reads_send_the_key_the_way_its_kind_needs():
     legacy, new = seen
     assert legacy["apikey"] == "eyJhbGciOi.payload.sig" and legacy["authorization"] == "Bearer eyJhbGciOi.payload.sig"
     assert new["apikey"] == "sb_secret_abcdefghijklmnop" and "authorization" not in new
+
+
+def test_a_storage_failure_says_what_storage_answered_and_ready_reports_whether_the_key_works():
+    import json as _json
+    import threading as _t
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from faqengine.hosted.service import ServiceError, StorageClient
+
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            ok = self.headers.get("apikey") == "sb_secret_goodkey0123456789"
+            if self.path.startswith("/storage/v1/bucket/"):
+                code, body = (200, {"id": "knowledge-files"}) if ok else (404, {"message": "Bucket not found"})
+            elif ok and self.path.endswith("/there.md"):
+                code, body = 200, None
+            else:
+                code, body = (400, {"statusCode": "404", "error": "not_found", "message": "Object not found"}) if ok else (401, {"message": "Invalid API key"})
+            data = b"hello" if body is None else _json.dumps(body).encode()
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    _t.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        url = f"http://127.0.0.1:{srv.server_port}"
+        good, bad = StorageClient(url, "sb_secret_goodkey0123456789"), StorageClient(url, "sb_publishable_notasecret0000")
+        assert good.check() is True and bad.check() is False
+        assert good("biz/id/there.md") == b"hello"
+        with pytest.raises(ServiceError) as e:
+            good("biz/id/missing.md")
+        assert e.value.status == 404 and "storage answered 400: Object not found" in e.value.message
+        with pytest.raises(ServiceError) as e:
+            bad("biz/id/there.md")
+        assert e.value.status == 502 and "storage answered 401: Invalid API key" in e.value.message and "notasecret" not in e.value.message
+    finally:
+        srv.shutdown()
+        srv.server_close()

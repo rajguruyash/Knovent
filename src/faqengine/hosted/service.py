@@ -97,6 +97,27 @@ class StorageClient:
     def __init__(self, url: str, service_key: str, bucket: str = "knowledge-files"):
         self.url, self.key, self.bucket = url.rstrip("/"), service_key, bucket
 
+    @staticmethod
+    def _why(e: urllib.error.HTTPError) -> str:
+        """What Storage answered, for the person fixing the setup: its status and its own short message (never the key or the request)."""
+        try:
+            body = json.loads(e.read(2000) or b"{}")
+            note = str(body.get("message") or body.get("error") or "")[:120]
+        except (ValueError, OSError):
+            note = ""
+        return f"storage answered {e.code}" + (f": {note}" if note else "")
+
+    def check(self) -> bool:
+        """Is this key accepted by Storage, and does the knowledge bucket exist? (A public key cannot see the private bucket, so it fails this.)"""
+        headers = {"apikey": self.key}
+        if self.key.startswith("eyJ"):
+            headers["Authorization"] = f"Bearer {self.key}"
+        try:
+            with urllib.request.urlopen(urllib.request.Request(f"{self.url}/storage/v1/bucket/{urllib.parse.quote(self.bucket)}", headers=headers), timeout=10) as r:  # noqa: S310
+                return r.status == 200
+        except (urllib.error.URLError, OSError):
+            return False
+
     def __call__(self, path: str) -> bytes:
         headers = {"apikey": self.key}
         if self.key.startswith("eyJ"):  # a legacy service_role key is a JWT and is also sent as the bearer token; a newer sb_secret_ key is not a JWT and goes in apikey only
@@ -106,7 +127,9 @@ class StorageClient:
             with urllib.request.urlopen(req, timeout=30) as r:  # noqa: S310 - the address is the project's own, from configuration
                 data = r.read(MAX_FILE_BYTES + 1)
         except urllib.error.HTTPError as e:
-            raise ServiceError(404 if e.code in (400, 404) else 502, "the uploaded file could not be read from storage") from None
+            why = self._why(e)
+            log.warning("storage read failed: %s", why)
+            raise ServiceError(404 if e.code in (400, 404) else 502, f"the uploaded file could not be read from storage ({why})") from None
         except OSError:
             raise ServiceError(502, "storage is not reachable") from None
         if len(data) > MAX_FILE_BYTES:
@@ -877,7 +900,15 @@ class HostedEngine:
             checks["schema"] = self.store._one("select to_regclass('public.ai_inference_settings') is not null")[0] is True
         except Exception:  # noqa: BLE001 - not ready is the answer; the reason stays in the log
             log.warning("readiness check failed", exc_info=False)
-        return {"ready": all(checks.values()), "checks": checks}
+        storage = getattr(self.fetch_object, "check", None)
+        if storage is not None:  # informational: files cannot be read without it, but questions can still be answered, so it is not part of "ready"
+            try:
+                checks_storage = bool(storage())
+            except Exception:  # noqa: BLE001
+                checks_storage = False
+        else:
+            checks_storage = None
+        return {"ready": all(checks.values()), "checks": checks, "storage": checks_storage}
 
     def alerts_get(self) -> dict:
         found = alerts.evaluate(self.tele, self.breakers.states())

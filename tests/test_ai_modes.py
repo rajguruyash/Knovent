@@ -543,7 +543,7 @@ def test_metrics_and_alerts_see_the_traffic_and_the_failures(engine, db, world, 
 
 def test_readiness_reports_booleans_only(engine, monkeypatch):
     r = engine.ready()
-    assert r == {"ready": True, "checks": {"database": True, "schema": True, "embedding_model": True}}
+    assert r == {"ready": True, "checks": {"database": True, "schema": True, "embedding_model": True}, "storage": None}  # (no storage client here: nothing to report)
     monkeypatch.setattr(engine.store, "_one", lambda *a, **k: (_ for _ in ()).throw(psycopg.OperationalError("connection to postgres://user:secret-password@db.example failed")))
     bad = engine.ready()
     assert bad["ready"] is False and "secret-password" not in json.dumps(bad) and all(isinstance(v, bool) for v in bad["checks"].values())
