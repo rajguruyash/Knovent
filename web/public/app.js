@@ -177,6 +177,8 @@ function createBusinessPanel() {
 
 // The journey of a business, one step at a time: add knowledge, train, test. The way forward and back is always a button on the page, never the top bar.
 const JOURNEY = [['knowledge', 'Add knowledge'], ['training', 'Train'], ['playground', 'Test it']];
+// On the hosted site MiniLM is not fine-tuned (that needs your own computer): the step measures how well the knowledge is found instead.
+const onHostedSite = () => typeof location !== 'undefined' && typeof location.hostname === 'string' && !['127.0.0.1', 'localhost'].includes(location.hostname);
 function go(tab) {
   if (JOURNEY.some(([k]) => k === S.tab)) S.from = S.tab;
   S.tab = tab; S.msg = null; render();
@@ -184,7 +186,7 @@ function go(tab) {
 }
 function journeyStepper() {
   const at = JOURNEY.findIndex(([k]) => k === S.tab);
-  return h('ol', { class: 'stepper journey', 'aria-label': 'Your progress' }, JOURNEY.map(([k, t], i) => h('li', { class: i < at ? 'done' : i === at ? 'now' : '', 'aria-current': i === at ? 'step' : null }, h('i', {}, i < at ? '✓' : String(i + 1)), t)));
+  return h('ol', { class: 'stepper journey', 'aria-label': 'Your progress' }, JOURNEY.map(([k, t], i) => h('li', { class: i < at ? 'done' : i === at ? 'now' : '', 'aria-current': i === at ? 'step' : null }, h('i', {}, i < at ? '✓' : String(i + 1)), k === 'training' && onHostedSite() ? 'Measure' : t)));
 }
 async function startTraining() {
   try { S.train = await api('/api/train/start', { business_id: S.current.id }); S.trainErr = null; loadTrain(); } catch (e) { fail(e); }
@@ -195,10 +197,10 @@ function journeyFooter(canWrite) {
   const running = ['training', 'queued'].includes(T.state), trained = T.state === 'trained' && !!T.report;
   const back = (to, label) => h('button', { class: 'btn', type: 'button', onclick: () => go(to) }, '← ' + label);
   const skip = h('button', { class: 'btn link', type: 'button', onclick: () => go('playground') }, 'Skip training and test');
-  if (S.tab === 'knowledge') return h('div', { class: 'footnav' }, h('p', { class: 'small muted' }, ready ? ready + (ready === 1 ? ' source is' : ' sources are') + ' ready. Next, teach MiniLM your wording and measure it.' : 'Add at least one file above to continue.'),
-    h('div', { class: 'row' }, ready ? skip : null, h('button', { class: 'btn primary big', type: 'button', disabled: !ready || !canWrite, onclick: () => { go('training'); startTraining(); } }, 'Train on my knowledge →')));
+  if (S.tab === 'knowledge') return h('div', { class: 'footnav' }, h('p', { class: 'small muted' }, ready ? ready + (ready === 1 ? ' source is' : ' sources are') + ' ready. ' + (onHostedSite() ? 'Next, measure how well questions find their answers.' : 'Next, teach MiniLM your wording and measure it.') : (S.sources || []).some((x) => x.status !== 'ready') ? 'Your files are listed but not read yet. Press “Read again” next to each file (at the right of its row), then continue.' : 'Add at least one file above to continue.'),
+    h('div', { class: 'row' }, ready ? skip : null, h('button', { class: 'btn primary big', type: 'button', disabled: !ready || !canWrite, onclick: () => { go('training'); startTraining(); } }, (onHostedSite() ? 'Measure my knowledge →' : 'Train on my knowledge →'))));
   if (S.tab === 'training') return h('div', { class: 'footnav' }, back('knowledge', 'Back to knowledge'),
-    h('div', { class: 'row' }, trained ? null : running ? null : skip, h('button', { class: 'btn primary big', type: 'button', disabled: !trained, onclick: () => go('playground') }, running ? 'Training…' : trained ? 'Test your answers →' : 'Train first to continue')));
+    h('div', { class: 'row' }, trained ? null : running ? null : skip, h('button', { class: 'btn primary big', type: 'button', disabled: !trained, onclick: () => go('playground') }, running ? (onHostedSite() ? 'Measuring…' : 'Training…') : trained ? 'Test your answers →' : (onHostedSite() ? 'Measure first to continue' : 'Train first to continue'))));
   return h('div', { class: 'footnav' }, back('training', 'Back to training'), h('button', { class: 'btn link', type: 'button', onclick: () => go('knowledge') }, 'Add more knowledge'));
 }
 
@@ -335,20 +337,20 @@ const PCT = (x) => (typeof x === 'number' ? (100 * x).toFixed(1) + '%' : '–');
 function trainingTab(canWrite) {
   if (S.train === null && !S.trainErr) { S.train = undefined; loadTrain(); }
   const T = S.train || { state: 'none' }, R = T.report, P = T.progress;
-  const start = async () => { await startTraining(); if (!S.trainErr) say('Training started. This takes a minute or two on a laptop; you can wait here.', 'good'); };
+  const start = async () => { await startTraining(); if (!S.trainErr) say(onHostedSite() ? 'Measured. The results are below.' : 'Training started. This takes a minute or two on a laptop; you can wait here.', 'good'); };
   const running = ['training', 'queued'].includes(T.state);
   const bar = (v, of) => h('div', { class: 'bar', role: 'progressbar' }, h('div', { style: 'width:' + (of ? Math.min(100, Math.round(100 * v / of)) : 6) + '%' }));
   const sys = R && R.systems ? [['bm25', 'Keyword search'], ['base', 'MiniLM, as downloaded'], ['tuned', 'MiniLM, trained on your files']].filter(([k]) => R.systems[k]) : [];
   const raw = (P && P.curve && P.curve.length ? P.curve : (R && R.curve) || []);
   const pts = (Array.isArray(raw) ? raw : []).map((q) => ({ loss: q.loss != null ? q.loss : q.train_loss != null ? q.train_loss : q.value }));
   return h('div', {},
-    h('section', { class: 'panel' }, h('h2', {}, 'Train MiniLM on your knowledge'),
-      h('p', { class: 'muted' }, 'MiniLM is the small model that turns your questions and your files into numbers so the right passage can be found. Training teaches it your own words. It runs on this computer; nothing is uploaded.'),
+    h('section', { class: 'panel' }, h('h2', {}, onHostedSite() ? 'How well your knowledge is found' : 'Train MiniLM on your knowledge'),
+      h('p', { class: 'muted' }, onHostedSite() ? 'MiniLM is the small model that turns your questions and your files into numbers so the right passage can be found. This page holds out one wording of each FAQ question at a time and checks whether the others still find it. It measures; it does not change the model. Fine-tuning needs your own computer.' : 'MiniLM is the small model that turns your questions and your files into numbers so the right passage can be found. Training teaches it your own words. It runs on this computer; nothing is uploaded.'),
       S.trainErr ? h('div', { class: 'banner warn', role: 'status' }, S.trainErr) : null,
       T.state === 'failed' ? h('div', { class: 'banner bad', role: 'status' }, T.error || 'Training failed.') : null,
-      T.state === 'trained' && R ? h('div', { class: 'banner good', role: 'status' }, 'Training finished. The results are below; the next step is to test your answers.') : null,
-      h('div', { class: 'row' }, canWrite ? h('button', { class: 'btn primary', type: 'button', disabled: running, onclick: start }, running ? 'Training…' : R ? 'Train again' : 'Train on my knowledge') : h('span', { class: 'small muted' }, 'Only editors can start training.'),
-        T.state === 'none' ? h('span', { class: 'small muted' }, 'Add your files in Knowledge first, then train.') : null),
+      T.state === 'trained' && R ? h('div', { class: 'banner good', role: 'status' }, (onHostedSite() ? 'Measured. The results are below; the next step is to test your answers.' : 'Training finished. The results are below; the next step is to test your answers.')) : null,
+      h('div', { class: 'row' }, canWrite ? h('button', { class: 'btn primary', type: 'button', disabled: running, onclick: start }, onHostedSite() ? (running ? 'Measuring…' : R ? 'Measure again' : 'Measure my knowledge') : (running ? 'Training…' : R ? 'Train again' : 'Train on my knowledge')) : h('span', { class: 'small muted' }, 'Only editors can start training.'),
+        T.state === 'none' ? h('span', { class: 'small muted' }, onHostedSite() ? 'Add and read your files in Knowledge first, then measure.' : 'Add your files in Knowledge first, then train.') : null),
       running ? h('div', {}, h('p', { class: 'small' }, h('b', {}, 'Stage: '), T.stage || 'starting', P && P.of ? '  ·  step ' + P.step + ' of ' + P.of : '', P && P.loss != null ? '  ·  loss ' + Number(P.loss).toFixed(3) : '', P && P.eta_s ? '  ·  about ' + Math.max(1, Math.round(P.eta_s / 60)) + ' min left' : '', P && P.device ? '  ·  ' + P.device : ''), bar(P ? P.step : 0, P ? P.of : 0)) : null),
     R && !sys.length ? h('section', { class: 'panel' }, h('h2', {}, 'Nothing to measure yet'),
       h('p', { class: 'muted' }, 'Your documents are searched with MiniLM as downloaded, which works without training. Training and its measurements need question and answer pairs: a FAQ file (CSV, Excel or JSON), or a document written as “Q: question” followed by its answer.'),

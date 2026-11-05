@@ -43,7 +43,7 @@ from ..runtime.retrieval import CANDIDATES, DEFAULT_ALPHA, HybridIndex
 from ..runtime.textutil import normalize_query
 from ..runtime.validity import inactive_reasons, parse_date
 from ..sources import slug
-from . import alerts, disclosure, telemetry
+from . import alerts, disclosure, measure, telemetry
 from .scanner import ClamdScanner, Infected, NullScanner, ScanError
 from .consent import ClientSide, DbConsent, Refused, Unconsented  # noqa: F401 - re-exported: tests and callers use them from here
 from .limits import Limits
@@ -711,6 +711,18 @@ class HostedEngine:
             self.store.save_ai_settings(business_id, user_id, "deterministic", None, None, s["fallback"])  # no companion left: back to the deterministic answer, said, not left half-configured
         return {"companions": self.store.companions(business_id)}
 
+    # ---- how well the knowledge is found (measured, not fine-tuned: see hosted/measure.py)
+    def measure_get(self, business_id: str, user_id: str, correlation_id: str | None = None) -> dict:
+        self._require(user_id, business_id, READ)
+        self._limit(business_id)
+        tenant = self._tenant(business_id)
+        if tenant is None:
+            return {"state": "none", "report": None}
+        started = time.perf_counter()
+        report = measure.measure(tenant.index)
+        report["seconds"] = round(time.perf_counter() - started, 2)
+        return {"state": "trained", "stage": "measured", "report": report, "error": None}
+
     # ---- what a person approves while testing goes back into retrieval
     def feedback_approve(self, business_id: str, user_id: str, faq_id: str, question: str) -> dict:
         """"This question is answered by this entry": the question is stored as one more way of asking it, and the business's index (rebuilt when its learned questions change) searches it from the
@@ -1087,6 +1099,8 @@ def make_handler(engine: HostedEngine, shared_secret: str):
               "/v1/local/companions/get": lambda b: engine.companions_get(b.get("business_id"), b.get("user_id")),
               "/v1/local/companions/register": lambda b: engine.companion_register(b.get("business_id"), b.get("user_id"), b),
               "/v1/local/companions/revoke": lambda b: engine.companion_revoke(b.get("business_id"), b.get("user_id"), b.get("companion_id")),
+              "/v1/train/start": lambda b: engine.measure_get(b.get("business_id"), b.get("user_id")),
+              "/v1/train/status": lambda b: engine.measure_get(b.get("business_id"), b.get("user_id")),
               "/v1/feedback/approve": lambda b: engine.feedback_approve(b.get("business_id"), b.get("user_id"), b.get("faq_id"), b.get("question")),
               "/v1/feedback/learned": lambda b: engine.learned_list(b.get("business_id"), b.get("user_id")),
               "/v1/feedback/forget": lambda b: engine.learned_remove(b.get("business_id"), b.get("user_id"), b.get("learned_id")),

@@ -260,3 +260,22 @@ test("after 'Change AI setup', choosing this computer (or no AI) and continuing 
     assert.ok(p.state().msg && p.state().msg.kind === "good", route + ": the person is told what happened");
   }
 });
+
+test("on the hosted site the next step is 'Measure', and files that were listed but not read say how to finish", async () => {
+  const p = page();
+  p.ctx.location.hostname = "knovent-web.vercel.app"; p.ctx.location.protocol = "https:";
+  p.state().tab = "knowledge";
+  p.set("sources", [{ id: "s1", name: "faq.csv", status: "pending", source_type: "faq_table" }]);
+  let foot = p.run("journeyFooter(true)");
+  assert.match(foot.textContent, /listed but not read yet.*Read again/);
+  const go = () => foot.buttons("Measure my knowledge →")[0];
+  assert.equal(go().disabled, true); // nothing is read yet: it cannot be pressed, and the line above says why
+  p.set("sources", [{ id: "s1", name: "faq.csv", status: "ready", source_type: "faq_table" }]);
+  foot = p.run("journeyFooter(true)");
+  assert.match(foot.textContent, /1 source is ready\. Next, measure how well questions find their answers/);
+  assert.equal(go().disabled, false);
+  assert.match(p.run("trainingTab(true)").textContent, /How well your knowledge is found.*It measures; it does not change the model/);
+  p.ctx.location.hostname = "127.0.0.1"; p.ctx.location.protocol = "http:"; // the local app still trains
+  p.set("sources", [{ id: "s1", name: "faq.csv", status: "ready", source_type: "faq_table" }]);
+  assert.match(p.run("journeyFooter(true)").textContent, /Train on my knowledge/);
+});
