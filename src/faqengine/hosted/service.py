@@ -107,16 +107,22 @@ class StorageClient:
             note = ""
         return f"storage answered {e.code}" + (f": {note}" if note else "")
 
-    def check(self) -> bool:
-        """Is this key accepted by Storage, and does the knowledge bucket exist? (A public key cannot see the private bucket, so it fails this.)"""
+    def status(self) -> int | None:
+        """Storage's HTTP status for "show me the knowledge bucket" with this key (200 = the key works and the bucket exists; 401/403 = the key is not accepted; 404 = the key sees no such bucket, as a public key would;
+        None = Storage could not be reached, e.g. a wrong SUPABASE_URL). Only the number leaves this method."""
         headers = {"apikey": self.key}
         if self.key.startswith("eyJ"):
             headers["Authorization"] = f"Bearer {self.key}"
         try:
             with urllib.request.urlopen(urllib.request.Request(f"{self.url}/storage/v1/bucket/{urllib.parse.quote(self.bucket)}", headers=headers), timeout=10) as r:  # noqa: S310
-                return r.status == 200
+                return r.status
+        except urllib.error.HTTPError as e:
+            return e.code
         except (urllib.error.URLError, OSError):
-            return False
+            return None
+
+    def check(self) -> bool:
+        return self.status() == 200
 
     def __call__(self, path: str) -> bytes:
         headers = {"apikey": self.key}
@@ -900,15 +906,18 @@ class HostedEngine:
             checks["schema"] = self.store._one("select to_regclass('public.ai_inference_settings') is not null")[0] is True
         except Exception:  # noqa: BLE001 - not ready is the answer; the reason stays in the log
             log.warning("readiness check failed", exc_info=False)
-        storage = getattr(self.fetch_object, "check", None)
-        if storage is not None:  # informational: files cannot be read without it, but questions can still be answered, so it is not part of "ready"
+        probe = getattr(self.fetch_object, "status", None)
+        storage, storage_status = None, None
+        if probe is not None:  # informational: files cannot be read without it, but questions can still be answered, so it is not part of "ready"
             try:
-                checks_storage = bool(storage())
+                storage_status = probe()
             except Exception:  # noqa: BLE001
-                checks_storage = False
-        else:
-            checks_storage = None
-        return {"ready": all(checks.values()), "checks": checks, "storage": checks_storage}
+                storage_status = None
+            storage = storage_status == 200
+        out = {"ready": all(checks.values()), "checks": checks, "storage": storage}
+        if storage is False:
+            out["storage_status"] = storage_status  # 401/403: the key is not accepted; 404: it cannot see the bucket; null: Storage was not reachable (check SUPABASE_URL)
+        return out
 
     def alerts_get(self) -> dict:
         found = alerts.evaluate(self.tele, self.breakers.states())

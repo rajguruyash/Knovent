@@ -161,6 +161,7 @@ def test_a_storage_failure_says_what_storage_answered_and_ready_reports_whether_
         url = f"http://127.0.0.1:{srv.server_port}"
         good, bad = StorageClient(url, "sb_secret_goodkey0123456789"), StorageClient(url, "sb_publishable_notasecret0000")
         assert good.check() is True and bad.check() is False
+        assert good.status() == 200 and bad.status() == 404  # (a key that cannot see the bucket gets a 404, the number is all that is reported)
         assert good("biz/id/there.md") == b"hello"
         with pytest.raises(ServiceError) as e:
             good("biz/id/missing.md")
