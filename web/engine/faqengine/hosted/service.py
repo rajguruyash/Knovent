@@ -98,7 +98,10 @@ class StorageClient:
         self.url, self.key, self.bucket = url.rstrip("/"), service_key, bucket
 
     def __call__(self, path: str) -> bytes:
-        req = urllib.request.Request(f"{self.url}/storage/v1/object/{self.bucket}/{urllib.parse.quote(path)}", headers={"Authorization": f"Bearer {self.key}", "apikey": self.key})
+        headers = {"apikey": self.key}
+        if self.key.startswith("eyJ"):  # a legacy service_role key is a JWT and is also sent as the bearer token; a newer sb_secret_ key is not a JWT and goes in apikey only
+            headers["Authorization"] = f"Bearer {self.key}"
+        req = urllib.request.Request(f"{self.url}/storage/v1/object/{self.bucket}/{urllib.parse.quote(path)}", headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=30) as r:  # noqa: S310 - the address is the project's own, from configuration
                 data = r.read(MAX_FILE_BYTES + 1)

@@ -93,3 +93,38 @@ def test_vercel_routes_the_engine_path_to_the_python_function_before_the_site_re
     assert v["rewrites"][0] == {"source": "/api/engine/:path*", "destination": "/api/engine?p=/:path*"}  # first: /api/engine/v1/x is three segments, which the site's own rewrite would take
     assert "api/engine.py" in v["functions"] and v["functions"]["api/engine.py"]["includeFiles"] == "engine/**"
     assert (ROOT / "web" / "requirements.txt").exists()
+
+
+def test_storage_reads_send_the_key_the_way_its_kind_needs():
+    """A legacy service_role key is a JWT (apikey and bearer); a new sb_secret_ key is not (apikey only). Either way the key reaches only the project's own storage address."""
+    import json as _json
+    import threading as _t
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    from faqengine.hosted.service import StorageClient
+
+    seen = []
+
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            seen.append({k.lower(): v for k, v in self.headers.items()})
+            self.send_response(200)
+            self.send_header("Content-Length", "2")
+            self.end_headers()
+            self.wfile.write(b"ok")
+
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    _t.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        url = f"http://127.0.0.1:{srv.server_port}"
+        assert StorageClient(url, "eyJhbGciOi.payload.sig")("biz/file.csv") == b"ok"
+        assert StorageClient(url, "sb_secret_abcdefghijklmnop")("biz/file.csv") == b"ok"
+    finally:
+        srv.shutdown()
+        srv.server_close()
+    legacy, new = seen
+    assert legacy["apikey"] == "eyJhbGciOi.payload.sig" and legacy["authorization"] == "Bearer eyJhbGciOi.payload.sig"
+    assert new["apikey"] == "sb_secret_abcdefghijklmnop" and "authorization" not in new
