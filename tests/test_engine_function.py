@@ -172,3 +172,20 @@ def test_a_storage_failure_says_what_storage_answered_and_ready_reports_whether_
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_the_key_kind_is_reported_without_the_key():
+    import base64
+    import json as _json
+
+    from faqengine.hosted.service import StorageClient
+
+    def jwt(role):
+        enc = lambda d: base64.urlsafe_b64encode(_json.dumps(d).encode()).decode().rstrip("=")  # noqa: E731
+        return f"{enc({'alg': 'HS256'})}.{enc({'role': role})}.signature"
+
+    kinds = {StorageClient("http://x", k).kind for k in ("sb_secret_a" * 3,)}
+    assert kinds == {"sb_secret"}
+    assert StorageClient("http://x", "sb_publishable_abc").kind == "sb_publishable"
+    assert StorageClient("http://x", jwt("service_role")).kind == "jwt:service_role" and StorageClient("http://x", jwt("anon")).kind == "jwt:anon"
+    assert StorageClient("http://x", "something else").kind == "unrecognised"

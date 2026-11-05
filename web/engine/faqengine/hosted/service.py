@@ -124,6 +124,24 @@ class StorageClient:
     def check(self) -> bool:
         return self.status() == 200
 
+    @property
+    def kind(self) -> str:
+        """What KIND of key this is, never its value: "sb_secret" (a new secret key: right), "sb_publishable" (the public key: wrong here), or for a legacy JWT the role it names ("service_role" is right, "anon" is the public key)."""
+        k = self.key.strip()
+        if k.startswith("sb_secret_"):
+            return "sb_secret"
+        if k.startswith("sb_publishable_"):
+            return "sb_publishable"
+        if k.startswith("eyJ") and k.count(".") == 2:
+            try:
+                import base64
+                part = k.split(".")[1]
+                role = json.loads(base64.urlsafe_b64decode(part + "=" * (-len(part) % 4))).get("role")
+                return f"jwt:{role}" if role in ("anon", "service_role", "authenticated") else "jwt"
+            except (ValueError, OSError):
+                return "jwt"
+        return "unrecognised"
+
     def __call__(self, path: str) -> bytes:
         headers = {"apikey": self.key}
         if self.key.startswith("eyJ"):  # a legacy service_role key is a JWT and is also sent as the bearer token; a newer sb_secret_ key is not a JWT and goes in apikey only
@@ -916,7 +934,8 @@ class HostedEngine:
             storage = storage_status == 200
         out = {"ready": all(checks.values()), "checks": checks, "storage": storage}
         if storage is False:
-            out["storage_status"] = storage_status  # 401/403: the key is not accepted; 404: it cannot see the bucket; null: Storage was not reachable (check SUPABASE_URL)
+            out["storage_status"] = storage_status  # 401/403: the key is not accepted; 404/400: it cannot see the bucket (a public key); null: Storage was not reachable (check SUPABASE_URL)
+            out["storage_key_kind"] = getattr(self.fetch_object, "kind", None)  # the kind of key only: sb_secret is right, sb_publishable / jwt:anon is the public key
         return out
 
     def alerts_get(self) -> dict:
